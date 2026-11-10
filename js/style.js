@@ -13,6 +13,8 @@
     if (style === 'adulte') document.documentElement.dataset.style = 'adulte';
     else delete document.documentElement.dataset.style;
     bouton.setAttribute('aria-checked', String(style === 'adulte'));
+    // L'étiquette indique le mode en cours.
+    bouton.querySelector('.etiquette').textContent = style === 'adulte' ? 'Adulte' : 'Enfant';
   }
 
   bouton.addEventListener('click', () => {
