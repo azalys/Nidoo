@@ -1,6 +1,6 @@
 /*
  * Widget "Urgences" (1×1, côté enfant) : les numéros d'urgence en gros.
- * Le toucher ouvre la liste complète : numéros d'urgence, numéros des parents
+ * Le toucher ouvre la liste : numéros d'urgence, numéros des parents
  * (réglés avec ⚙️) et l'adresse de la maison (à dire aux secours).
  * Sur un téléphone, toucher un numéro lance l'appel.
  *
@@ -12,11 +12,6 @@
     { emoji: '🚒', numero: '18', nom: 'Pompiers', aide: 'Feu, accident, quelqu\'un en danger' },
     { emoji: '🚓', numero: '17', nom: 'Police', aide: 'Quelqu\'un te fait peur ou te veut du mal' },
     { emoji: '🆘', numero: '112', nom: 'Urgences (partout en Europe)', aide: 'Si tu ne sais pas lequel appeler' },
-  ];
-  const AUTRES = [
-    { emoji: '🧏', numero: '114', nom: 'Urgences par SMS', aide: 'Si tu ne peux pas parler' },
-    { emoji: '☠️', numero: '01 40 05 48 48', nom: 'Centre antipoison (Paris)', aide: 'Si tu as avalé quelque chose de dangereux' },
-    { emoji: '🧒', numero: '119', nom: 'Allô Enfance en danger', aide: 'Gratuit, jour et nuit' },
   ];
 
   const tel = (numero) => 'tel:' + numero.replace(/[^0-9+]/g, '');
@@ -71,8 +66,6 @@
              ${NUMEROS.map(ligne).join('')}
              ${contacts.length ? '<h3>👨‍👩‍👧 La famille</h3>' + contacts.map((c) => ligne({ emoji: '📞', ...c })).join('') : ''}
              ${adresse ? `<div class="urgence-adresse"><span>🏠</span><div><small>Notre adresse (à dire aux secours)</small><strong>${Nidoo.echapper(adresse)}</strong></div></div>` : ''}
-             <h3>Autres numéros</h3>
-             ${AUTRES.map(ligne).join('')}
            </div>
            ${!contacts.length || !adresse ? '<p class="aide">Ajoutez les numéros des parents et l\'adresse avec ⚙️ (mode Modifier).</p>' : ''}`
         );
