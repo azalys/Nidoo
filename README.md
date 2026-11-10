@@ -25,7 +25,9 @@ Depuis un ordinateur qui a accès SSH au serveur :
 ./deploy.sh           # envoie les fichiers dans /home/latanieregeek/nidoo
 ```
 
-Indiquer d'abord l'adresse du serveur en haut de `deploy.sh` (variable `SERVEUR`).
+Réglages personnels : copier `deploy.local.exemple` en `deploy.local` et le remplir
+(adresse du serveur, et mot de passe si on n'utilise pas de clé SSH).
+`deploy.local` n'est jamais commité.
 Le serveur doit avoir PHP 8 ou plus.
 Attention : les fichiers retirés du projet sont aussi supprimés sur le serveur.
 

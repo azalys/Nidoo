@@ -6,8 +6,10 @@
 #   ./deploy.sh --test    montre ce qui serait envoyé ou supprimé, sans rien changer
 #
 # À lancer depuis l'ordinateur qui a déjà accès SSH au serveur.
-# Le serveur et le dossier se règlent ci-dessous, ou sans modifier le fichier :
-#   NIDOO_SERVEUR=latanieregeek@mon-serveur.fr ./deploy.sh
+#
+# Réglages personnels (jamais commités) : fichier deploy.local à côté de ce script,
+# voir deploy.local.exemple. On peut y mettre le serveur, le dossier et, si on n'utilise
+# pas de clé SSH, le mot de passe (il faut alors installer "sshpass").
 #
 set -euo pipefail
 
@@ -17,6 +19,27 @@ DOSSIER="${NIDOO_DOSSIER:-/home/latanieregeek/nidoo}"  # dossier de Nidoo sur le
 # -----------------------------------------------------------------------------
 
 cd "$(dirname "$0")"
+
+# Réglages personnels, s'ils existent.
+if [ -f deploy.local ]; then
+  # shellcheck disable=SC1091
+  source deploy.local
+fi
+SERVEUR="${NIDOO_SERVEUR:-$SERVEUR}"
+DOSSIER="${NIDOO_DOSSIER:-$DOSSIER}"
+
+# Avec un mot de passe : sshpass le donne à ssh (variable d'environnement, jamais en clair
+# dans la liste des processus). Sans mot de passe : ssh normal (clé SSH recommandée).
+ssh_cmd=(ssh)
+if [ -n "${NIDOO_MOT_DE_PASSE:-}" ]; then
+  if ! command -v sshpass >/dev/null; then
+    echo "❌ Un mot de passe est réglé dans deploy.local, mais « sshpass » n'est pas installé."
+    echo "   macOS : brew install hudochenkov/sshpass/sshpass   ·   Debian/Ubuntu : sudo apt install sshpass"
+    exit 1
+  fi
+  export SSHPASS="$NIDOO_MOT_DE_PASSE"
+  ssh_cmd=(sshpass -e ssh)
+fi
 
 if [[ "$SERVEUR" == *A_REMPLIR* ]]; then
   echo "❌ Indiquez l'adresse du serveur : variable SERVEUR en haut de deploy.sh,"
@@ -44,6 +67,8 @@ options=(
   --exclude '.gitignore'
   --exclude '.DS_Store'
   --exclude 'deploy.sh'
+  --exclude 'deploy.local'
+  --exclude 'deploy.local.exemple'
 )
 
 if [ "${1:-}" = "--test" ]; then
@@ -53,8 +78,8 @@ fi
 
 echo "🚀 Envoi vers $SERVEUR:$DOSSIER"
 if [ "${1:-}" != "--test" ]; then
-  ssh "$SERVEUR" "mkdir -p '$DOSSIER'"
+  "${ssh_cmd[@]}" "$SERVEUR" "mkdir -p '$DOSSIER'"
 fi
-rsync "${options[@]}" ./ "$SERVEUR:$DOSSIER/"
+rsync "${options[@]}" -e "${ssh_cmd[*]}" ./ "$SERVEUR:$DOSSIER/"
 
 echo "✅ Terminé."

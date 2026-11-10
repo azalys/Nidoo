@@ -1,0 +1,9 @@
+# Copier ce fichier en "deploy.local" et le remplir.
+# deploy.local est ignoré par git : il ne sera jamais commité.
+
+NIDOO_SERVEUR="latanieregeek@mon-serveur.fr"
+NIDOO_DOSSIER="/home/latanieregeek/nidoo"
+
+# Seulement si vous n'utilisez pas de clé SSH (nécessite "sshpass").
+# Les guillemets simples évitent les soucis avec les caractères spéciaux (@, $, !…).
+NIDOO_MOT_DE_PASSE=''
