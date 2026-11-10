@@ -27,6 +27,7 @@
       <span>N</span><span>i</span><span>d</span><span>o</span><span>o</span>
     </h1>
     <div class="actions">
+      <button id="bouton-appareil" class="bouton" hidden>⚙️ Appareil</button>
       <button id="bouton-ajouter" class="bouton" hidden>+ Ajouter</button>
       <button id="bouton-modifier" class="bouton">Modifier</button>
     </div>
@@ -36,6 +37,26 @@
   <main id="grille" class="grille"></main>
 
   <!-- Fenêtre "Ajouter un widget" -->
+  <!-- Fenêtre "⚙️ Appareil" : réglages propres à cet appareil -->
+  <dialog id="appareil" class="galerie">
+    <h2>⚙️ Cet appareil</h2>
+
+    <section class="section-appareil">
+      <h3>🌙 Mode nuit</h3>
+      <p class="aide">Aux heures choisies : écran noir avec juste l'heure, widgets en pause. Toucher l'écran rallume pour 2 minutes.</p>
+      <label class="interrupteur"><input type="checkbox" id="nuit-actif"><span>Activer le mode nuit</span></label>
+      <div class="heures-nuit">
+        <label class="champ"><span>De</span><input type="time" id="nuit-debut"></label>
+        <label class="champ"><span>À</span><input type="time" id="nuit-fin"></label>
+      </div>
+    </section>
+
+    <button id="fermer-appareil" class="bouton bouton-principal">Fermer</button>
+  </dialog>
+
+  <!-- Écran du mode nuit (js/nuit.js) -->
+  <div id="nuit" class="nuit" hidden><div class="nuit-heure"></div></div>
+
   <dialog id="galerie" class="galerie">
     <h2>Ajouter un widget</h2>
     <div id="liste-widgets" class="liste-widgets"></div>
@@ -56,6 +77,7 @@
 
   <!-- 1. Les outils de base -->
   <script src="js/stockage.js"></script>
+  <script src="js/appareil.js"></script>
   <script src="js/widgets.js"></script>
   <script src="js/placement.js"></script>
 
@@ -76,5 +98,8 @@
   <!-- 3. La grille du premier lancement, puis l'application (toujours en dernier) -->
   <script src="js/depart.js"></script>
   <script src="js/app.js"></script>
+
+  <!-- 4. Les fonctions qui s'appuient sur la grille -->
+  <script src="js/nuit.js"></script>
 </body>
 </html>

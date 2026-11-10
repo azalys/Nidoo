@@ -82,6 +82,8 @@ index.html         la page (liste des fichiers JS à charger)
 css/style.css      tous les styles (couleurs et tailles réglables en haut)
 js/stockage.js     lecture / enregistrement dans le localStorage
 js/widgets.js      le catalogue des widgets, les tailles et les couleurs
+js/appareil.js     réglages propres à cet appareil (mode nuit, partage)
+js/nuit.js         le mode nuit
 js/depart.js       les widgets installés au premier lancement
 js/placement.js    calcul de la position des widgets (sans chevauchement)
 js/app.js          la grille, le mode Modifier, le glisser-déposer, les réglages
@@ -102,6 +104,18 @@ api.php            l'API côté serveur (lecture des agendas iCal)
 Le widget apparaît alors dans la fenêtre « + Ajouter ».
 Pour lui donner des réglages (bouton ⚙️), voir `reglages` dans `js/widgets.js`
 et l'exemple de `widgets/routine.js`.
+
+## Mode nuit (⚙️ Appareil, en mode Modifier)
+
+Aux heures choisies (par appareil), l'écran devient noir avec juste l'heure en gris
+très sombre ; tous les widgets sont mis en pause (plus de requêtes internet ni
+d'animations). Toucher l'écran rallume la grille 2 minutes. Pas de mode nuit tant
+qu'un minuteur tourne.
+
+**Pour vraiment économiser la batterie**, il faut baisser la luminosité, ce qu'une page
+web ne peut pas faire. Sur iPad, avec l'application **Raccourcis** → *Automatisation* →
+*Heure de la journée* (ex. 21 h 30) → action *Régler la luminosité* à 0 %, et une
+deuxième automatisation le matin pour la remettre.
 
 ## Taille de l'écran
 

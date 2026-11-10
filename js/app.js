@@ -7,6 +7,7 @@
   const grille = document.getElementById('grille');
   const boutonModifier = document.getElementById('bouton-modifier');
   const boutonAjouter = document.getElementById('bouton-ajouter');
+  const boutonAppareil = document.getElementById('bouton-appareil');
   const galerie = document.getElementById('galerie');
   const listeWidgets = document.getElementById('liste-widgets');
 
@@ -313,6 +314,7 @@
     document.body.classList.toggle('edition', actif);
     boutonModifier.textContent = actif ? 'Terminé' : 'Modifier';
     boutonAjouter.hidden = !actif;
+    boutonAppareil.hidden = !actif;
   }
 
   boutonModifier.addEventListener('click', () => basculerEdition(!modeEdition));
@@ -618,6 +620,26 @@
     });
     sauvegarder();
   }
+
+  // Fenêtre "⚙️ Appareil" (mode nuit, partage…). Les sections écoutent "nidoo:ouverture".
+  const fenetreAppareil = document.getElementById('appareil');
+  boutonAppareil.addEventListener('click', () => {
+    fenetreAppareil.dispatchEvent(new Event('nidoo:ouverture'));
+    fenetreAppareil.showModal();
+  });
+  document.getElementById('fermer-appareil').addEventListener('click', () => fenetreAppareil.close());
+  fenetreAppareil.addEventListener('click', (e) => e.target === fenetreAppareil && fenetreAppareil.close());
+
+  // Ce dont les autres fichiers (mode nuit, partage) ont besoin.
+  Nidoo.grilleApp = {
+    // Arrête tous les widgets et vide la grille (mode nuit).
+    arreter() {
+      nettoyages.forEach((_, id) => nettoyer(id));
+      grille.innerHTML = '';
+    },
+    relancer: () => afficherGrille(),
+    minuteurEnCours: () => etat.widgets.some((w) => w.type === 'minuteur' && w.donnees && w.donnees.fin != null),
+  };
 
   remplirGalerie();
   mesurer();

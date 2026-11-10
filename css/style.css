@@ -927,3 +927,35 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
 .poubelle-bacs .poubelle-bac:only-child { width: min(44cqh, 46cqw); }
 .poubelle-bac span { font-size: min(20cqh, 22cqw); filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.4)); }
 .poubelle.ce-soir .poubelle-bac { animation: sautiller 1.6s ease-in-out infinite; }
+
+/* --- Fenêtre "⚙️ Appareil" --- */
+.section-appareil { text-align: left; margin-bottom: 22px; }
+.section-appareil h3 { margin: 0 0 6px; font-size: 1.25rem; }
+.section-appareil .aide { margin: 0 0 12px; color: var(--texte-doux); line-height: 1.35; }
+.interrupteur { display: flex; align-items: center; gap: 10px; font-weight: 600; cursor: pointer; margin-bottom: 12px; }
+.interrupteur input { width: 24px; height: 24px; accent-color: #3a86ff; }
+.heures-nuit { display: flex; gap: 12px; }
+.heures-nuit .champ { flex: 1; }
+.heures-nuit input:disabled { opacity: 0.5; }
+
+/* --- Mode nuit : noir complet, heure très sombre, rien d'autre --- */
+.nuit {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: #000;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.nuit[hidden] { display: none; }
+.nuit-heure {
+  color: #3a3a3a;
+  font: 600 clamp(64px, 14vw, 180px) / 1 var(--police);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 2px;
+}
+body.nuit { background: #000; }
+body.nuit .barre,
+body.nuit .grille { display: none; }
+body.nuit * { animation: none !important; }
