@@ -577,6 +577,12 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
   letter-spacing: 0.5px;
   opacity: 0.85;
 }
+/* Trait de séparation entre deux jours (pas au-dessus du premier). */
+.agenda-evt + .agenda-jour {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 2px solid color-mix(in srgb, var(--w-texte) 30%, transparent);
+}
 .agenda-evt {
   display: flex;
   gap: 10px;
