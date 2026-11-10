@@ -112,7 +112,12 @@ et l'exemple de `widgets/routine.js`.
 L'interrupteur **Adulte** en haut à droite passe de la version colorée (pour les enfants)
 à une version sobre : fond blanc, cartes à fin filet, typographie élégante
 (Cormorant Garamond pour les titres et les chiffres, Manrope pour le texte).
-Tout le reste est identique. Le choix est propre à chaque appareil.
+Le choix du mode est propre à chaque appareil.
+
+Chaque mode a **sa propre grille** de widgets : basculer l'interrupteur change de grille
+(l'autre reste intacte). La première fois, la grille adulte est vide ; le bouton
+**Copier la grille enfant** en fait une copie (les listes copiées deviennent des listes
+séparées). Les deux grilles sont partagées entre appareils reliés.
 Les styles du mode adulte sont regroupés à la fin de `css/style.css`.
 
 ## Partager entre appareils (⚙️ Appareil, en mode Modifier)

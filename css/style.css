@@ -1228,3 +1228,7 @@ html[data-style="adulte"] .minuteur-principal { background: var(--texte); color:
 @keyframes tourner { to { transform: rotate(360deg); } }
 html[data-style="adulte"] .agenda-recharger { background: #f5f2ed; }
 .edition .agenda-recharger { visibility: hidden; }   /* pas en mode Modifier (le ⚙️ est à cet endroit) */
+
+/* Grille vide : bouton pour copier la grille enfant dans la grille adulte */
+.vide p { margin: 0 0 14px; }
+.vide .aide { font-size: 0.95rem; margin-top: 10px; }

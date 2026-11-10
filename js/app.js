@@ -60,6 +60,15 @@
   convertis.forEach(toucher);
   if (convertis.length > 0) sauvegarder();
 
+  /*
+   * Deux grilles : celle du mode enfant et celle du mode adulte (interrupteur "Adulte").
+   * Chaque widget appartient à l'une des deux (w.grille = 'adulte', sinon enfant).
+   * Les deux sont partagées entre appareils ; seule celle du mode en cours est affichée.
+   */
+  const grilleActive = () => (document.documentElement.dataset.style === 'adulte' ? 'adulte' : 'enfant');
+  const estAffiche = (w) => (w.grille || 'enfant') === grilleActive();
+  const widgetsAffiches = () => etat.widgets.filter(estAffiche);
+
   function trouverWidget(id) {
     return etat.widgets.find((w) => w.id === id);
   }
@@ -130,7 +139,7 @@
   function afficherGrille() {
     nettoyages.forEach((_, id) => nettoyer(id));
     grille.innerHTML = '';
-    etat.widgets.forEach((w) => grille.appendChild(creerCase(w)));
+    widgetsAffiches().forEach((w) => grille.appendChild(creerCase(w)));
     afficherMessageVide();
     placer();
   }
@@ -181,9 +190,9 @@
    * Un simple changement de taille de fenêtre ne les enregistre pas.
    */
   function placer({ enregistrer = false, prioritaire } = {}) {
-    placement = Nidoo.placement.calculer(etat.widgets, colonnes, prioritaire);
+    placement = Nidoo.placement.calculer(widgetsAffiches(), colonnes, prioritaire);
     if (enregistrer) {
-      etat.widgets.forEach((w) => {
+      widgetsAffiches().forEach((w) => {
         const p = placement.get(w.id);
         if (w.x !== p.x || w.y !== p.y) toucher(w);
         w.x = p.x;
@@ -230,14 +239,37 @@
 
   function afficherMessageVide() {
     const message = grille.querySelector('.vide');
-    if (etat.widgets.length === 0 && !message) {
+    const vide = widgetsAffiches().length === 0;
+    if (vide && !message) {
+      // Grille adulte vide alors que la grille enfant a des widgets : on propose de la copier.
+      const copiable = grilleActive() === 'adulte' && etat.widgets.some((w) => (w.grille || 'enfant') === 'enfant');
       grille.insertAdjacentHTML(
         'beforeend',
-        '<p class="vide">La grille est vide.<br>Touchez « Modifier » puis « + Ajouter ».</p>'
+        '<div class="vide"><p>La grille ' + (grilleActive() === 'adulte' ? 'adulte ' : '') + 'est vide.<br>' +
+          'Touchez « Modifier » puis « + Ajouter ».</p>' +
+          (copiable ? '<button class="bouton copier-grille">Copier la grille enfant</button>' +
+            '<p class="aide">Les widgets sont copiés : une liste copiée devient une liste séparée.</p>' : '') +
+          '</div>'
       );
-    } else if (etat.widgets.length > 0 && message) {
+      grille.querySelector('.copier-grille')?.addEventListener('click', copierGrilleEnfant);
+    } else if (!vide && message) {
       message.remove();
     }
+  }
+
+  /* Copie les widgets de la grille enfant dans la grille adulte (nouvelles copies indépendantes). */
+  function copierGrilleEnfant() {
+    etat.widgets
+      .filter((w) => (w.grille || 'enfant') === 'enfant')
+      .forEach((w) => {
+        const copie = JSON.parse(JSON.stringify(w));
+        copie.id = nouvelIdentifiant();
+        copie.grille = 'adulte';
+        copie.maj = Date.now();
+        etat.widgets.push(copie);
+      });
+    sauvegarder();
+    afficherGrille();
   }
 
   /* ------------------------------------------------------------------ */
@@ -256,6 +288,7 @@
       donnees: { ...(definition.donneesParDefaut || {}), ...(options.donnees || {}) },
       maj: Date.now(),
     };
+    if (grilleActive() === 'adulte') w.grille = 'adulte';
     if (Number.isInteger(options.x) && Number.isInteger(options.y)) {
       w.x = options.x;
       w.y = options.y;
@@ -305,7 +338,7 @@
 
   /* Enregistre dans chaque widget la position où il est affiché maintenant. */
   function gelerPositions() {
-    etat.widgets.forEach((w) => {
+    widgetsAffiches().forEach((w) => {
       const p = placement.get(w.id);
       if (p) {
         w.x = p.x;
@@ -688,6 +721,10 @@
 
     changes.forEach((c) => {
       const caseWidget = grille.querySelector('.widget[data-id="' + c.id + '"]');
+      if (!estAffiche(trouverWidget(c.id))) {
+        caseWidget?.remove(); // widget de l'autre grille : rien à afficher
+        return;
+      }
       if (c.nouveau || !caseWidget) {
         if (!caseWidget) grille.appendChild(creerCase(trouverWidget(c.id)));
       } else if (caseWidget.contains(document.activeElement) && document.activeElement.tagName === 'TEXTAREA') {
@@ -757,6 +794,13 @@
       if (!grilleArretee) afficherGrille();
     },
   };
+
+  // Interrupteur enfant / adulte (js/style.js) : on affiche l'autre grille.
+  document.addEventListener('nidoo:style', () => {
+    if (grilleArretee) return;
+    mesurer();
+    afficherGrille();
+  });
 
   remplirGalerie();
   mesurer();
