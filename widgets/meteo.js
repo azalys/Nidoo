@@ -84,26 +84,42 @@
         if (!derniere) return;
         const date = derniere.daily.time[numero]; // ex. "2026-11-10"
         const h = derniere.hourly;
-        let cartes = '';
+
+        // Les heures de la journée, de 7 h à 21 h.
+        const heures = [];
         h.time.forEach((t, i) => {
           const heure = Number(t.slice(11, 13));
           if (!t.startsWith(date) || heure < HEURE_DEBUT || heure > HEURE_FIN) return;
           const [icone, texte] = decrire(h.weather_code[i], h.is_day[i] === 0);
-          const pluie = h.precipitation_probability[i];
-          cartes += `
-            <div class="heure-carte">
-              <div class="heure-heure">${heure} h</div>
-              <div class="heure-icone" title="${texte}">${icone}</div>
-              <div class="heure-temp">${arrondi(h.temperature_2m[i])}</div>
-              <div class="heure-pluie${pluie >= 50 ? ' forte' : ''}">💧 ${pluie ?? '–'} %</div>
-            </div>`;
+          heures.push({ heure, temp: h.temperature_2m[i], pluie: h.precipitation_probability[i], icone, texte });
         });
+        if (heures.length < 2) return;
+
+        // Le graphique (voir widgets/meteo-graphique.js).
+        const maintenant = new Date();
+        const graphique = Nidoo.graphiqueMeteo(heures, {
+          maintenant: numero === 0 ? maintenant.getHours() + maintenant.getMinutes() / 60 : null,
+        });
+
+        // Les mêmes valeurs en tableau, repliées (pour qui préfère lire des chiffres).
+        const cartes = heures.map((x) => `
+            <div class="heure-carte">
+              <div class="heure-heure">${x.heure} h</div>
+              <div class="heure-icone" title="${x.texte}">${x.icone}</div>
+              <div class="heure-temp">${arrondi(x.temp)}</div>
+              <div class="heure-pluie${x.pluie >= 50 ? ' forte' : ''}">💧 ${x.pluie ?? '–'} %</div>
+            </div>`).join('');
+
         const lieu = widget.donnees.lieu ? ' · ' + widget.donnees.lieu.nom : '';
-        Nidoo.ouvrirPopin(
+        const contenu = Nidoo.ouvrirPopin(
           (numero === 0 ? "Météo d'aujourd'hui" : 'Météo de demain') + lieu,
-          `<div class="heures">${cartes}</div>
-           <p class="heures-legende">💧 = risque de pluie</p>`
+          `${graphique.html}
+           <details class="heures-tableau">
+             <summary>Voir en tableau</summary>
+             <div class="heures">${cartes}</div>
+           </details>`
         );
+        graphique.brancher(contenu);
       }
       zone.addEventListener('click', (e) => {
         const jour = e.target.closest('[data-jour]');

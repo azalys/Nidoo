@@ -24,6 +24,10 @@
   --hauteur-barre: 64px;      /* hauteur de la barre du haut */
 
 
+  --courbe-temp: #c27400;     /* graphique météo : température (contraste vérifié sur le fond) */
+  --courbe-pluie: #2f7de1;    /* graphique météo : risque de pluie */
+  --grille: rgba(59, 42, 92, 0.12);
+
   --police: "Fredoka", ui-rounded, "SF Pro Rounded", "Arial Rounded MT Bold", system-ui, sans-serif;
 }
 
@@ -36,6 +40,9 @@
     --texte-doux: #a9a2d0;
     --bouton: #34306a;
     --bouton-ombre: #16132e;
+    --courbe-temp: #c27f18;
+    --courbe-pluie: #4f93ec;
+    --grille: rgba(244, 240, 255, 0.12);
   }
 }
 
@@ -747,7 +754,6 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
 .heure-pluie { font-size: 0.85rem; opacity: 0.75; }
 .heure-pluie.forte { opacity: 1; color: #1d63d6; }
 @media (prefers-color-scheme: dark) { .heure-pluie.forte { color: #7fb0ff; } }
-.heures-legende { margin: 12px 0 0; font-size: 0.9rem; color: var(--texte-doux); }
 
 /* Courses en 1×2 : plus compact pour garder de la place à la liste. */
 .taille-moyen .liste-widget .widget-entete { padding: 8px 14px 2px; font-size: 1.05rem; }
@@ -756,3 +762,33 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
 .taille-moyen .liste-widget .ajout { padding: 4px 12px 10px; }
 .taille-moyen .liste-widget .ajout input { padding: 6px 12px; }
 .taille-moyen .liste-widget .ajout button { width: 34px; height: 34px; font-size: 1.4rem; }
+
+/* --- Graphique météo (widgets/meteo-graphique.js) --- */
+.graph-lecture {
+  min-height: 1.6em;
+  margin: 0 0 6px;
+  font-size: 1.1rem;
+  color: var(--texte);
+}
+.graph-meteo { display: block; width: 100%; height: auto; touch-action: none; user-select: none; -webkit-user-select: none; }
+.graph-titre  { fill: var(--texte); font: 600 15px var(--police); }
+.graph-axe    { fill: var(--texte-doux); font: 500 13px var(--police); }
+.graph-valeur { fill: var(--texte); font: 700 15px var(--police); }
+.graph-icone  { font-size: 22px; }
+.graph-grille { stroke: var(--grille); stroke-width: 1; }
+.graph-maintenant { stroke: var(--texte-doux); stroke-width: 1; stroke-dasharray: 3 4; }
+.graph-ligne-temp,
+.graph-ligne-pluie { fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.graph-ligne-temp  { stroke: var(--courbe-temp); }
+.graph-ligne-pluie { stroke: var(--courbe-pluie); }
+.graph-zone-temp   { fill: var(--courbe-temp); opacity: 0.12; }
+.graph-zone-pluie  { fill: var(--courbe-pluie); opacity: 0.2; }
+.graph-point-temp,
+.graph-point-pluie { stroke: var(--fond); stroke-width: 2.5; }
+.graph-point-temp  { fill: var(--courbe-temp); }
+.graph-point-pluie { fill: var(--courbe-pluie); }
+.graph-repere-ligne { stroke: var(--texte-doux); stroke-width: 1.5; }
+.graph-toucher { fill: transparent; cursor: crosshair; }
+
+.heures-tableau { margin-top: 14px; text-align: left; }
+.heures-tableau summary { cursor: pointer; color: var(--texte-doux); font-weight: 600; margin-bottom: 10px; }

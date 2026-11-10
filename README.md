@@ -39,7 +39,7 @@ que le serveur l'a reçue (fichier `version.txt`).
 
 | Widget | Tailles | Source des données |
 |---|---|---|
-| 🌤️ Météo | petit : aujourd'hui · moyen : aujourd'hui + demain ; toucher un jour = détail heure par heure de 7 h à 21 h | [Open-Meteo](https://open-meteo.com), gratuit, sans clé |
+| 🌤️ Météo | petit : aujourd'hui · moyen : aujourd'hui + demain ; toucher un jour = graphique de 7 h à 21 h (température, risque de pluie, temps heure par heure) | [Open-Meteo](https://open-meteo.com), gratuit, sans clé |
 | ⚡ Tempo EDF | petit : couleur du moment · moyen : aujourd'hui + demain | [api-couleur-tempo.fr](https://www.api-couleur-tempo.fr), gratuit, sans clé |
 | 🛒 Courses | 1×2, 2×2 | cocher un article le retire, « + » pour ajouter |
 | ✅ Routine | grand | matin avant midi, soir après midi ; étapes réglables avec ⚙️ |
