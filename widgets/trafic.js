@@ -1,6 +1,8 @@
 /*
  * Widget "Trafic" (1×1 ou 1×2) : temps de trajet avec le trafic et heure d'arrivée prévue.
- * Le toucher ouvre la carte du trajet, colorée selon le trafic.
+ * Le toucher ouvre la carte du trajet, colorée selon le trafic. Dans cette fenêtre, on peut
+ * changer le départ et l'arrivée pour cette fois (⇅ inverse les deux, "Par défaut" revient
+ * aux adresses réglées dans ⚙️).
  * Mise à jour toutes les 15 minutes, et tout de suite avec ↻.
  *
  * Données : TomTom (offre gratuite : il faut une clé, à créer sur developer.tomtom.com),
@@ -94,7 +96,7 @@
     trajet.bouchons.forEach((b) => L.polyline(trajet.points.slice(b.debut, b.fin + 1), { color: b.couleur, weight: 7 }).addTo(carte));
     const marqueur = (point, emoji) =>
       L.marker(point, { icon: L.divIcon({ className: 'trafic-marqueur', html: emoji, iconSize: [34, 34] }) }).addTo(carte);
-    marqueur(trajet.points[0], '🏠');
+    marqueur(trajet.points[0], '🚗'); // départ
     marqueur(trajet.points[trajet.points.length - 1], '📍');
     carte.fitBounds(contour.getBounds(), { padding: [24, 24] });
     return carte;
@@ -176,23 +178,98 @@
           return;
         }
         if (!trajet) return;
-        if (trajet.exemple || !trajet.points.length) {
-          Nidoo.ouvrirPopin('🚗 ' + (d().titre || 'Trajet'), '<p>La carte s\'affichera quand la clé TomTom et les deux adresses seront réglées (⚙️ en mode Modifier).</p>');
-          return;
-        }
+        ouvrirTrajet();
+      });
+
+      /*
+       * La fenêtre du trajet : on peut y changer le départ et l'arrivée (pour cette fois
+       * seulement : les réglages du widget ne changent pas), inverser les deux, ou revenir
+       * aux adresses par défaut réglées dans ⚙️.
+       */
+      function ouvrirTrajet() {
         const contenu = Nidoo.ouvrirPopin(
           `🚗 ${d().titre || 'Trajet'}`,
-          `<p class="trafic-resume">${minutes(trajet.duree)} · arrivée ${heure(trajet.arrivee)}${trajet.retard >= 60 ? ` · <span class="trafic-retard">+${minutes(trajet.retard)} de bouchons</span>` : ''}</p>
+          `<form class="trafic-adresses">
+             <label class="champ"><span>Départ</span><input name="depart" autocomplete="off"></label>
+             <button type="button" class="bouton trafic-inverser" aria-label="Inverser départ et arrivée" title="Inverser">⇅</button>
+             <label class="champ"><span>Arrivée</span><input name="arrivee" autocomplete="off"></label>
+             <div class="trafic-actions">
+               <button type="button" class="bouton trafic-defaut">↺ Par défaut</button>
+               <button type="submit" class="bouton bouton-principal">Calculer</button>
+             </div>
+           </form>
+           <p class="trafic-resume"></p>
            <div class="trafic-carte"></div>
            <p class="trafic-legende"><i style="background:${COULEURS.fluide}"></i>Fluide <i style="background:${COULEURS.ralenti}"></i>Ralenti <i style="background:${COULEURS.bouchon}"></i>Bouchon</p>`
         );
-        try {
-          const carte = await dessinerCarte(contenu.querySelector('.trafic-carte'), trajet, d().cle);
-          contenu.closest('dialog').addEventListener('close', () => carte.remove(), { once: true });
-        } catch (erreur) {
-          contenu.querySelector('.trafic-carte').innerHTML = '<p class="widget-message">📡 ' + Nidoo.echapper(erreur.message) + '</p>';
+        const form = contenu.querySelector('form');
+        const resume = contenu.querySelector('.trafic-resume');
+        const zoneCarte = contenu.querySelector('.trafic-carte');
+        let carte = null;
+
+        function afficher(t) {
+          resume.innerHTML = `${minutes(t.duree)} · arrivée ${heure(t.arrivee)}` +
+            (t.retard >= 60 ? ` · <span class="trafic-retard">+${minutes(t.retard)} de bouchons</span>` : ' · <span class="trafic-fluide">Fluide</span>');
         }
-      });
+
+        async function dessiner(t) {
+          if (carte) carte.remove();
+          carte = null;
+          zoneCarte.innerHTML = '';
+          try {
+            carte = await dessinerCarte(zoneCarte, t, d().cle);
+          } catch (erreur) {
+            zoneCarte.innerHTML = '<p class="widget-message">📡 ' + Nidoo.echapper(erreur.message) + '</p>';
+          }
+        }
+
+        function remplirParDefaut() {
+          form.elements.depart.value = d().depart || '';
+          form.elements.arrivee.value = d().arrivee || '';
+        }
+
+        // Le trajet habituel (déjà calculé par le widget).
+        function trajetParDefaut() {
+          remplirParDefaut();
+          if (trajet && !trajet.exemple && trajet.points.length) {
+            afficher(trajet);
+            dessiner(trajet);
+          } else {
+            resume.textContent = 'Réglez la clé TomTom et les adresses avec ⚙️ (mode Modifier), ou tapez deux adresses ci-dessus.';
+          }
+        }
+
+        form.addEventListener('submit', async (ev) => {
+          ev.preventDefault();
+          const depart = form.elements.depart.value.trim();
+          const arrivee = form.elements.arrivee.value.trim();
+          if (!depart || !arrivee) return;
+          if (!d().cle) {
+            resume.textContent = 'Il faut d\'abord régler la clé TomTom avec ⚙️ (mode Modifier).';
+            return;
+          }
+          resume.textContent = 'Calcul…';
+          try {
+            const [a, b] = await Promise.all([Nidoo.trouverAdresse(depart), Nidoo.trouverAdresse(arrivee)]);
+            const t = await calculerTrajet(a, b, d().cle);
+            afficher(t);
+            dessiner(t);
+          } catch (erreur) {
+            resume.textContent = '📡 ' + Nidoo.messageErreur(erreur);
+          }
+        });
+
+        contenu.querySelector('.trafic-inverser').addEventListener('click', () => {
+          const depart = form.elements.depart.value;
+          form.elements.depart.value = form.elements.arrivee.value;
+          form.elements.arrivee.value = depart;
+          form.requestSubmit();
+        });
+        contenu.querySelector('.trafic-defaut').addEventListener('click', trajetParDefaut);
+        contenu.closest('dialog').addEventListener('close', () => carte && carte.remove(), { once: true });
+
+        trajetParDefaut();
+      }
 
       mettreAJour();
       const minuteur = setInterval(mettreAJour, ACTUALISER_MS);
