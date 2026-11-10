@@ -44,7 +44,7 @@ que le serveur l'a reçue (fichier `version.txt`).
 | 🛒 Courses | grand | cocher un article le retire, « + » pour ajouter |
 | ✅ Routine | grand | matin avant midi, soir après midi ; étapes réglables avec ⚙️ |
 | 📅 Agenda | grand | adresse iCal de l'agenda, lue par `api.php` ; exemples tant qu'elle n'est pas réglée |
-| ⏰ Minuteur | 1×1, 1×2, 2×2 | minuteur de cuisine : − / + pour les minutes et les secondes, ▶/⏸, ↺ ; sonne à la fin ; empêche la mise en veille tant qu'il tourne (page en https uniquement) |
+| ⏰ Minuteur | 1×1, 1×2, 2×2 | minuteur de cuisine : + / − pour les minutes et les secondes, ▶/⏸, ↺ ; sonne à la fin ; empêche la mise en veille tant qu'il tourne (page en https uniquement) |
 | 🧹 Corvées | petit | qui s'en occupe aujourd'hui (et demain) ; rotation jours pairs/impairs, chaque jour ou chaque semaine (⚙️) |
 | 🕒 Horloge, 📝 Note | petit, moyen, grand | — |
 
@@ -104,7 +104,7 @@ et l'exemple de `widgets/routine.js`.
 ## Taille de l'écran
 
 La grille a une taille fixe et remplit tout l'écran :
-5 colonnes × 4 lignes à l'horizontale, 4 × 5 à la verticale
+8 colonnes × 4 lignes à l'horizontale, 4 × 8 à la verticale
 (réglables en haut de `css/style.css`). Sur un téléphone : 2 colonnes, on fait défiler.
 Les positions sont enregistrées par appareil. En passant à la verticale, les widgets
 qui ne tiennent plus vont à la première place libre.

@@ -15,10 +15,10 @@
   --marge: 20px;              /* espace autour de la grille */
   --ecart: 16px;              /* espace entre les widgets */
   /* Taille de la grille : elle remplit tout l'écran (calcul dans js/app.js). */
-  --colonnes-horizontale: 5;  /* écran à l'horizontale (tablette, ordinateur) */
+  --colonnes-horizontale: 8;  /* écran à l'horizontale (tablette, ordinateur) */
   --lignes-horizontale: 4;
   --colonnes-verticale: 4;    /* écran à la verticale */
-  --lignes-verticale: 5;
+  --lignes-verticale: 8;
   --arrondi: 26px;            /* coins arrondis des widgets */
   --relief: 6px;              /* épaisseur de l'effet "relief" sous les widgets */
   --hauteur-barre: 64px;      /* hauteur de la barre du haut */
@@ -138,7 +138,7 @@ button {
 
 .grille {
   display: grid;
-  grid-template-columns: repeat(var(--colonnes, 5), minmax(0, 1fr));
+  grid-template-columns: repeat(var(--colonnes, 8), minmax(0, 1fr));
   grid-auto-rows: var(--case, 160px);
   gap: calc(var(--ecart) + var(--relief)) var(--ecart);
   padding: 12px var(--marge) calc(env(safe-area-inset-bottom) + var(--marge) + var(--relief));
@@ -596,6 +596,7 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
 }
 .agenda-evt {
   display: flex;
+  align-items: flex-start;   /* la pastille d'heure ne s'étire pas si le titre fait 2 lignes */
   gap: 10px;
   font-size: 1.05rem;
   font-weight: 600;
@@ -620,9 +621,9 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
 }
 
 /* --- Minuteur (façon minuteur de cuisine) --- */
-/*    −   ↺   −                                                         */
+/*    +   ↺   +                                                         */
 /*   MM   :   SS                                                        */
-/*    +   ▶   +                                                         */
+/*    −   ▶   −                                                         */
 .minuteur {
   height: 100%;
   display: grid;
@@ -632,14 +633,14 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
   padding: 4cqh 6cqw;
 }
 .minuteur-chiffres {
-  font-size: 36cqmin;
+  font-size: min(36cqmin, 25cqw);   /* tient aussi dans une case étroite */
   font-weight: 700;
   line-height: 1;
   font-variant-numeric: tabular-nums;
   text-shadow: 0 1cqmin 0 rgba(0, 0, 0, 0.15);
 }
 .minuteur-deux-points {
-  font-size: 28cqmin;
+  font-size: min(28cqmin, 18cqw);
   font-weight: 700;
   line-height: 1;
   padding-bottom: 3cqmin;

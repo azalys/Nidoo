@@ -1,11 +1,11 @@
 /*
  * Widget "Minuteur" : un minuteur de cuisine (œufs, pâtes…) qui sonne à la fin.
  *
- *     −    ↺    −
+ *     +    ↺    +
  *    MM    :    SS
- *     +    ▶    +
+ *     −    ▶    −
  *
- * − / + règlent les minutes et les secondes (en gardant le doigt appuyé, ça défile vite).
+ * + / − règlent les minutes et les secondes (en gardant le doigt appuyé, ça défile vite).
  * À la fin ça sonne ; "Stop" remet le temps réglé, prêt pour la fois suivante.
  *
  * Le son est fabriqué par le navigateur (Web Audio), pas besoin de fichier.
@@ -94,6 +94,16 @@
 
   const deuxChiffres = (n) => String(n).padStart(2, '0');
 
+  // Icônes dessinées (et pas des emojis, qui changent de couleur selon l'appareil).
+  // Elles prennent la couleur du bouton (currentColor).
+  const svg = (forme) => `<svg viewBox="0 0 24 24" width="55%" height="55%" aria-hidden="true">${forme}</svg>`;
+  const ICONES = {
+    lecture: svg('<path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.5-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z" fill="currentColor"/>'),
+    pause: svg('<rect x="6" y="5" width="4.5" height="14" rx="1.5" fill="currentColor"/><rect x="13.5" y="5" width="4.5" height="14" rx="1.5" fill="currentColor"/>'),
+    stop: svg('<rect x="6" y="6" width="12" height="12" rx="2.5" fill="currentColor"/>'),
+    ok: svg('<path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"/>'),
+  };
+
   // 390 000 ms → ["06", "30"]
   function minutesSecondes(ms) {
     const total = Math.ceil(Math.max(0, ms) / 1000);
@@ -113,17 +123,17 @@
     afficher(zone, widget) {
       zone.innerHTML = `
         <div class="minuteur">
-          <button class="minuteur-bouton" data-reglage="-60" aria-label="Une minute de moins">−</button>
+          <button class="minuteur-bouton" data-reglage="60" aria-label="Une minute de plus">+</button>
           <button class="minuteur-bouton minuteur-petit" data-action="zero" aria-label="Remettre au temps réglé">↺</button>
-          <button class="minuteur-bouton" data-reglage="-${PAS_SECONDES}" aria-label="Moins de secondes">−</button>
+          <button class="minuteur-bouton" data-reglage="${PAS_SECONDES}" aria-label="Plus de secondes">+</button>
 
           <div class="minuteur-chiffres minuteur-minutes">00</div>
           <div class="minuteur-deux-points">:</div>
           <div class="minuteur-chiffres minuteur-secondes">00</div>
 
-          <button class="minuteur-bouton" data-reglage="60" aria-label="Une minute de plus">+</button>
-          <button class="minuteur-bouton minuteur-principal" data-action="principal" aria-label="Démarrer">▶</button>
-          <button class="minuteur-bouton" data-reglage="${PAS_SECONDES}" aria-label="Plus de secondes">+</button>
+          <button class="minuteur-bouton" data-reglage="-60" aria-label="Une minute de moins">−</button>
+          <button class="minuteur-bouton minuteur-principal" data-action="principal" aria-label="Démarrer"></button>
+          <button class="minuteur-bouton" data-reglage="-${PAS_SECONDES}" aria-label="Moins de secondes">−</button>
         </div>`;
 
       const boite = zone.querySelector('.minuteur');
@@ -169,13 +179,13 @@
         boite.classList.toggle('termine', fini());
 
         if (fini()) {
-          principal.textContent = sonnerie ? '🔕' : '✓';
+          principal.innerHTML = sonnerie ? ICONES.stop : ICONES.ok;
           principal.setAttribute('aria-label', 'Arrêter');
         } else if (tourne()) {
-          principal.textContent = '⏸';
+          principal.innerHTML = ICONES.pause;
           principal.setAttribute('aria-label', 'Pause');
         } else {
-          principal.textContent = '▶';
+          principal.innerHTML = ICONES.lecture;
           principal.setAttribute('aria-label', 'Démarrer');
         }
         principal.disabled = !fini() && !tourne() && restant() <= 0;

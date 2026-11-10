@@ -120,13 +120,13 @@
   /* Taille des cases et position des widgets                           */
   /* ------------------------------------------------------------------ */
 
-  let colonnes = 5;     // colonnes de la grille (réglées en haut de css/style.css)
+  let colonnes = 8;     // colonnes de la grille (réglées en haut de css/style.css)
   let lignesEcran = 4;  // lignes qui tiennent dans la hauteur de l'écran
   let placement = new Map();
 
   /*
-   * Grille fixe qui remplit tout l'écran : à l'horizontale 5 colonnes × 4 lignes,
-   * à la verticale 4 × 5 (réglages en haut de css/style.css).
+   * Grille fixe qui remplit tout l'écran : à l'horizontale 8 colonnes × 4 lignes,
+   * à la verticale 4 × 8 (réglages en haut de css/style.css).
    * Les colonnes se partagent la largeur, les lignes la hauteur.
    * Sur un petit écran (téléphone) : 2 colonnes et on fait défiler.
    */
