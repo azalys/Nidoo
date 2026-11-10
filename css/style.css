@@ -959,3 +959,38 @@ body.nuit { background: #000; }
 body.nuit .barre,
 body.nuit .grille { display: none; }
 body.nuit * { animation: none !important; }
+
+/* Section "Partager avec un autre appareil" */
+.partage-code { text-align: center; margin: 4px 0 14px; }
+.code-gros {
+  display: inline-block;
+  padding: 10px 26px;
+  border-radius: 20px;
+  background: var(--bouton);
+  box-shadow: 0 5px 0 var(--bouton-ombre);
+  font-size: 3rem;
+  font-weight: 700;
+  letter-spacing: 0.35em;
+  padding-right: calc(26px - 0.35em);
+  font-variant-numeric: tabular-nums;
+}
+.partage-code .aide { margin-top: 10px; }
+.partage-boutons { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.partage-rejoindre { display: flex; gap: 10px; }
+.partage-rejoindre input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 14px;
+  border: 3px solid var(--bouton-ombre);
+  border-radius: 16px;
+  background: var(--bouton);
+  color: var(--texte);
+  font: inherit;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.partage-rejoindre input::placeholder { letter-spacing: normal; text-transform: none; font-weight: 500; }
+.erreur { color: #c62828; font-weight: 600; margin: 8px 0 0; min-height: 1em; }
+@media (prefers-color-scheme: dark) { .erreur { color: #ff8a8a; } }
+#appareil { max-height: calc(100dvh - 32px); overflow-y: auto; }

@@ -84,6 +84,7 @@ js/stockage.js     lecture / enregistrement dans le localStorage
 js/widgets.js      le catalogue des widgets, les tailles et les couleurs
 js/appareil.js     réglages propres à cet appareil (mode nuit, partage)
 js/nuit.js         le mode nuit
+js/synchro.js      le partage entre appareils (code, synchronisation)
 js/depart.js       les widgets installés au premier lancement
 js/placement.js    calcul de la position des widgets (sans chevauchement)
 js/app.js          la grille, le mode Modifier, le glisser-déposer, les réglages
@@ -104,6 +105,24 @@ api.php            l'API côté serveur (lecture des agendas iCal)
 Le widget apparaît alors dans la fenêtre « + Ajouter ».
 Pour lui donner des réglages (bouton ⚙️), voir `reglages` dans `js/widgets.js`
 et l'exemple de `widgets/routine.js`.
+
+## Partager entre appareils (⚙️ Appareil, en mode Modifier)
+
+1. Sur l'appareil qui a la bonne grille : **Afficher un code** (ex. `4T2B`, valable 10 minutes).
+2. Sur l'autre appareil : taper ce code puis **Relier**. Il reprend toute la grille, à l'identique.
+3. Ensuite, les appareils restent synchronisés : une modification apparaît sur les autres
+   en une vingtaine de secondes (5 minutes en mode nuit).
+
+- Il faut que Nidoo soit servi par PHP (`api.php`) : les données partagées sont gardées
+  dans des fichiers JSON sur le serveur, dans `../nidoo-donnees/` (à côté du site, hors
+  d'internet) ou, à défaut, dans `donnees/` protégé par un `.htaccess`.
+  `deploy.sh` ne touche jamais à ces dossiers.
+- Si deux appareils modifient le même widget en même temps, la modification la plus
+  récente gagne ; pour les Listes, les ajouts des deux côtés sont gardés.
+- Le mode nuit reste propre à chaque appareil. **Délier cet appareil** arrête la synchro
+  (il garde sa grille).
+- Les adresses iCal des agendas font partie de la grille : elles sont donc aussi
+  enregistrées sur le serveur.
 
 ## Mode nuit (⚙️ Appareil, en mode Modifier)
 

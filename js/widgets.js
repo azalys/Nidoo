@@ -49,6 +49,8 @@ Nidoo.catalogue = {};
  *                   'date' (ex. "2026-12-19"), 'heure' (ex. "21:30"),
  *                   'jours' (jours de la semaine à cocher : [1, 4] = lundi et jeudi).
  *                   Les valeurs saisies sont rangées dans widget.donnees[cle].
+ *   fusionner(a, b) (facultatif) pour le partage entre appareils : réunit les données
+ *                   d'un même widget modifié sur deux appareils (b = la plus récente).
  *   afficher(zone, widget)
  *       Dessine le widget dans `zone` (un élément HTML vide).
  *       `widget` contient :

@@ -51,6 +51,24 @@
       </div>
     </section>
 
+    <section class="section-appareil">
+      <h3>🔗 Partager avec un autre appareil</h3>
+      <p class="aide" id="partage-statut"></p>
+      <div class="partage-code" id="partage-code" hidden>
+        <div class="code-gros"></div>
+        <div class="aide code-expire"></div>
+      </div>
+      <div class="partage-boutons">
+        <button class="bouton" id="partage-afficher" type="button">Afficher un code</button>
+        <button class="bouton" id="partage-delier" type="button" hidden>Délier cet appareil</button>
+      </div>
+      <form id="partage-rejoindre" class="partage-rejoindre">
+        <input id="partage-saisie" maxlength="4" placeholder="J'ai un code (ex. 4T2B)" autocapitalize="characters" autocomplete="off" spellcheck="false" aria-label="Code de partage">
+        <button class="bouton bouton-principal" type="submit">Relier</button>
+      </form>
+      <p class="erreur" id="partage-erreur"></p>
+    </section>
+
     <button id="fermer-appareil" class="bouton bouton-principal">Fermer</button>
   </dialog>
 
@@ -101,5 +119,6 @@
 
   <!-- 4. Les fonctions qui s'appuient sur la grille -->
   <script src="js/nuit.js"></script>
+  <script src="js/synchro.js"></script>
 </body>
 </html>

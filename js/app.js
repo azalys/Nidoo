@@ -16,8 +16,19 @@
   // Pour chaque widget affiché : sa fonction de nettoyage (voir js/widgets.js).
   const nettoyages = new Map();
 
+  // Les widgets supprimés (id → date), pour que la suppression se propage aux autres appareils.
+  etat.supprimes = etat.supprimes && !Array.isArray(etat.supprimes) ? etat.supprimes : {};
+
   function sauvegarder() {
     Nidoo.stockage.enregistrer(etat);
+    // Prévient le partage entre appareils (js/synchro.js) qu'il y a du nouveau.
+    document.dispatchEvent(new Event('nidoo:modifie'));
+  }
+
+  // Date de dernière modification d'un widget : en cas de modifications sur deux
+  // appareils, c'est la plus récente qui gagne (voir js/synchro.js).
+  function toucher(w) {
+    w.maj = Date.now();
   }
 
   function nouvelIdentifiant() {
@@ -45,7 +56,9 @@
   });
 
   // Les anciens widgets "Courses" deviennent des Listes "🛒 Courses" (voir widgets/liste.js).
-  if (etat.widgets.filter((w) => Nidoo.convertirCourses(w)).length > 0) sauvegarder();
+  const convertis = etat.widgets.filter((w) => Nidoo.convertirCourses(w));
+  convertis.forEach(toucher);
+  if (convertis.length > 0) sauvegarder();
 
   function trouverWidget(id) {
     return etat.widgets.find((w) => w.id === id);
@@ -87,6 +100,7 @@
         },
         enregistrer(nouvellesDonnees) {
           w.donnees = nouvellesDonnees;
+          toucher(w);
           sauvegarder();
         },
       });
@@ -99,6 +113,7 @@
     caseWidget.querySelector('.bouton-reglages')?.addEventListener('click', () => ouvrirReglages(w.id));
     caseWidget.querySelector('.bouton-couleur').addEventListener('click', () => {
       w.couleur = couleurSuivante(w.couleur);
+      toucher(w);
       sauvegarder();
       appliquerCouleur(caseWidget, w.couleur);
     });
@@ -170,6 +185,7 @@
     if (enregistrer) {
       etat.widgets.forEach((w) => {
         const p = placement.get(w.id);
+        if (w.x !== p.x || w.y !== p.y) toucher(w);
         w.x = p.x;
         w.y = p.y;
       });
@@ -238,6 +254,7 @@
       taille: options.taille || definition.tailleParDefaut,
       couleur: options.couleur || (derniere ? couleurSuivante(derniere.couleur) : nomsCouleurs[0]),
       donnees: { ...(definition.donneesParDefaut || {}), ...(options.donnees || {}) },
+      maj: Date.now(),
     };
     if (Number.isInteger(options.x) && Number.isInteger(options.y)) {
       w.x = options.x;
@@ -262,6 +279,7 @@
     if (!confirm('Supprimer le widget « ' + nom + ' » ?')) return;
     nettoyer(id);
     etat.widgets = etat.widgets.filter((x) => x.id !== id);
+    etat.supprimes[id] = Date.now();
     sauvegarder();
     grille.querySelector('[data-id="' + id + '"]').remove();
     afficherMessageVide();
@@ -272,6 +290,7 @@
   function changerTaille(id, taille) {
     const w = trouverWidget(id);
     w.taille = taille;
+    toucher(w);
     redessiner(id);
     // Il garde sa place si possible ; ce qu'il recouvre va à la première place libre.
     gelerPositions();
@@ -475,6 +494,7 @@
           : brut.trim();
     });
     w.donnees = nouvelles;
+    toucher(w);
     sauvegarder();
     fenetreReglages.close();
 
@@ -630,15 +650,112 @@
   document.getElementById('fermer-appareil').addEventListener('click', () => fenetreAppareil.close());
   fenetreAppareil.addEventListener('click', (e) => e.target === fenetreAppareil && fenetreAppareil.close());
 
+  /*
+   * Applique un état venu d'un autre appareil (js/synchro.js), sans tout recharger :
+   * seuls les widgets qui ont changé sont redessinés. Un widget dans lequel on est
+   * en train d'écrire attend qu'on en sorte.
+   */
+  let grilleArretee = false;
+  const enAttente = new Set();
+
+  function appliquerEtat(nouveau) {
+    const avant = new Map(etat.widgets.map((w) => [w.id, w]));
+    const ids = new Set(nouveau.widgets.map((w) => w.id));
+    const changes = [];
+
+    etat.widgets.forEach((w) => {
+      if (ids.has(w.id)) return;
+      nettoyer(w.id);
+      grille.querySelector('.widget[data-id="' + w.id + '"]')?.remove();
+    });
+    etat.widgets = nouveau.widgets.map((n) => {
+      const a = avant.get(n.id);
+      if (!a) {
+        changes.push({ id: n.id, nouveau: true });
+        return n;
+      }
+      if (JSON.stringify(a) !== JSON.stringify(n)) {
+        // Mise à jour "sur place" : les widgets affichés gardent le même objet.
+        Object.keys(a).forEach((k) => !(k in n) && delete a[k]);
+        Object.assign(a, n);
+        changes.push({ id: n.id });
+      }
+      return a;
+    });
+    etat.supprimes = nouveau.supprimes;
+    Nidoo.stockage.enregistrer(etat);
+    if (grilleArretee) return;
+
+    changes.forEach((c) => {
+      const caseWidget = grille.querySelector('.widget[data-id="' + c.id + '"]');
+      if (c.nouveau || !caseWidget) {
+        if (!caseWidget) grille.appendChild(creerCase(trouverWidget(c.id)));
+      } else if (caseWidget.contains(document.activeElement) && document.activeElement.tagName === 'TEXTAREA') {
+        enAttente.add(c.id); // on écrit dans une note : on attend
+      } else {
+        redessinerEnGardantSaisie(c.id);
+      }
+    });
+    afficherMessageVide();
+    placer();
+  }
+
+  // Redessine un widget en gardant le champ en cours (texte tapé, curseur) s'il y en a un.
+  function redessinerEnGardantSaisie(id) {
+    const ancienne = grille.querySelector('.widget[data-id="' + id + '"]');
+    const actif = document.activeElement;
+    const champs = [...ancienne.querySelectorAll('input')];
+    const rang = champs.indexOf(actif);
+    const saisie = rang >= 0 ? { valeur: actif.value, debut: actif.selectionStart, fin: actif.selectionEnd } : null;
+    redessiner(id);
+    if (!saisie) return;
+    const champ = grille.querySelector('.widget[data-id="' + id + '"]').querySelectorAll('input')[rang];
+    if (!champ) return;
+    champ.value = saisie.valeur;
+    champ.focus();
+    try {
+      champ.setSelectionRange(saisie.debut, saisie.fin);
+    } catch (e) {
+      /* certains champs (date…) n'ont pas de curseur */
+    }
+  }
+
+  // On redessine les widgets mis en attente dès qu'on n'écrit plus dedans.
+  grille.addEventListener('focusout', () => {
+    setTimeout(() => {
+      enAttente.forEach((id) => {
+        const caseWidget = grille.querySelector('.widget[data-id="' + id + '"]');
+        if (caseWidget && !caseWidget.contains(document.activeElement)) {
+          enAttente.delete(id);
+          if (trouverWidget(id)) redessiner(id);
+        }
+      });
+    }, 0);
+  });
+
   // Ce dont les autres fichiers (mode nuit, partage) ont besoin.
   Nidoo.grilleApp = {
     // Arrête tous les widgets et vide la grille (mode nuit).
     arreter() {
+      grilleArretee = true;
       nettoyages.forEach((_, id) => nettoyer(id));
       grille.innerHTML = '';
     },
-    relancer: () => afficherGrille(),
+    relancer() {
+      grilleArretee = false;
+      afficherGrille();
+    },
     minuteurEnCours: () => etat.widgets.some((w) => w.type === 'minuteur' && w.donnees && w.donnees.fin != null),
+
+    // Partage entre appareils : une copie de l'état, et deux façons de le changer.
+    etat: () => JSON.parse(JSON.stringify({ widgets: etat.widgets, supprimes: etat.supprimes })),
+    appliquer: appliquerEtat,
+    remplacer(nouveau) {
+      etat.widgets = nouveau.widgets;
+      etat.supprimes = nouveau.supprimes;
+      Nidoo.stockage.enregistrer(etat);
+      if (!grilleArretee) afficherGrille();
+    },
   };
 
   remplirGalerie();

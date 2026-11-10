@@ -5,6 +5,12 @@
  *   api.php?action=ping                 vérifie que l'API fonctionne
  *   api.php?action=agenda&url=...       événements des 7 prochains jours d'un agenda iCal
  *
+ * Partage entre appareils (voir js/synchro.js) :
+ *   POST api.php?action=code             donne un code de 4 caractères valable 10 min
+ *   POST api.php?action=rejoindre        échange un code contre la clé de la famille
+ *   GET  api.php?action=lire             l'état partagé (en-tête X-Nidoo-Famille : la clé)
+ *   POST api.php?action=ecrire           enregistre l'état partagé (si personne ne l'a changé entre-temps)
+ *
  * Pour ajouter une action : ajouter un "case" dans le switch tout en bas.
  */
 
@@ -23,6 +29,12 @@ const SITES_AGENDA = [
     'outlook.live.com',
     'outlook.office365.com',
 ];
+
+// Partage entre appareils.
+const CODE_VALIDITE = 600;          // un code de partage est valable 10 minutes
+const CODE_LETTRES = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // sans 0/O ni 1/I/L (faciles à confondre)
+const ESSAIS_MAX = 10;              // essais de code ratés autorisés par adresse et par 10 minutes
+const TAILLE_MAX_ETAT = 1000000;    // 1 Mo maximum pour l'état partagé
 
 date_default_timezone_set(FUSEAU);
 header('Content-Type: application/json; charset=utf-8');
@@ -330,6 +342,137 @@ function evenementsAgenda(string $ics, DateTimeImmutable $debutFenetre, DateTime
 }
 
 // ---------------------------------------------------------------------
+// Partage entre appareils : stockage dans des fichiers JSON
+// ---------------------------------------------------------------------
+
+/*
+ * Le dossier des données partagées. De préférence À CÔTÉ du dossier du site
+ * (pas accessible depuis internet) ; sinon dans "donnees/" protégé par un .htaccess.
+ * deploy.sh ne touche jamais à ces dossiers.
+ */
+function dossierDonnees(): string
+{
+    static $dossier = null;
+    if ($dossier !== null) {
+        return $dossier;
+    }
+    $dehors = dirname(__DIR__) . '/nidoo-donnees';
+    if ((is_dir($dehors) || @mkdir($dehors, 0700, true)) && is_writable($dehors)) {
+        return $dossier = $dehors;
+    }
+    $dedans = __DIR__ . '/donnees';
+    if (!is_dir($dedans) && !@mkdir($dedans, 0700, true)) {
+        erreur("Impossible de créer le dossier des données sur le serveur.", 500);
+    }
+    if (!is_file($dedans . '/.htaccess')) {
+        @file_put_contents($dedans . '/.htaccess', "Require all denied\nDeny from all\n");
+    }
+    if (!is_file($dedans . '/index.html')) {
+        @file_put_contents($dedans . '/index.html', '');
+    }
+    return $dossier = $dedans;
+}
+
+/* Lit un fichier JSON du dossier des données (tableau vide s'il n'existe pas). */
+function lireJson(string $nom): array
+{
+    $chemin = dossierDonnees() . '/' . $nom;
+    if (!is_file($chemin)) {
+        return [];
+    }
+    $donnees = json_decode((string)file_get_contents($chemin), true);
+    return is_array($donnees) ? $donnees : [];
+}
+
+/* Écrit un fichier JSON d'un coup (fichier temporaire puis renommage : jamais à moitié écrit). */
+function ecrireJson(string $nom, array $donnees): void
+{
+    $chemin = dossierDonnees() . '/' . $nom;
+    $temporaire = $chemin . '.' . bin2hex(random_bytes(4)) . '.tmp';
+    if (file_put_contents($temporaire, json_encode($donnees, JSON_UNESCAPED_UNICODE)) === false || !rename($temporaire, $chemin)) {
+        @unlink($temporaire);
+        erreur("Impossible d'enregistrer sur le serveur.", 500);
+    }
+}
+
+/* Verrou : une seule requête à la fois modifie les fichiers (évite les écritures croisées). */
+function verrouiller()
+{
+    $verrou = fopen(dossierDonnees() . '/.verrou', 'c');
+    flock($verrou, LOCK_EX);
+    return $verrou;
+}
+
+/*
+ * Les données d'une famille sont lues et écrites en gardant les objets JSON tels quels
+ * (avec un tableau PHP, un objet vide {} deviendrait une liste vide []).
+ */
+function lireFamille(string $cle): stdClass
+{
+    $chemin = dossierDonnees() . '/' . fichierFamille($cle);
+    $donnees = is_file($chemin) ? json_decode((string)file_get_contents($chemin)) : null;
+    return $donnees instanceof stdClass ? $donnees : (object)['version' => 0, 'etat' => null];
+}
+
+function ecrireFamille(string $cle, int $version, $etat): void
+{
+    $chemin = dossierDonnees() . '/' . fichierFamille($cle);
+    $temporaire = $chemin . '.' . bin2hex(random_bytes(4)) . '.tmp';
+    $json = json_encode(['version' => $version, 'etat' => $etat], JSON_UNESCAPED_UNICODE);
+    if (file_put_contents($temporaire, $json) === false || !rename($temporaire, $chemin)) {
+        @unlink($temporaire);
+        erreur("Impossible d'enregistrer sur le serveur.", 500);
+    }
+}
+
+/* Le fichier d'une famille, à partir de sa clé secrète (le nom ne révèle pas la clé). */
+function fichierFamille(string $cle): string
+{
+    return 'famille-' . hash('sha256', $cle) . '.json';
+}
+
+/* La clé de famille envoyée par l'appareil (en-tête X-Nidoo-Famille), vérifiée. */
+function cleFamille(): string
+{
+    $cle = $_SERVER['HTTP_X_NIDOO_FAMILLE'] ?? '';
+    if (!preg_match('/^[a-f0-9]{32}$/', $cle) || !is_file(dossierDonnees() . '/' . fichierFamille($cle))) {
+        erreur("Cet appareil n'est relié à aucune famille (ou elle a été supprimée).", 401);
+    }
+    return $cle;
+}
+
+function corpsJson(): array
+{
+    $brut = file_get_contents('php://input');
+    if (strlen($brut) > TAILLE_MAX_ETAT + 1000) {
+        erreur('Données trop volumineuses.', 413);
+    }
+    $donnees = json_decode($brut ?: '{}', true);
+    return is_array($donnees) ? $donnees : [];
+}
+
+/* Limite les essais de code ratés (contre quelqu'un qui essaierait tous les codes). */
+function verifierEssais(bool $rate = false): void
+{
+    $ip = $_SERVER['REMOTE_ADDR'] ?? 'inconnue';
+    $essais = lireJson('essais.json');
+    $maintenant = time();
+    foreach ($essais as $adresse => $dates) {
+        $essais[$adresse] = array_values(array_filter($dates, fn($t) => $t > $maintenant - CODE_VALIDITE));
+        if (!$essais[$adresse]) {
+            unset($essais[$adresse]);
+        }
+    }
+    if ($rate) {
+        $essais[$ip][] = $maintenant;
+    }
+    ecrireJson('essais.json', $essais);
+    if (count($essais[$ip] ?? []) >= ESSAIS_MAX) {
+        erreur('Trop d\'essais. Réessayez dans quelques minutes.', 429);
+    }
+}
+
+// ---------------------------------------------------------------------
 // Actions
 // ---------------------------------------------------------------------
 
@@ -364,6 +507,63 @@ switch ($action) {
             'ok' => true,
             'evenements' => evenementsAgenda($ics, $aujourdhui, $aujourdhui->modify('+' . JOURS_AGENDA . ' days')),
         ]);
+
+    // Donne un code de partage (crée la famille si cet appareil n'en a pas encore).
+    case 'code':
+        $verrou = verrouiller();
+        $corps = corpsJson();
+        $cle = $corps['famille'] ?? '';
+        if (!preg_match('/^[a-f0-9]{32}$/', $cle) || !is_file(dossierDonnees() . '/' . fichierFamille($cle))) {
+            $cle = bin2hex(random_bytes(16));
+            ecrireFamille($cle, 0, null);
+        }
+        $codes = array_filter(lireJson('codes.json'), fn($c) => $c['expire'] > time());
+        do {
+            $code = '';
+            for ($i = 0; $i < 4; $i++) {
+                $code .= CODE_LETTRES[random_int(0, strlen(CODE_LETTRES) - 1)];
+            }
+        } while (isset($codes[$code]));
+        $codes[$code] = ['famille' => $cle, 'expire' => time() + CODE_VALIDITE];
+        ecrireJson('codes.json', $codes);
+        repondre(['ok' => true, 'code' => $code, 'expire' => CODE_VALIDITE, 'famille' => $cle]);
+
+    // Échange un code contre la clé de la famille.
+    case 'rejoindre':
+        $verrou = verrouiller();
+        verifierEssais();
+        $code = strtoupper(preg_replace('/[^A-Za-z0-9]/', '', (string)(corpsJson()['code'] ?? '')));
+        $codes = lireJson('codes.json');
+        if (!isset($codes[$code]) || $codes[$code]['expire'] <= time()) {
+            verifierEssais(true);
+            erreur('Code inconnu ou expiré.', 404);
+        }
+        repondre(['ok' => true, 'famille' => $codes[$code]['famille']]);
+
+    // L'état partagé de la famille.
+    case 'lire':
+        $donnees = lireFamille(cleFamille());
+        repondre(['ok' => true, 'version' => $donnees->version ?? 0, 'etat' => $donnees->etat ?? null]);
+
+    // Enregistre l'état partagé, seulement si personne ne l'a modifié depuis la dernière lecture.
+    case 'ecrire':
+        $verrou = verrouiller();
+        $cle = cleFamille();
+        $brut = file_get_contents('php://input');
+        if (strlen($brut) > TAILLE_MAX_ETAT) {
+            erreur('Données trop volumineuses.', 413);
+        }
+        $corps = json_decode($brut ?: '{}');
+        $actuel = lireFamille($cle);
+        $version = $actuel->version ?? 0;
+        if (!($corps instanceof stdClass) || ($corps->version ?? -1) !== $version) {
+            repondre(['ok' => false, 'conflit' => true, 'version' => $version, 'etat' => $actuel->etat ?? null], 409);
+        }
+        if (!(($corps->etat ?? null) instanceof stdClass) || !is_array($corps->etat->widgets ?? null)) {
+            erreur('État invalide.');
+        }
+        ecrireFamille($cle, $version + 1, $corps->etat);
+        repondre(['ok' => true, 'version' => $version + 1]);
 
     default:
         erreur('Action inconnue : ' . $action);

@@ -8,7 +8,8 @@
  *     (la liste des personnes se règle avec ⚙️). Une date dépassée passe en rouge.
  *
  * Données : { titre, emoji, personnes: ['Alice', …],
- *             elements: [{ id, texte, qui, echeance: '2026-11-15' }, …] }
+ *             elements: [{ id, texte, qui, echeance: '2026-11-15', maj }, …],
+ *             retires: { id: date } }   ← éléments cochés/supprimés (pour le partage entre appareils)
  */
 (function () {
   const COULEURS_PERSONNES = ['#3a86ff', '#ef476f', '#2e9d4f', '#8338ec', '#ff7a1a', '#14919b'];
@@ -71,6 +72,9 @@
       const d = () => widget.donnees;
       const elements = () => d().elements || [];
       const enregistrer = (changements) => widget.enregistrer({ ...d(), ...changements });
+      // Retire un élément, en gardant la trace (pour qu'il disparaisse aussi sur les autres appareils).
+      const retirer = (id) =>
+        enregistrer({ elements: elements().filter((x) => x.id !== id), retires: { ...(d().retires || {}), [id]: Date.now() } });
 
       zone.innerHTML = `
         <div class="liste-widget">
@@ -144,14 +148,14 @@
           const texte = form.elements.texte.value.trim() || e.texte;
           enregistrer({
             elements: elements().map((x) =>
-              x.id === id ? { ...x, texte, qui: form.elements.qui.value, echeance: form.elements.echeance.value } : x
+              x.id === id ? { ...x, texte, qui: form.elements.qui.value, echeance: form.elements.echeance.value, maj: Date.now() } : x
             ),
           });
           fermer();
           afficherListe();
         });
         form.querySelector('.liste-supprimer').addEventListener('click', () => {
-          enregistrer({ elements: elements().filter((x) => x.id !== id) });
+          retirer(id);
           fermer();
           afficherListe();
         });
@@ -165,7 +169,7 @@
           if (li.classList.contains('coche')) return;
           li.classList.add('coche');
           setTimeout(() => {
-            enregistrer({ elements: elements().filter((x) => x.id !== li.dataset.id) });
+            retirer(li.dataset.id);
             afficherListe();
           }, 400);
         } else if (ev.target.closest('.liste-texte')) {
@@ -179,7 +183,7 @@
         if (!texte) return;
         // Pas de doublon (sans tenir compte des majuscules).
         if (!elements().some((x) => x.texte.toLowerCase() === texte.toLowerCase())) {
-          enregistrer({ elements: [...elements(), { id: nouvelId(), texte, qui: '', echeance: '' }] });
+          enregistrer({ elements: [...elements(), { id: nouvelId(), texte, qui: '', echeance: '', maj: Date.now() }] });
           afficherListe();
           liste.scrollTop = liste.scrollHeight;
         }
@@ -190,6 +194,26 @@
       // Les pastilles "Demain" / "Aujourd'hui" / "En retard" changent à minuit.
       const minuteur = setInterval(afficherListe, 30 * 60 * 1000);
       return () => clearInterval(minuteur);
+    },
+
+    /*
+     * Partage entre appareils : si la liste a été modifiée sur deux appareils en même
+     * temps, on garde les ajouts des deux côtés, élément par élément (au lieu de ne
+     * garder que la version la plus récente de toute la liste).
+     */
+    fusionner(a, b) {
+      const retires = { ...(a.retires || {}) };
+      Object.entries(b.retires || {}).forEach(([id, t]) => (retires[id] = Math.max(retires[id] || 0, t)));
+      const limite = Date.now() - 30 * 24 * 3600 * 1000;
+      Object.keys(retires).forEach((id) => retires[id] < limite && delete retires[id]);
+
+      const parId = new Map();
+      [...(a.elements || []), ...(b.elements || [])].forEach((e) => {
+        const deja = parId.get(e.id);
+        if (!deja || (e.maj || 0) > (deja.maj || 0)) parId.set(e.id, e);
+      });
+      const elements = [...parId.values()].filter((e) => !(retires[e.id] >= (e.maj || 0)));
+      return { ...a, ...b, elements, retires };
     },
   });
 

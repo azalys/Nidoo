@@ -95,6 +95,7 @@ copie="$(mktemp -d)"
 trap 'rm -rf "$copie"' EXIT
 
 exclusions=(
+  --exclude 'donnees/'     # données partagées entre appareils (créées par api.php) : jamais touchées
   --exclude '.git/'
   --exclude '.gitignore'
   --exclude '.DS_Store'
