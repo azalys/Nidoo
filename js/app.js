@@ -241,30 +241,33 @@
     const message = grille.querySelector('.vide');
     const vide = widgetsAffiches().length === 0;
     if (vide && !message) {
-      // Grille adulte vide alors que la grille enfant a des widgets : on propose de la copier.
-      const copiable = grilleActive() === 'adulte' && etat.widgets.some((w) => (w.grille || 'enfant') === 'enfant');
+      // Si l'autre grille (enfant ou adulte) a des widgets, on propose de la copier.
+      const autre = grilleActive() === 'adulte' ? 'enfant' : 'adulte';
+      const copiable = etat.widgets.some((w) => (w.grille || 'enfant') === autre);
       grille.insertAdjacentHTML(
         'beforeend',
-        '<div class="vide"><p>La grille ' + (grilleActive() === 'adulte' ? 'adulte ' : '') + 'est vide.<br>' +
+        '<div class="vide"><p>La grille ' + grilleActive() + ' est vide.<br>' +
           'Touchez « Modifier » puis « + Ajouter ».</p>' +
-          (copiable ? '<button class="bouton copier-grille">Copier la grille enfant</button>' +
+          (copiable ? '<button class="bouton copier-grille">Copier la grille ' + autre + '</button>' +
             '<p class="aide">Les widgets sont copiés : une liste copiée devient une liste séparée.</p>' : '') +
           '</div>'
       );
-      grille.querySelector('.copier-grille')?.addEventListener('click', copierGrilleEnfant);
+      grille.querySelector('.copier-grille')?.addEventListener('click', () => copierGrille(autre));
     } else if (!vide && message) {
       message.remove();
     }
   }
 
-  /* Copie les widgets de la grille enfant dans la grille adulte (nouvelles copies indépendantes). */
-  function copierGrilleEnfant() {
+  /* Copie les widgets de l'autre grille dans celle affichée (nouvelles copies indépendantes). */
+  function copierGrille(source) {
+    const cible = grilleActive();
     etat.widgets
-      .filter((w) => (w.grille || 'enfant') === 'enfant')
+      .filter((w) => (w.grille || 'enfant') === source)
       .forEach((w) => {
         const copie = JSON.parse(JSON.stringify(w));
         copie.id = nouvelIdentifiant();
-        copie.grille = 'adulte';
+        if (cible === 'adulte') copie.grille = 'adulte';
+        else delete copie.grille;
         copie.maj = Date.now();
         etat.widgets.push(copie);
       });
@@ -668,14 +671,8 @@
   /* Démarrage                                                          */
   /* ------------------------------------------------------------------ */
 
-  // Premier lancement : on installe la grille de départ (voir js/depart.js).
-  if (etat.nouveau) {
-    delete etat.nouveau;
-    Nidoo.GRILLE_DE_DEPART.forEach((widget) => {
-      if (Nidoo.catalogue[widget.type]) creerWidget(widget.type, widget);
-    });
-    sauvegarder();
-  }
+  // Premier lancement : les deux grilles commencent vides, chacun choisit ses widgets.
+  delete etat.nouveau;
 
   // Fenêtre "⚙️ Appareil" (mode nuit, partage…). Les sections écoutent "nidoo:ouverture".
   const fenetreAppareil = document.getElementById('appareil');

@@ -93,7 +93,6 @@ js/nuit.js         le mode nuit
 js/synchro.js      le partage entre appareils (code, synchronisation)
 js/style.js        l'interrupteur enfant / adulte
 js/version.js      version affichée dans ⚙️ Appareil, rechargement automatique après un déploiement
-js/depart.js       les widgets installés au premier lancement
 js/placement.js    calcul de la position des widgets (sans chevauchement)
 js/app.js          la grille, le mode Modifier, le glisser-déposer, les réglages
 widgets/           un fichier par widget
