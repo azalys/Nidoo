@@ -2,7 +2,7 @@
 #
 # Envoie Nidoo sur le serveur (par SSH, avec rsync).
 #
-#   ./deploy.sh              récupère la dernière version (git pull), puis déploie
+#   ./deploy.sh              récupère la dernière version de main (git pull), puis déploie
 #   ./deploy.sh --test       montre ce qui serait envoyé ou supprimé, sans rien changer
 #   ./deploy.sh --sans-pull  déploie les fichiers tels qu'ils sont, sans git pull
 #
@@ -71,11 +71,29 @@ for outil in rsync ssh git; do
 done
 
 # ---- 1. Récupérer la dernière version depuis GitHub -------------------------
+BRANCHE="main"   # la branche déployée
 if $PULL; then
-  branche="$(git rev-parse --abbrev-ref HEAD)"
-  echo "⬇️  Récupération de la dernière version (branche $branche)…"
+  git fetch origin "$BRANCHE" || { echo "❌ Pas d'accès à GitHub. Rien n'a été envoyé."; exit 1; }
+  # On déploie toujours main : si on est sur une autre branche, on y passe
+  # (les modifications pas encore commitées sont mises de côté puis remises).
+  if [ "$(git rev-parse --abbrev-ref HEAD)" != "$BRANCHE" ]; then
+    echo "↪️  Passage sur la branche $BRANCHE (vous étiez sur $(git rev-parse --abbrev-ref HEAD))."
+    mis_de_cote=false
+    if [ -n "$(git status --porcelain --untracked-files=no)" ]; then
+      git stash push -q -m "deploy.sh : passage sur $BRANCHE" && mis_de_cote=true
+    fi
+    if ! git checkout -q "$BRANCHE" 2>/dev/null && ! git checkout -q -b "$BRANCHE" --track "origin/$BRANCHE"; then
+      $mis_de_cote && git stash pop -q
+      echo "❌ Impossible de passer sur $BRANCHE. Rien n'a été envoyé. Regardez « git status »."
+      exit 1
+    fi
+    if $mis_de_cote && ! git stash pop -q; then
+      echo "⚠️  Vos modifications locales sont gardées de côté (« git stash list ») : elles entrent en conflit avec $BRANCHE."
+    fi
+  fi
+  echo "⬇️  Récupération de la dernière version ($BRANCHE)…"
   # --autostash : les modifications pas encore commitées sont mises de côté puis remises.
-  if ! git pull --rebase --autostash; then
+  if ! git pull --rebase --autostash origin "$BRANCHE"; then
     git rebase --abort 2>/dev/null || true
     echo
     echo "❌ La récupération a échoué (conflit avec vos modifications locales, ou pas d'accès à GitHub)."
