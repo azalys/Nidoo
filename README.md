@@ -22,7 +22,8 @@ Depuis un ordinateur qui a accès SSH au serveur :
 
 ```
 ./deploy.sh --test    # montre ce qui serait envoyé, sans rien changer
-./deploy.sh           # envoie les fichiers dans /home/latanieregeek/nidoo
+./deploy.sh           # récupère la dernière version (git pull) puis l'envoie
+./deploy.sh --sans-pull   # envoie les fichiers tels qu'ils sont, sans git pull
 ```
 
 Réglages personnels : copier `deploy.local.exemple` en `deploy.local` et le remplir
@@ -30,6 +31,9 @@ Réglages personnels : copier `deploy.local.exemple` en `deploy.local` et le rem
 `deploy.local` n'est jamais commité.
 Le serveur doit avoir PHP 8 ou plus.
 Attention : les fichiers retirés du projet sont aussi supprimés sur le serveur.
+Le script ajoute un numéro de version aux fichiers CSS et JS (dans la copie envoyée),
+pour que les navigateurs et la webapp chargent bien la nouvelle version, puis vérifie
+que le serveur l'a reçue (fichier `version.txt`).
 
 ## Les widgets
 
