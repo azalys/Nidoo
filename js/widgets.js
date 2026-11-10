@@ -101,3 +101,22 @@ Nidoo.ouvrirPopin = function (titre, html) {
   popin.showModal();
   return contenu;
 };
+
+/*
+ * Outil : coordonnées d'une ville (Open-Meteo, gratuit et sans clé).
+ *   await Nidoo.trouverVille('Nantes') → { ville, nom, latitude, longitude }
+ */
+Nidoo.trouverVille = async function (ville) {
+  const url =
+    'https://geocoding-api.open-meteo.com/v1/search?count=1&language=fr&format=json&name=' + encodeURIComponent(ville);
+  const reponse = await fetch(url);
+  const json = await reponse.json();
+  const lieu = json.results && json.results[0];
+  if (!lieu) throw new Error('Ville introuvable : ' + ville);
+  return { ville, nom: lieu.name, latitude: lieu.latitude, longitude: lieu.longitude };
+};
+
+/* Outil : message lisible pour une erreur réseau. */
+Nidoo.messageErreur = function (erreur) {
+  return erreur && erreur.message === 'Failed to fetch' ? 'Pas de connexion' : (erreur && erreur.message) || 'Erreur';
+};

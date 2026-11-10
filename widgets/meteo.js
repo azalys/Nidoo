@@ -30,16 +30,7 @@
   const arrondi = (t) => Math.round(t) + '°';
 
   // Cherche les coordonnées d'une ville (une seule fois, puis gardées dans le widget).
-  async function trouverLieu(ville) {
-    const url =
-      'https://geocoding-api.open-meteo.com/v1/search?count=1&language=fr&format=json&name=' +
-      encodeURIComponent(ville);
-    const reponse = await fetch(url);
-    const json = await reponse.json();
-    const lieu = json.results && json.results[0];
-    if (!lieu) throw new Error('Ville introuvable : ' + ville);
-    return { ville, nom: lieu.name, latitude: lieu.latitude, longitude: lieu.longitude };
-  }
+  const trouverLieu = (ville) => Nidoo.trouverVille(ville); // voir js/widgets.js
 
   async function previsions(lieu) {
     const url =

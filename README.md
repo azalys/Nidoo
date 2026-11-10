@@ -48,6 +48,11 @@ que le serveur l'a reçue (fichier `version.txt`).
 | 🧹 Corvées | petit | qui s'en occupe aujourd'hui (et demain) ; rotation jours pairs/impairs, chaque jour ou chaque semaine (⚙️) |
 | ⏳ Compte à rebours | 1×1 | « Vacances dans 12 jours » ; date, emoji, une fois ou chaque année, jours ou dodos (⚙️) |
 | 🗑️ Poubelles | 1×1 | « Ce soir : sortir la jaune » ; jours de ramassage et semaines paires/impaires pour chaque poubelle (⚙️) |
+| 😊 Humeurs | 1×1 | l'humeur du jour de 1 à 4 enfants (🙂 par défaut, repart à zéro chaque matin) |
+| 🆘 Urgences | 1×1 | 15, 18, 17, 112 en gros ; le toucher affiche aussi les parents et l'adresse (⚙️) |
+| 🌼 Pollen et air | 1×1 | qualité de l'air et pollen aujourd'hui/demain (Open-Meteo, gratuit, sans clé) |
+| ⛽ Carburants | 1×1 | la station la moins chère autour de votre adresse (données de l'État, gratuit, sans clé) |
+| 📋 Échéances | 1×2, 2×2 | contrôle technique, assurance… : alerte avant la date, « C'est fait » fait avancer les échéances qui reviennent |
 | 🕒 Horloge, 📝 Note | petit, moyen, grand | — |
 
 ### Brancher un agenda Google
