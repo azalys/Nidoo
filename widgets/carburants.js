@@ -21,14 +21,7 @@
   const PRIX_TROP_VIEUX_MS = 7 * 24 * 3600 * 1000;
   const API_PRIX = 'https://data.economie.gouv.fr/api/explore/v2.1/catalog/datasets/prix-des-carburants-en-france-flux-instantane-v2/records';
 
-  async function trouverAdresse(adresse) {
-    const reponse = await fetch('https://api-adresse.data.gouv.fr/search/?limit=1&q=' + encodeURIComponent(adresse));
-    const json = await reponse.json();
-    const f = json.features && json.features[0];
-    if (!f) throw new Error('Adresse introuvable');
-    const [longitude, latitude] = f.geometry.coordinates;
-    return { adresse, nom: f.properties.city || f.properties.label, latitude, longitude };
-  }
+  const trouverAdresse = (adresse) => Nidoo.trouverAdresse(adresse); // voir js/widgets.js
 
   // Distance en km entre deux points (formule de haversine).
   function distance(a, b) {

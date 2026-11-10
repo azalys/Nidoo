@@ -1487,3 +1487,33 @@ html[data-style="adulte"] .echeance-ajouter { background: var(--texte); color: #
 html[data-style="adulte"] .choix-grille { border: 1px solid var(--filet); }
 
 .version-appareil { text-align: center; font-size: 0.85rem; margin: -6px 0 14px; }
+
+/* --- Trafic --- */
+.trafic { height: 100%; display: flex; flex-direction: column; justify-content: center; gap: 1.5cqh; padding: 6cqh 6cqw; }
+.trafic.charge .trafic-recharger { animation: tourner 0.8s linear infinite; }
+.trafic-entete { display: flex; justify-content: space-between; align-items: center; gap: 6px; font-size: max(13px, 11cqh); font-weight: 700; }
+.trafic-entete span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.trafic-recharger {
+  flex: none; width: 30px; height: 30px; padding: 0; border: 0; border-radius: 50%;
+  background: rgb(var(--voile) / calc(0.28 * var(--voile-force))); color: inherit; font-size: 1rem; font-weight: 700;
+}
+.trafic-ligne { display: flex; align-items: center; gap: 3cqw; flex-wrap: wrap; }
+.trafic-duree { font-size: min(26cqh, 20cqw); font-weight: 700; line-height: 1; text-shadow: 0 1cqh 0 var(--ombre-texte); }
+.trafic-retard, .trafic-fluide { padding: 2px 9px; border-radius: 999px; font-size: max(11px, 8cqh); font-weight: 700; white-space: nowrap; }
+.trafic-retard { background: #fff; color: #b35300; box-shadow: 0 0 0 2px #f08c3a; }
+.trafic-fluide { background: #fff; color: #1f7a3c; }
+.trafic-arrivee { font-size: max(12px, 9.5cqh); font-weight: 600; }
+.trafic-info { font-size: max(10px, 7.5cqh); opacity: 0.85; }
+.taille-petit .trafic-info { display: none; }
+.trafic-resume { text-align: center; font-weight: 600; margin: 0 0 12px; }
+.trafic-carte { height: min(58vh, 460px); border-radius: 14px; overflow: hidden; background: #eee; }
+.trafic-legende { display: flex; gap: 14px; justify-content: center; align-items: center; margin: 10px 0 0; font-size: 0.9rem; color: var(--texte-doux); }
+.trafic-legende i { display: inline-block; width: 18px; height: 6px; border-radius: 3px; margin-right: 6px; }
+.trafic-marqueur { font-size: 26px; line-height: 34px; text-align: center; filter: drop-shadow(0 2px 2px rgba(0,0,0,.3)); }
+html[data-style="adulte"] .trafic-recharger { background: #f5f2ed; }
+html[data-style="adulte"] .trafic-duree { font-family: var(--police-titre); font-weight: 600; }
+html[data-style="adulte"] .trafic-retard { background: #fde3c2; color: #7a3d00; box-shadow: none; }
+html[data-style="adulte"] .trafic-fluide { background: #e3f1e6; }
+
+/* Dans la fenêtre (hors widget), les pastilles gardent une taille normale. */
+.trafic-resume .trafic-retard { font-size: 0.9rem; }

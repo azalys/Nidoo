@@ -53,6 +53,7 @@ que le serveur l'a reçue (fichier `version.txt`).
 | 🌼 Pollen et air | 1×1 | qualité de l'air et pollen aujourd'hui/demain (Open-Meteo, gratuit, sans clé) |
 | ⛽ Carburants | 1×1 | la station la moins chère autour de votre adresse (données de l'État, gratuit, sans clé) |
 | 📋 Échéances | 1×2, 2×2 | contrôle technique, assurance… : alerte avant la date, « C'est fait » fait avancer les échéances qui reviennent |
+| 🚗 Trafic | 1×1, 1×2 | temps de trajet avec le trafic, retard dû aux bouchons, heure d'arrivée ; la carte colorée en touchant le widget ; ↻ pour actualiser (TomTom : clé gratuite à régler dans ⚙️) |
 | 🕒 Horloge, 📝 Note | petit, moyen, grand | — |
 
 ### Brancher un agenda Google

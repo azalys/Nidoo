@@ -120,3 +120,16 @@ Nidoo.trouverVille = async function (ville) {
 Nidoo.messageErreur = function (erreur) {
   return erreur && erreur.message === 'Failed to fetch' ? 'Pas de connexion' : (erreur && erreur.message) || 'Erreur';
 };
+
+/*
+ * Outil : coordonnées d'une adresse en France (Base Adresse Nationale, gratuit et sans clé).
+ *   await Nidoo.trouverAdresse('12 rue des Lilas, Nantes') → { adresse, nom, latitude, longitude }
+ */
+Nidoo.trouverAdresse = async function (adresse) {
+  const reponse = await fetch('https://api-adresse.data.gouv.fr/search/?limit=1&q=' + encodeURIComponent(adresse));
+  const json = await reponse.json();
+  const f = json.features && json.features[0];
+  if (!f) throw new Error('Adresse introuvable : ' + adresse);
+  const [longitude, latitude] = f.geometry.coordinates;
+  return { adresse, nom: f.properties.city || f.properties.label, latitude, longitude };
+};
