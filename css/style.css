@@ -442,10 +442,22 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
 .liste-widget { height: 100%; display: flex; flex-direction: column; }
 .liste-widget ul {
   flex: 1;
-  margin: 0;
-  padding: 0 14px 10px;
+  margin: 0 6px 10px 0;       /* laisse un peu d'air à droite de la barre de défilement */
+  padding: 0 8px 0 14px;
   list-style: none;
   overflow-y: auto;
+
+  /* Barre de défilement discrète : fine, un peu transparente, sans fond. */
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--w-texte) 40%, transparent) transparent;
+}
+
+/* Même chose pour les navigateurs qui utilisent l'ancienne méthode (Safari plus ancien). */
+.liste-widget ul::-webkit-scrollbar { width: 6px; }
+.liste-widget ul::-webkit-scrollbar-track { background: transparent; }
+.liste-widget ul::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--w-texte) 40%, transparent);
+  border-radius: 999px;
 }
 .liste-vide { padding: 10px 4px; opacity: 0.85; font-weight: 600; }
 
