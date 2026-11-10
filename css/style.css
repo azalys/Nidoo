@@ -1204,3 +1204,7 @@ html[data-style="adulte"] :is(.agenda-heure, .compteur, .corvee-demain, .liste-d
 html[data-style="adulte"] .ajout input { background: #f5f2ed; color: var(--texte); }
 html[data-style="adulte"] .minuteur-bouton { background: #f5f2ed; box-shadow: none; }
 html[data-style="adulte"] .minuteur-principal { background: var(--texte); color: #fff; }
+
+/* Liste : l'initiale de la personne s'affiche dans la case à cocher. */
+.case.case-personne .liste-qui { box-shadow: none; pointer-events: none; }
+.cases li.coche .case.case-personne .liste-qui { display: none; }   /* cochée : on voit le ✓ */

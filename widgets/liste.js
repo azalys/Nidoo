@@ -4,7 +4,8 @@
  *   - le titre et l'emoji se règlent avec ⚙️ (ex. 🛒 Courses, 📝 À faire, 🧳 Valise) ;
  *   - cocher le rond = c'est fait, l'élément disparaît ;
  *   - "+" en bas pour ajouter ;
- *   - toucher le texte d'un élément pour dire QUI doit le faire et POUR QUAND
+ *   - toucher le texte d'un élément pour dire QUI doit le faire (son initiale s'affiche
+ *     dans la case à cocher) et POUR QUAND
  *     (la liste des personnes se règle avec ⚙️). Une date dépassée passe en rouge.
  *
  * Données : { titre, emoji, personnes: ['Alice', …],
@@ -103,12 +104,10 @@
         liste.innerHTML = tries
           .map((e) => `
             <li data-id="${e.id}">
-              <button class="case" aria-label="Fait : ${Nidoo.echapper(e.texte)}"></button>
+              <button class="case${e.qui ? ' case-personne' : ''}" aria-label="Fait : ${Nidoo.echapper(e.texte)}${e.qui ? ' (' + Nidoo.echapper(e.qui) + ')' : ''}">${pastillePersonne(e.qui, d().personnes || [])}</button>
               <div class="liste-corps">
                 <button class="liste-texte" aria-label="Modifier ${Nidoo.echapper(e.texte)}">${Nidoo.echapper(e.texte)}</button>
-                ${e.qui || e.echeance
-                  ? `<div class="liste-infos">${pastillePersonne(e.qui, d().personnes || [])}${pastilleDate(e.echeance)}</div>`
-                  : ''}
+                ${e.echeance ? `<div class="liste-infos">${pastilleDate(e.echeance)}</div>` : ''}
               </div>
             </li>`)
           .join('');
