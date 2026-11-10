@@ -607,3 +607,65 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
   font-size: 0.85rem;
   font-weight: 600;
 }
+
+/* --- Minuteur --- */
+.minuteur {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 5cqh;
+  padding: 6cqh 4cqw;
+}
+.minuteur-temps {
+  font-size: 30cqh;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 1cqh 0 rgba(0, 0, 0, 0.15);
+}
+.minuteur.termine .minuteur-temps { font-size: 22cqh; }
+
+.minuteur-presets,
+.minuteur-commandes { display: flex; gap: 8px; }
+
+.minuteur button {
+  border: 0;
+  border-radius: 999px;
+  font-weight: 700;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
+  transition: transform 0.08s, box-shadow 0.08s;
+}
+.minuteur button:active { transform: translateY(3px); box-shadow: 0 1px 0 rgba(0, 0, 0, 0.2); }
+.minuteur button:disabled { opacity: 0.5; }
+
+.minuteur-presets button {
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.3);
+  font-size: max(13px, 9cqh);
+}
+.minuteur-commandes button {
+  min-width: 52px;
+  height: 52px;
+  padding: 0 18px;
+  font-size: 1.5rem;
+}
+.minuteur-principal { background: var(--w-texte); color: var(--w-fond); }
+.minuteur-zero { background: rgba(255, 255, 255, 0.3); }
+
+/* Petit format : seulement le temps et les boutons ▶ / ↺. */
+.taille-petit .minuteur-presets { display: none; }
+.taille-petit .minuteur-commandes button { min-width: 44px; height: 44px; padding: 0 12px; font-size: 1.2rem; }
+.taille-grand .minuteur-temps { font-size: 22cqh; }
+
+/* Quand ça sonne : le widget se secoue. */
+.widget.sonne { animation: secouer 0.5s ease-in-out infinite; }
+@keyframes secouer {
+  0%, 100% { transform: rotate(0) scale(1); }
+  25%      { transform: rotate(-3deg) scale(1.03); }
+  75%      { transform: rotate(3deg) scale(1.03); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .widget.sonne { animation: none; outline: 6px solid var(--w-texte); }
+}
