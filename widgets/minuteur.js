@@ -36,21 +36,32 @@
   }
 
   // Un petit "bip-bip-bip" joyeux (trois notes qui montent).
+  // VOLUME : de 0 à 1 (1 = le plus fort possible ; le volume de l'appareil compte aussi).
+  const VOLUME = 1;
+
   function bipBipBip() {
     if (!audio) return;
     const maintenant = audio.currentTime;
+    // Un "compresseur" évite que le son sature (grésille) quand il est très fort.
+    const compresseur = audio.createDynamicsCompressor();
+    compresseur.connect(audio.destination);
     [880, 988, 1175].forEach((frequence, i) => {
-      const oscillateur = audio.createOscillator();
+      const debut = maintenant + i * 0.2;
       const volume = audio.createGain();
-      oscillateur.type = 'triangle';
-      oscillateur.frequency.value = frequence;
-      const debut = maintenant + i * 0.18;
       volume.gain.setValueAtTime(0.0001, debut);
-      volume.gain.exponentialRampToValueAtTime(0.5, debut + 0.02);
-      volume.gain.exponentialRampToValueAtTime(0.0001, debut + 0.16);
-      oscillateur.connect(volume).connect(audio.destination);
-      oscillateur.start(debut);
-      oscillateur.stop(debut + 0.17);
+      volume.gain.exponentialRampToValueAtTime(VOLUME, debut + 0.02);
+      volume.gain.setValueAtTime(VOLUME, debut + 0.13);
+      volume.gain.exponentialRampToValueAtTime(0.0001, debut + 0.19);
+      volume.connect(compresseur);
+      // Deux sons superposés (carré + triangle) : beaucoup plus perçant qu'un seul.
+      ['square', 'triangle'].forEach((forme) => {
+        const oscillateur = audio.createOscillator();
+        oscillateur.type = forme;
+        oscillateur.frequency.value = frequence;
+        oscillateur.connect(volume);
+        oscillateur.start(debut);
+        oscillateur.stop(debut + 0.2);
+      });
     });
   }
 
