@@ -566,6 +566,12 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
   font-size: 22cqh;
   font-weight: 700;
 }
+/* Aujourd'hui | ⚡ | Demain : l'éclair prend juste la place dont il a besoin. */
+.tempo:has(.tempo-eclair) { grid-auto-flow: row; grid-template-columns: 1fr auto 1fr; }
+.tempo-eclair {
+  font-size: 22cqh;
+  filter: drop-shadow(0 1cqh 0 rgba(0, 0, 0, 0.15));
+}
 .tempo-nom    { font-size: max(13px, 11cqh); font-weight: 700; }
 .tempo-detail { font-size: max(11px, 8cqh); opacity: 0.85; }
 

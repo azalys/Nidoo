@@ -53,7 +53,10 @@
             html = bloc('Maintenant', maintenant.codeCouleur, creuses ? 'Heures creuses' : 'Heures pleines');
           } else {
             const [aujourdhui, demain] = await Promise.all([lire('/jourTempo/today'), lire('/jourTempo/tomorrow')]);
-            html = bloc("Aujourd'hui", aujourdhui.codeJour) + bloc('Demain', demain.codeJour);
+            // Un éclair entre les deux jours, pour qu'on voie tout de suite que c'est EDF.
+            html = bloc("Aujourd'hui", aujourdhui.codeJour) +
+              '<div class="tempo-eclair" aria-hidden="true">⚡</div>' +
+              bloc('Demain', demain.codeJour);
           }
           if (!arrete) boite.innerHTML = html;
         } catch (erreur) {
