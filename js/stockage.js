@@ -2,7 +2,7 @@
  * Enregistrement des données dans le navigateur (localStorage).
  *
  * Tout ce que l'appli garde tient dans un seul objet :
- *   { widgets: [ { id, type, taille, donnees }, ... ] }
+ *   { widgets: [ { id, type, taille, couleur, donnees }, ... ] }
  * L'ordre du tableau = l'ordre des widgets dans la grille.
  *
  * Attention : les données restent sur CET appareil et CE navigateur.

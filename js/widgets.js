@@ -13,6 +13,23 @@ Nidoo.TAILLES = {
   grand: { colonnes: 2, lignes: 2, nom: 'Grand' },
 };
 
+/*
+ * Les couleurs des widgets. Chaque widget a la sienne (bouton 🎨 en mode Modifier).
+ *   fond  : couleur du widget
+ *   ombre : couleur plus foncée, pour l'effet "relief"
+ *   texte : couleur du texte posé dessus (doit rester bien lisible)
+ * On peut en ajouter, en retirer ou en changer librement.
+ */
+Nidoo.COULEURS = {
+  framboise: { fond: '#ef476f', ombre: '#c42a52', texte: '#ffffff' },
+  orange:    { fond: '#ff9f1c', ombre: '#d97c00', texte: '#4a2400' },
+  soleil:    { fond: '#ffd23f', ombre: '#e0ac00', texte: '#4a3500' },
+  pomme:     { fond: '#8ac926', ombre: '#64a000', texte: '#1f3300' },
+  lagon:     { fond: '#2ec4b6', ombre: '#169c90', texte: '#003b36' },
+  ciel:      { fond: '#3a86ff', ombre: '#1d63d6', texte: '#ffffff' },
+  raisin:    { fond: '#8338ec', ombre: '#6119c4', texte: '#ffffff' },
+};
+
 /* Tous les widgets déclarés, rangés par type : { horloge: {...}, note: {...} } */
 Nidoo.catalogue = {};
 

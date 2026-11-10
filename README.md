@@ -22,6 +22,7 @@ puis ouvrir http://localhost:8000
   - glisser un widget pour le déplacer ;
   - **×** pour le supprimer ;
   - **⤢** pour changer sa taille (petit → moyen → grand) ;
+  - **🎨** pour changer sa couleur ;
   - **+ Ajouter** pour ajouter un widget.
 - **Terminé** pour revenir à l'affichage normal.
 
@@ -34,7 +35,7 @@ elles restent sur cet appareil uniquement.
 index.html         la page (liste des fichiers JS à charger)
 css/style.css      tous les styles (couleurs et tailles réglables en haut)
 js/stockage.js     lecture / enregistrement dans le localStorage
-js/widgets.js      le catalogue des widgets et les tailles
+js/widgets.js      le catalogue des widgets, les tailles et les couleurs
 js/app.js          la grille, le mode Modifier, le glisser-déposer
 widgets/           un fichier par widget
 api.php            l'API côté serveur (pour plus tard : Google Agenda…)

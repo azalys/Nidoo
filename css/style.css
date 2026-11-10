@@ -1,50 +1,61 @@
 /* ==================================================================== */
-/* Nidoo — styles                                                       */
+/* Nidoo — styles (thème ludique pour les enfants)                      */
 /* Les couleurs et dimensions principales sont réglables ci-dessous.    */
+/* Les couleurs des widgets sont dans js/widgets.js (Nidoo.COULEURS).   */
 /* ==================================================================== */
 
 :root {
-  --fond: #f2efe9;
-  --carte: #ffffff;
-  --texte: #23252b;
-  --texte-doux: #6b6f78;
-  --accent: #e8734a;
-  --ombre: 0 2px 10px rgba(0, 0, 0, 0.08);
+  --fond: #fff6e5;            /* fond de la page */
+  --pois: #ffe2b8;            /* petits pois décoratifs du fond */
+  --texte: #3b2a5c;
+  --texte-doux: #8a7aa8;
+  --bouton: #ffffff;
+  --bouton-ombre: #e6d3b3;
 
-  --marge: 24px;        /* espace autour de la grille */
-  --ecart: 16px;        /* espace entre les widgets */
-  --colonnes: 6;        /* nombre de colonnes (adapté à l'écran plus bas) */
-  --arrondi: 24px;      /* coins arrondis des widgets */
+  --marge: 24px;              /* espace autour de la grille */
+  --ecart: 20px;              /* espace entre les widgets */
+  --colonnes: 6;              /* nombre de colonnes (adapté à l'écran plus bas) */
+  --arrondi: 30px;            /* coins arrondis des widgets */
+  --relief: 8px;              /* épaisseur de l'effet "relief" sous les widgets */
 
   /* Taille d'une case : la largeur disponible divisée par le nombre de colonnes. */
   --case: calc((100vw - 2 * var(--marge) - (var(--colonnes) - 1) * var(--ecart)) / var(--colonnes));
 
-  color-scheme: light dark;
+  --police: "Fredoka", ui-rounded, "SF Pro Rounded", "Arial Rounded MT Bold", system-ui, sans-serif;
 }
 
-/* Mode sombre automatique si l'appareil est en mode sombre. */
+/* Mode sombre automatique : un ciel de nuit étoilé. */
 @media (prefers-color-scheme: dark) {
   :root {
-    --fond: #15171c;
-    --carte: #23262e;
-    --texte: #eceef2;
-    --texte-doux: #9aa0ab;
-    --ombre: 0 2px 10px rgba(0, 0, 0, 0.35);
+    --fond: #1f1b3d;
+    --pois: #2c2756;
+    --texte: #f4f0ff;
+    --texte-doux: #a9a2d0;
+    --bouton: #34306a;
+    --bouton-ombre: #16132e;
   }
 }
 
 /* Nombre de colonnes selon la largeur de l'écran. */
 @media (max-width: 1100px) { :root { --colonnes: 4; } }
-@media (max-width: 600px)  { :root { --colonnes: 2; --marge: 16px; --ecart: 12px; } }
+@media (max-width: 600px)  { :root { --colonnes: 2; --marge: 16px; --ecart: 16px; --arrondi: 24px; } }
 
 * { box-sizing: border-box; }
 
 html, body {
   margin: 0;
-  background: var(--fond);
+  min-height: 100%;
   color: var(--texte);
-  font-family: ui-rounded, "SF Pro Rounded", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: var(--police);
+  font-weight: 500;
   -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  /* Fond à pois */
+  background-color: var(--fond);
+  background-image: radial-gradient(var(--pois) 3px, transparent 3.5px);
+  background-size: 34px 34px;
 }
 
 button {
@@ -61,31 +72,62 @@ button {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: calc(env(safe-area-inset-top) + 16px) var(--marge) 8px;
+  gap: 12px;
+  padding: calc(env(safe-area-inset-top) + 18px) var(--marge) 12px;
 }
 
+/* Le titre : chaque lettre a sa couleur et sautille. */
 .titre {
   margin: 0;
-  font-size: 1.6rem;
-  font-weight: 800;
-  color: var(--accent);
+  display: flex;
+  font-size: 2.6rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 1px;
+}
+.titre span {
+  display: inline-block;
+  text-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+  animation: sautiller 2.4s ease-in-out infinite;
+}
+.titre span:nth-child(1) { color: #ef476f; animation-delay: 0s; }
+.titre span:nth-child(2) { color: #ff9f1c; animation-delay: 0.15s; }
+.titre span:nth-child(3) { color: #8ac926; animation-delay: 0.3s; }
+.titre span:nth-child(4) { color: #3a86ff; animation-delay: 0.45s; }
+.titre span:nth-child(5) { color: #8338ec; animation-delay: 0.6s; }
+
+@keyframes sautiller {
+  0%, 60%, 100% { transform: translateY(0) rotate(0); }
+  30%           { transform: translateY(-6px) rotate(-4deg); }
 }
 
-.actions { display: flex; gap: 10px; }
+.actions { display: flex; gap: 12px; }
 
+/* Bouton "bonbon" avec relief qui s'enfonce quand on appuie. */
 .bouton {
   border: 0;
   border-radius: 999px;
-  padding: 10px 20px;
-  background: var(--carte);
-  box-shadow: var(--ombre);
-  font-weight: 700;
+  padding: 12px 22px;
+  background: var(--bouton);
+  box-shadow: 0 5px 0 var(--bouton-ombre);
+  font-size: 1.1rem;
+  font-weight: 600;
+  transition: transform 0.08s, box-shadow 0.08s;
+}
+.bouton:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 var(--bouton-ombre);
 }
 
-.edition #bouton-modifier,
 #bouton-ajouter {
-  background: var(--accent);
+  background: #8ac926;
+  color: #1f3300;
+  box-shadow: 0 5px 0 #64a000;
+}
+.edition #bouton-modifier {
+  background: #3a86ff;
   color: #fff;
+  box-shadow: 0 5px 0 #1d63d6;
 }
 
 /* -------------------------------------------------------------------- */
@@ -97,30 +139,57 @@ button {
   grid-template-columns: repeat(var(--colonnes), 1fr);
   grid-auto-rows: var(--case);
   grid-auto-flow: dense;          /* bouche les trous automatiquement */
-  gap: var(--ecart);
-  padding: 8px var(--marge) calc(env(safe-area-inset-bottom) + var(--marge));
+  gap: calc(var(--ecart) + var(--relief)) var(--ecart);
+  padding: 12px var(--marge) calc(env(safe-area-inset-bottom) + var(--marge) + var(--relief));
 }
 
 .vide {
   grid-column: 1 / -1;
   text-align: center;
   color: var(--texte-doux);
-  font-size: 1.2rem;
+  font-size: 1.4rem;
+  font-weight: 600;
   line-height: 1.6;
-  margin-top: 15vh;
+  margin-top: 12vh;
+}
+.vide::before {
+  content: "🧸";
+  display: block;
+  font-size: 4rem;
+  margin-bottom: 8px;
+  animation: sautiller 2.4s ease-in-out infinite;
 }
 
 /* -------------------------------------------------------------------- */
 /* Un widget                                                            */
+/* Ses couleurs viennent de --w-fond, --w-ombre et --w-texte,           */
+/* posées par js/app.js selon la couleur choisie.                       */
 /* -------------------------------------------------------------------- */
 
 .widget {
+  --w-fond: #3a86ff;
+  --w-ombre: #1d63d6;
+  --w-texte: #ffffff;
+
   position: relative;
-  background: var(--carte);
+  background: var(--w-fond);
+  color: var(--w-texte);
   border-radius: var(--arrondi);
-  box-shadow: var(--ombre);
+  box-shadow:
+    0 var(--relief) 0 var(--w-ombre),
+    0 calc(var(--relief) + 10px) 24px rgba(0, 0, 0, 0.12);
   user-select: none;
   -webkit-user-select: none;
+  transition: transform 0.12s ease-out;
+  animation: apparaitre 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Un petit "rebond" quand on appuie sur un widget. */
+body:not(.edition) .widget:active { transform: scale(0.97); }
+
+@keyframes apparaitre {
+  from { transform: scale(0.6); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
 }
 
 .taille-petit { grid-column: span 1; grid-row: span 1; }
@@ -137,10 +206,24 @@ button {
   container-type: size;
 }
 
+/* Décor : deux bulles claires dans les coins de chaque widget. */
+.contenu::before,
+.contenu::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.18);
+  pointer-events: none;
+}
+.contenu::before { width: 60cqmin; height: 60cqmin; top: -22cqmin; right: -18cqmin; }
+.contenu::after  { width: 26cqmin; height: 26cqmin; bottom: -8cqmin; left: 10cqmin; }
+
+.contenu > * { position: relative; z-index: 1; }
+
 .widget-inconnu {
   margin: 0;
   padding: 16px;
-  color: var(--texte-doux);
+  font-weight: 600;
 }
 
 /* -------------------------------------------------------------------- */
@@ -150,40 +233,45 @@ button {
 .bouton-widget {
   display: none;
   position: absolute;
-  width: 34px;
-  height: 34px;
-  border: 0;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 3px solid #fff;
   border-radius: 50%;
-  background: #8a8f98;
-  color: #fff;
+  background: #ffffff;
+  color: #3b2a5c;
   font-size: 1.2rem;
+  font-weight: 700;
   line-height: 1;
-  box-shadow: var(--ombre);
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.2);
   z-index: 2;
 }
 
-.bouton-supprimer { top: -10px; left: -10px; font-size: 1.5rem; }
-.bouton-taille    { bottom: -10px; right: -10px; }
+.bouton-supprimer { top: -12px; left: -12px; background: #ef476f; color: #fff; font-size: 1.6rem; }
+.bouton-taille    { bottom: -12px; right: -12px; }
+.bouton-couleur   { bottom: -12px; left: -12px; }
 
-.edition .bouton-widget { display: block; }
+.edition .bouton-widget { display: grid; place-items: center; }
 
 .edition .widget {
   cursor: grab;
   touch-action: none;             /* le doigt déplace le widget au lieu de faire défiler */
-  animation: trembler 0.3s ease-in-out infinite alternate;
+  animation: trembler 0.28s ease-in-out infinite alternate;
 }
-.edition .widget:nth-child(2n) { animation-delay: -0.15s; }
+.edition .widget:nth-child(2n) { animation-delay: -0.14s; }
 
 /* En mode "Modifier", on ne peut pas utiliser le contenu des widgets. */
 .edition .contenu { pointer-events: none; }
 
 @keyframes trembler {
-  from { transform: rotate(-0.8deg); }
-  to   { transform: rotate(0.8deg); }
+  from { transform: rotate(-1.2deg); }
+  to   { transform: rotate(1.2deg); }
 }
 
+/* Moins d'animations si l'appareil le demande. */
 @media (prefers-reduced-motion: reduce) {
-  .edition .widget { animation: none; outline: 2px dashed var(--texte-doux); }
+  .titre span, .vide::before, .widget { animation: none; }
+  .edition .widget { animation: none; outline: 3px dashed var(--texte-doux); outline-offset: 4px; }
 }
 
 /* Pendant un glisser-déposer */
@@ -194,8 +282,8 @@ button {
   z-index: 100;
   pointer-events: none;
   animation: none !important;
-  transform: scale(1.05);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.25);
+  transform: scale(1.06) rotate(3deg);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
 
 /* -------------------------------------------------------------------- */
@@ -204,22 +292,23 @@ button {
 
 .galerie {
   border: 0;
-  border-radius: var(--arrondi);
-  padding: 24px;
-  width: min(520px, calc(100vw - 32px));
-  background: var(--carte);
+  border-radius: 32px;
+  padding: 28px;
+  width: min(560px, calc(100vw - 32px));
+  background: var(--fond);
   color: var(--texte);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 10px 0 rgba(0, 0, 0, 0.15), 0 30px 60px rgba(0, 0, 0, 0.3);
   text-align: center;
 }
-.galerie::backdrop { background: rgba(0, 0, 0, 0.4); }
-.galerie h2 { margin: 0 0 20px; }
+.galerie[open] { animation: apparaitre 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.galerie::backdrop { background: rgba(40, 20, 80, 0.45); }
+.galerie h2 { margin: 0 0 22px; font-size: 1.8rem; font-weight: 700; }
 
 .liste-widgets {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-  gap: 12px;
-  margin-bottom: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 18px;
+  margin-bottom: 24px;
 }
 
 .choix-widget {
@@ -227,16 +316,22 @@ button {
   flex-direction: column;
   align-items: center;
   gap: 8px;
-  padding: 18px 8px;
+  padding: 20px 8px;
   border: 0;
-  border-radius: 18px;
-  background: var(--fond);
-  font-weight: 700;
+  border-radius: 24px;
+  background: var(--w-fond);
+  color: var(--w-texte);
+  box-shadow: 0 6px 0 var(--w-ombre);
+  font-size: 1.2rem;
+  font-weight: 600;
+  transition: transform 0.08s, box-shadow 0.08s;
 }
-.choix-widget .icone { font-size: 2.2rem; }
+.choix-widget:active { transform: translateY(5px); box-shadow: 0 1px 0 var(--w-ombre); }
+.choix-widget .icone { font-size: 2.6rem; }
 
 /* ==================================================================== */
 /* Styles des widgets (un bloc par widget)                              */
+/* Utiliser var(--w-texte) pour la couleur du texte.                    */
 /* ==================================================================== */
 
 /* --- Horloge --- */
@@ -250,15 +345,17 @@ button {
   padding: 8cqmin;
 }
 .horloge-heure {
-  font-size: 34cqmin;
-  font-weight: 800;
+  font-size: 36cqmin;
+  font-weight: 700;
   line-height: 1;
   font-variant-numeric: tabular-nums;
+  text-shadow: 0 1.2cqmin 0 rgba(0, 0, 0, 0.15);
 }
 .horloge-date {
   font-size: 11cqmin;
-  color: var(--texte-doux);
+  font-weight: 600;
   text-align: center;
+  opacity: 0.9;
 }
 .taille-petit .horloge-heure { font-size: 30cqmin; }
 .taille-petit .horloge-date  { font-size: 12cqmin; }
@@ -269,14 +366,13 @@ button {
   height: 100%;
   border: 0;
   resize: none;
-  padding: 18px 20px;
-  background: #fff6c9;
-  color: #3b3523;
+  padding: 22px 24px;
+  background: transparent;
+  color: var(--w-texte);
   font: inherit;
-  font-size: 1.15rem;
-  line-height: 1.45;
+  font-size: 1.35rem;
+  font-weight: 600;
+  line-height: 1.4;
   outline: none;
 }
-@media (prefers-color-scheme: dark) {
-  .note { background: #4a4428; color: #f4ecc8; }
-}
+.note::placeholder { color: var(--w-texte); opacity: 0.65; }

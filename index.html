@@ -6,13 +6,19 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="mobile-web-app-capable" content="yes">
   <title>Nidoo</title>
+  <!-- Police ronde et ludique (Google Fonts). Sans internet, une police ronde du système prend le relais. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&display=swap">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
 
   <!-- Barre du haut -->
   <header class="barre">
-    <h1 class="titre">Nidoo</h1>
+    <h1 class="titre" aria-label="Nidoo">
+      <span>N</span><span>i</span><span>d</span><span>o</span><span>o</span>
+    </h1>
     <div class="actions">
       <button id="bouton-ajouter" class="bouton" hidden>+ Ajouter</button>
       <button id="bouton-modifier" class="bouton">Modifier</button>

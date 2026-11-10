@@ -23,6 +23,26 @@
     return 'w' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
   }
 
+  const nomsCouleurs = Object.keys(Nidoo.COULEURS);
+
+  /* Couleur suivante dans la palette (pour que deux widgets ajoutés à la suite soient différents). */
+  function couleurSuivante(couleur) {
+    return nomsCouleurs[(nomsCouleurs.indexOf(couleur) + 1) % nomsCouleurs.length];
+  }
+
+  /* Applique la couleur d'un widget à sa case (variables CSS --w-fond, --w-ombre, --w-texte). */
+  function appliquerCouleur(caseWidget, couleur) {
+    const c = Nidoo.COULEURS[couleur] || Nidoo.COULEURS[nomsCouleurs[0]];
+    caseWidget.style.setProperty('--w-fond', c.fond);
+    caseWidget.style.setProperty('--w-ombre', c.ombre);
+    caseWidget.style.setProperty('--w-texte', c.texte);
+  }
+
+  // Les widgets enregistrés avant l'arrivée des couleurs en reçoivent une.
+  etat.widgets.forEach((w, i) => {
+    if (!Nidoo.COULEURS[w.couleur]) w.couleur = nomsCouleurs[i % nomsCouleurs.length];
+  });
+
   function trouverWidget(id) {
     return etat.widgets.find((w) => w.id === id);
   }
@@ -38,12 +58,14 @@
     const caseWidget = document.createElement('div');
     caseWidget.className = 'widget taille-' + w.taille;
     caseWidget.dataset.id = w.id;
+    appliquerCouleur(caseWidget, w.couleur);
 
     // Boutons visibles uniquement en mode "Modifier" (voir css/style.css).
     caseWidget.innerHTML = `
       <div class="contenu"></div>
       <button class="bouton-widget bouton-supprimer" aria-label="Supprimer">×</button>
-      <button class="bouton-widget bouton-taille" aria-label="Changer la taille">⤢</button>`;
+      <button class="bouton-widget bouton-taille" aria-label="Changer la taille">⤢</button>
+      <button class="bouton-widget bouton-couleur" aria-label="Changer la couleur">🎨</button>`;
 
     const zone = caseWidget.querySelector('.contenu');
     if (definition) {
@@ -62,6 +84,11 @@
 
     caseWidget.querySelector('.bouton-supprimer').addEventListener('click', () => supprimerWidget(w.id));
     caseWidget.querySelector('.bouton-taille').addEventListener('click', () => changerTaille(w.id));
+    caseWidget.querySelector('.bouton-couleur').addEventListener('click', () => {
+      w.couleur = couleurSuivante(w.couleur);
+      sauvegarder();
+      appliquerCouleur(caseWidget, w.couleur);
+    });
     return caseWidget;
   }
 
@@ -97,7 +124,14 @@
 
   function ajouterWidget(type) {
     const definition = Nidoo.catalogue[type];
-    const w = { id: nouvelIdentifiant(), type, taille: definition.tailleParDefaut, donnees: {} };
+    const derniere = etat.widgets[etat.widgets.length - 1];
+    const w = {
+      id: nouvelIdentifiant(),
+      type,
+      taille: definition.tailleParDefaut,
+      couleur: derniere ? couleurSuivante(derniere.couleur) : nomsCouleurs[0],
+      donnees: {},
+    };
     etat.widgets.push(w);
     sauvegarder();
     const caseWidget = creerCase(w);
@@ -167,10 +201,14 @@
 
   function remplirGalerie() {
     listeWidgets.innerHTML = '';
-    Object.values(Nidoo.catalogue).forEach((definition) => {
+    Object.values(Nidoo.catalogue).forEach((definition, i) => {
       const bouton = document.createElement('button');
       bouton.className = 'choix-widget';
       bouton.innerHTML = '<span class="icone">' + definition.icone + '</span><span>' + definition.nom + '</span>';
+      const c = Nidoo.COULEURS[nomsCouleurs[i % nomsCouleurs.length]];
+      bouton.style.setProperty('--w-fond', c.fond);
+      bouton.style.setProperty('--w-ombre', c.ombre);
+      bouton.style.setProperty('--w-texte', c.texte);
       bouton.addEventListener('click', () => {
         ajouterWidget(definition.type);
         galerie.close();
