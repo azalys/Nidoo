@@ -113,7 +113,98 @@
     grille.innerHTML = '';
     etat.widgets.forEach((w) => grille.appendChild(creerCase(w)));
     afficherMessageVide();
+    placer();
   }
+
+  /* ------------------------------------------------------------------ */
+  /* Taille des cases et position des widgets                           */
+  /* ------------------------------------------------------------------ */
+
+  let colonnes = 6;     // calculé selon la largeur de l'écran
+  let lignesEcran = 4;  // lignes qui tiennent dans la hauteur de l'écran
+  let placement = new Map();
+
+  /*
+   * Calcule la taille des cases : la hauteur de l'écran fixe la taille
+   * (4 lignes à l'horizontale, 6 à la verticale), puis on met autant
+   * de colonnes que la largeur le permet. Sur un petit écran : 2 colonnes.
+   */
+  function mesurer() {
+    const css = getComputedStyle(document.documentElement);
+    const nombre = (nom) => parseFloat(css.getPropertyValue(nom)) || 0;
+    const marge = nombre('--marge');
+    const ecart = nombre('--ecart');
+    const relief = nombre('--relief');
+    const largeur = document.documentElement.clientWidth;
+    const hauteur = window.innerHeight;
+    const barre = document.querySelector('.barre').offsetHeight;
+    let taille;
+
+    if (largeur <= 600) {
+      colonnes = 2;
+      taille = (largeur - 2 * marge - ecart) / 2;
+      lignesEcran = 1;
+    } else {
+      lignesEcran = hauteur > largeur ? nombre('--lignes-verticale') : nombre('--lignes-horizontale');
+      const place = hauteur - barre - 12 - marge - relief - (lignesEcran - 1) * (ecart + relief);
+      taille = Math.max(80, place / lignesEcran);
+      colonnes = Math.max(2, Math.floor((largeur - 2 * marge + ecart) / (taille + ecart)));
+    }
+    grille.style.setProperty('--colonnes', colonnes);
+    grille.style.setProperty('--case', taille + 'px');
+  }
+
+  /*
+   * Calcule où va chaque widget et l'affiche.
+   * `enregistrer` : garde ces positions (après une action de l'utilisateur).
+   * Un simple changement de taille de fenêtre ne les enregistre pas.
+   */
+  function placer({ enregistrer = false, prioritaire } = {}) {
+    placement = Nidoo.placement.calculer(etat.widgets, colonnes, prioritaire);
+    if (enregistrer) {
+      etat.widgets.forEach((w) => {
+        const p = placement.get(w.id);
+        w.x = p.x;
+        w.y = p.y;
+      });
+      sauvegarder();
+    }
+    placement.forEach((p, id) => {
+      const caseWidget = grille.querySelector('.widget[data-id="' + id + '"]');
+      if (!caseWidget) return;
+      caseWidget.style.gridColumn = p.x + 1 + ' / span ' + p.l;
+      caseWidget.style.gridRow = p.y + 1 + ' / span ' + p.h;
+    });
+    dessinerEmplacements();
+  }
+
+  /* Les cases vides, visibles en mode "Modifier" : on peut y déposer un widget. */
+  function dessinerEmplacements() {
+    grille.querySelectorAll('.emplacement').forEach((e) => e.remove());
+    const lignes = Math.max(lignesEcran, Nidoo.placement.hauteur(placement));
+    const fragment = document.createDocumentFragment();
+    for (let y = 0; y < lignes; y++) {
+      for (let x = 0; x < colonnes; x++) {
+        const emplacement = document.createElement('div');
+        emplacement.className = 'emplacement';
+        emplacement.dataset.x = x;
+        emplacement.dataset.y = y;
+        emplacement.style.gridColumn = String(x + 1);
+        emplacement.style.gridRow = String(y + 1);
+        fragment.appendChild(emplacement);
+      }
+    }
+    grille.prepend(fragment);
+  }
+
+  let attenteRedimension = null;
+  window.addEventListener('resize', () => {
+    clearTimeout(attenteRedimension);
+    attenteRedimension = setTimeout(() => {
+      mesurer();
+      placer();
+    }, 150);
+  });
 
   function afficherMessageVide() {
     const message = grille.querySelector('.vide');
@@ -148,10 +239,10 @@
 
   function ajouterWidget(type) {
     const w = creerWidget(type);
-    sauvegarder();
     const caseWidget = creerCase(w);
     grille.appendChild(caseWidget);
     afficherMessageVide();
+    placer({ enregistrer: true }); // il va à la première place libre
     caseWidget.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
 
@@ -164,6 +255,7 @@
     sauvegarder();
     grille.querySelector('[data-id="' + id + '"]').remove();
     afficherMessageVide();
+    placer();
   }
 
   /* Passe à la taille suivante parmi celles autorisées par le widget. */
@@ -171,15 +263,37 @@
     const w = trouverWidget(id);
     const tailles = Nidoo.catalogue[w.type]?.tailles || Object.keys(Nidoo.TAILLES);
     w.taille = tailles[(tailles.indexOf(w.taille) + 1) % tailles.length];
-    sauvegarder();
     redessiner(id);
+    // Il garde sa place si possible ; ce qu'il recouvre va à la première place libre.
+    gelerPositions();
+    const p = placement.get(id);
+    const { l, h } = Nidoo.placement.dimensions(w, colonnes);
+    Nidoo.placement.chevauchements(placement, p.x, p.y, l, h, id).forEach((autre) => {
+      delete trouverWidget(autre).x;
+      delete trouverWidget(autre).y;
+    });
+    placer({ enregistrer: true, prioritaire: id });
+  }
+
+  /* Enregistre dans chaque widget la position où il est affiché maintenant. */
+  function gelerPositions() {
+    etat.widgets.forEach((w) => {
+      const p = placement.get(w.id);
+      if (p) {
+        w.x = p.x;
+        w.y = p.y;
+      }
+    });
   }
 
   /* Redessine un seul widget (après un changement de taille ou de réglages). */
   function redessiner(id) {
     nettoyer(id);
     const ancienne = grille.querySelector('[data-id="' + id + '"]');
-    ancienne.replaceWith(creerCase(trouverWidget(id)));
+    const nouvelle = creerCase(trouverWidget(id));
+    nouvelle.style.gridColumn = ancienne.style.gridColumn;
+    nouvelle.style.gridRow = ancienne.style.gridRow;
+    ancienne.replaceWith(nouvelle);
   }
 
   /* ------------------------------------------------------------------ */
@@ -318,11 +432,41 @@
   /* ------------------------------------------------------------------ */
   /* Glisser-déposer (en mode "Modifier")                               */
   /*                                                                    */
-  /* Pendant le glissement, une copie ("fantôme") suit le doigt, et la  */
-  /* vraie case change de place dans la grille au fur et à mesure.      */
+  /* Une copie ("fantôme") suit le doigt ; les cases où le widget va    */
+  /* atterrir sont surlignées. Au lâcher :                              */
+  /*   - place libre : le widget y va ;                                 */
+  /*   - un seul widget de même taille dessous : ils échangent ;        */
+  /*   - sinon : les widgets recouverts vont à la première place libre. */
   /* ------------------------------------------------------------------ */
 
-  let glisse = null; // { caseWidget, fantome, decalageX, decalageY, departX, departY, actif }
+  let glisse = null; // { id, caseWidget, fantome, decalageX, decalageY, departX, departY, actif, cible }
+
+  /* La case (colonne, ligne) sous le coin haut-gauche du fantôme. */
+  function caseSous(gauche, haut, l, h) {
+    const rect = grille.getBoundingClientRect();
+    const css = getComputedStyle(grille);
+    const debutX = rect.left + parseFloat(css.paddingLeft);
+    const debutY = rect.top + parseFloat(css.paddingTop);
+    const largeurUtile = rect.width - parseFloat(css.paddingLeft) - parseFloat(css.paddingRight);
+    const ecartX = parseFloat(css.columnGap);
+    const pasX = (largeurUtile + ecartX) / colonnes;
+    const pasY = parseFloat(grille.style.getPropertyValue('--case')) + parseFloat(css.rowGap);
+    const lignes = Math.max(lignesEcran, Nidoo.placement.hauteur(placement));
+    return {
+      x: Math.min(Math.max(0, Math.round((gauche - debutX) / pasX)), colonnes - l),
+      y: Math.min(Math.max(0, Math.round((haut - debutY) / pasY)), Math.max(0, lignes - h)),
+    };
+  }
+
+  function surligner(cible, l, h) {
+    grille.querySelectorAll('.emplacement.cible').forEach((e) => e.classList.remove('cible'));
+    if (!cible) return;
+    grille.querySelectorAll('.emplacement').forEach((e) => {
+      const x = Number(e.dataset.x);
+      const y = Number(e.dataset.y);
+      if (x >= cible.x && x < cible.x + l && y >= cible.y && y < cible.y + h) e.classList.add('cible');
+    });
+  }
 
   grille.addEventListener('pointerdown', (e) => {
     if (!modeEdition || e.button > 0 || e.target.closest('.bouton-widget')) return;
@@ -330,6 +474,7 @@
     if (!caseWidget) return;
     const rect = caseWidget.getBoundingClientRect();
     glisse = {
+      id: caseWidget.dataset.id,
       caseWidget,
       fantome: null,
       decalageX: e.clientX - rect.left,
@@ -337,6 +482,7 @@
       departX: e.clientX,
       departY: e.clientY,
       actif: false,
+      cible: null,
     };
   });
 
@@ -358,27 +504,48 @@
       glisse.actif = true;
     }
 
-    glisse.fantome.style.left = e.clientX - glisse.decalageX + 'px';
-    glisse.fantome.style.top = e.clientY - glisse.decalageY + 'px';
+    const gauche = e.clientX - glisse.decalageX;
+    const haut = e.clientY - glisse.decalageY;
+    glisse.fantome.style.left = gauche + 'px';
+    glisse.fantome.style.top = haut + 'px';
 
-    // Quelle case est sous le doigt ? On place la case déplacée avant ou après elle.
-    const sous = document.elementFromPoint(e.clientX, e.clientY)?.closest('.widget');
-    if (!sous || sous === glisse.caseWidget || sous.classList.contains('fantome')) return;
-    const rect = sous.getBoundingClientRect();
-    const avant = e.clientX < rect.left + rect.width / 2;
-    const cible = avant ? sous : sous.nextSibling;
-    if (cible !== glisse.caseWidget) grille.insertBefore(glisse.caseWidget, cible);
+    const p = placement.get(glisse.id);
+    glisse.cible = caseSous(gauche, haut, p.l, p.h);
+    surligner(glisse.cible, p.l, p.h);
   });
+
+  function deposer(id, cible) {
+    const p = placement.get(id);
+    if (cible.x === p.x && cible.y === p.y) return;
+    gelerPositions();
+    const dessous = Nidoo.placement.chevauchements(placement, cible.x, cible.y, p.l, p.h, id);
+    const seul = dessous.length === 1 && placement.get(dessous[0]);
+
+    if (seul && seul.l === p.l && seul.h === p.h) {
+      // Même taille : on échange les places.
+      const autre = trouverWidget(dessous[0]);
+      autre.x = p.x;
+      autre.y = p.y;
+    } else {
+      // Les widgets recouverts iront à la première place libre.
+      dessous.forEach((autreId) => {
+        delete trouverWidget(autreId).x;
+        delete trouverWidget(autreId).y;
+      });
+    }
+    const w = trouverWidget(id);
+    w.x = cible.x;
+    w.y = cible.y;
+    placer({ enregistrer: true, prioritaire: id });
+  }
 
   function terminerGlisse() {
     if (!glisse) return;
     if (glisse.actif) {
       glisse.fantome.remove();
       glisse.caseWidget.classList.remove('en-deplacement');
-      // Le nouvel ordre = l'ordre des cases dans la page.
-      const ordre = [...grille.querySelectorAll('.widget')].map((c) => c.dataset.id);
-      etat.widgets.sort((a, b) => ordre.indexOf(a.id) - ordre.indexOf(b.id));
-      sauvegarder();
+      surligner(null);
+      if (glisse.cible) deposer(glisse.id, glisse.cible);
     }
     glisse = null;
   }
@@ -399,5 +566,6 @@
   }
 
   remplirGalerie();
+  mesurer();
   afficherGrille();
 })();

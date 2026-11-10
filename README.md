@@ -40,7 +40,7 @@ Attention : les fichiers retirés du projet sont aussi supprimés sur le serveur
 | 🛒 Courses | grand | cocher un article le retire, « + » pour ajouter |
 | ✅ Routine | grand | matin avant midi, soir après midi ; étapes réglables avec ⚙️ |
 | 📅 Agenda | grand | adresse iCal de l'agenda, lue par `api.php` ; exemples tant qu'elle n'est pas réglée |
-| ⏰ Minuteur | petit, moyen, grand | +1/+5/+10 min, ▶/⏸, ↺ ; sonne à la fin (son fabriqué par le navigateur) |
+| ⏰ Minuteur | petit, moyen, grand | +1/+5/+10 min, ▶/⏸, ↺ ; sonne à la fin ; empêche la mise en veille tant qu'il tourne (page en https uniquement) |
 | 🕒 Horloge, 📝 Note | petit, moyen, grand | — |
 
 ### Brancher un agenda Google
@@ -56,7 +56,8 @@ Les sites d'agendas acceptés sont listés en haut de `api.php`.
 ## Utilisation
 
 - **Modifier** (ou appui long sur la grille) : les widgets tremblent.
-  - glisser un widget pour le déplacer ;
+  - glisser un widget sur n'importe quelle case (les cases libres sont en pointillés) ;
+    sur un widget de même taille, les deux échangent leur place ;
   - **×** pour le supprimer ;
   - **⤢** pour changer sa taille (petit → moyen → grand) ;
   - **🎨** pour changer sa couleur ;
@@ -75,6 +76,7 @@ css/style.css      tous les styles (couleurs et tailles réglables en haut)
 js/stockage.js     lecture / enregistrement dans le localStorage
 js/widgets.js      le catalogue des widgets, les tailles et les couleurs
 js/depart.js       les widgets installés au premier lancement
+js/placement.js    calcul de la position des widgets (sans chevauchement)
 js/app.js          la grille, le mode Modifier, le glisser-déposer, les réglages
 widgets/           un fichier par widget
 api.php            l'API côté serveur (lecture des agendas iCal)
@@ -96,6 +98,8 @@ et l'exemple de `widgets/routine.js`.
 
 ## Taille de l'écran
 
-La grille est prévue pour tenir sur un iPad sans faire défiler :
-6 colonnes × 4 lignes à l'horizontale, 4 × 6 à la verticale.
-Ces réglages sont en haut de `css/style.css`.
+La grille remplit tout l'écran : la hauteur fixe la taille des cases
+(4 lignes à l'horizontale, 6 à la verticale, réglables en haut de `css/style.css`),
+et il y a autant de colonnes que la largeur le permet (6 sur un iPad à l'horizontale).
+Les positions sont enregistrées par appareil. Si l'écran est plus étroit que celui
+où la grille a été rangée, les widgets qui ne tiennent plus vont à la première place libre.

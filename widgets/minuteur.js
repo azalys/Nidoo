@@ -5,6 +5,8 @@
  * Les navigateurs n'autorisent le son qu'après un appui de l'utilisateur :
  * chaque bouton du minuteur "débloque" donc le son au passage.
  *
+ * Tant qu'il tourne, il empêche l'écran de se mettre en veille (voir "eveil" plus bas).
+ *
  * Données enregistrées :
  *   fin      heure de fin (en millisecondes) quand le minuteur tourne, sinon null
  *   restant  temps restant (en millisecondes) quand il est arrêté ou en pause
@@ -43,6 +45,43 @@
       oscillateur.stop(debut + 0.17);
     });
   }
+
+  /* ---- Empêcher la mise en veille de l'écran ---------------------------- */
+  /*
+   * Tant qu'un minuteur tourne (ou sonne), on demande au navigateur de garder
+   * l'écran allumé (API "Screen Wake Lock", comme les sites de vidéo).
+   * Le navigateur relâche cette demande quand on change d'onglet ou d'appli :
+   * on la redemande quand la page redevient visible.
+   * Ne marche que sur une page en https:// (ou http://localhost).
+   */
+  const eveil = {
+    demandeurs: new Set(), // les minuteurs qui veulent garder l'écran allumé
+    verrou: null,
+
+    async mettreAJour() {
+      const voulu = this.demandeurs.size > 0 && document.visibilityState === 'visible';
+      if (voulu && !this.verrou && 'wakeLock' in navigator) {
+        try {
+          this.verrou = await navigator.wakeLock.request('screen');
+          this.verrou.addEventListener('release', () => (this.verrou = null));
+        } catch (erreur) {
+          this.verrou = null; // refusé (batterie faible, page non sécurisée…)
+        }
+      } else if (!voulu && this.verrou) {
+        const verrou = this.verrou;
+        this.verrou = null;
+        verrou.release();
+      }
+    },
+
+    garder(qui, actif) {
+      const avant = this.demandeurs.has(qui);
+      if (actif) this.demandeurs.add(qui);
+      else this.demandeurs.delete(qui);
+      if (avant !== actif) this.mettreAJour();
+    },
+  };
+  document.addEventListener('visibilitychange', () => eveil.mettreAJour());
 
   /* ---- Outils ---------------------------------------------------------- */
 
@@ -119,6 +158,9 @@
           principal.textContent = '▶';
         }
         principal.disabled = !enCours() && reste <= 0;
+
+        // Écran gardé allumé tant que le minuteur tourne ou sonne.
+        eveil.garder(zone, (enCours() && reste > 0) || sonnerie !== null);
       }
 
       // Toutes les 250 ms : on met à jour l'affichage, et on sonne si c'est fini.
@@ -166,6 +208,7 @@
       return () => {
         clearInterval(minuteur);
         arreterSonnerie();
+        eveil.garder(zone, false);
       };
     },
   });

@@ -14,18 +14,13 @@
 
   --marge: 20px;              /* espace autour de la grille */
   --ecart: 16px;              /* espace entre les widgets */
-  --colonnes: 4;              /* nombre de colonnes (adapté à l'écran plus bas) */
-  --lignes: 6;                /* nombre de lignes qui doivent tenir dans la hauteur de l'écran */
+  --lignes-horizontale: 4;    /* lignes qui tiennent dans la hauteur, écran à l'horizontale */
+  --lignes-verticale: 6;      /* lignes qui tiennent dans la hauteur, écran à la verticale */
+                              /* (le nombre de colonnes est calculé par js/app.js pour remplir la largeur) */
   --arrondi: 26px;            /* coins arrondis des widgets */
   --relief: 6px;              /* épaisseur de l'effet "relief" sous les widgets */
   --hauteur-barre: 64px;      /* hauteur de la barre du haut */
 
-  /* Taille d'une case : selon la largeur ET la hauteur de l'écran (la plus petite des deux), */
-  /* pour que toute la grille tienne sur un iPad sans faire défiler.                          */
-  --case-largeur: calc((100vw - 2 * var(--marge) - (var(--colonnes) - 1) * var(--ecart)) / var(--colonnes));
-  --case-hauteur: calc((100dvh - var(--hauteur-barre) - var(--marge) - var(--relief) - 12px
-                        - (var(--lignes) - 1) * (var(--ecart) + var(--relief))) / var(--lignes));
-  --case: min(var(--case-largeur), var(--case-hauteur));
 
   --police: "Fredoka", ui-rounded, "SF Pro Rounded", "Arial Rounded MT Bold", system-ui, sans-serif;
 }
@@ -42,12 +37,7 @@
   }
 }
 
-/* Nombre de colonnes et de lignes selon l'écran :                                  */
-/*   iPad à l'horizontale : 6 colonnes × 4 lignes                                     */
-/*   iPad à la verticale  : 4 colonnes × 6 lignes                                     */
-/*   petit écran          : 2 colonnes, on fait défiler                               */
-@media (orientation: landscape) and (min-width: 900px) { :root { --colonnes: 6; --lignes: 4; } }
-@media (max-width: 600px) { :root { --colonnes: 2; --case: var(--case-largeur); } }
+
 
 * { box-sizing: border-box; }
 
@@ -146,17 +136,16 @@ button {
 
 .grille {
   display: grid;
-  grid-template-columns: repeat(var(--colonnes), minmax(0, 1fr));
-  grid-auto-rows: var(--case);
-  grid-auto-flow: dense;          /* bouche les trous automatiquement */
+  grid-template-columns: repeat(var(--colonnes, 6), minmax(0, 1fr));
+  grid-auto-rows: var(--case, 160px);
   gap: calc(var(--ecart) + var(--relief)) var(--ecart);
   padding: 12px var(--marge) calc(env(safe-area-inset-bottom) + var(--marge) + var(--relief));
-  max-width: calc(var(--colonnes) * var(--case) + (var(--colonnes) - 1) * var(--ecart) + 2 * var(--marge));
-  margin: 0 auto;
 }
 
 .vide {
   grid-column: 1 / -1;
+  grid-row: 1 / span 2;
+  z-index: 1;
   text-align: center;
   color: var(--texte-doux);
   font-size: 1.4rem;
@@ -204,9 +193,20 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
   to   { transform: scale(1);   opacity: 1; }
 }
 
-.taille-petit { grid-column: span 1; grid-row: span 1; }
-.taille-moyen { grid-column: span 2; grid-row: span 1; }
-.taille-grand { grid-column: span 2; grid-row: span 2; }
+/* La position de chaque widget (colonne, ligne) est posée par js/app.js. */
+.widget { z-index: 1; }
+
+/* Les cases de la grille, visibles seulement en mode "Modifier". */
+.emplacement {
+  display: none;
+  border: 3px dashed color-mix(in srgb, var(--texte-doux) 35%, transparent);
+  border-radius: var(--arrondi);
+}
+.edition .emplacement { display: block; }
+.emplacement.cible {
+  border: 3px solid #3a86ff;
+  background: color-mix(in srgb, #3a86ff 22%, transparent);
+}
 
 /* Le contenu prend toute la place ; "container-type" permet aux widgets */
 /* d'adapter la taille du texte à leur case (unités cqmin, cqw...).     */
