@@ -7,6 +7,7 @@
  *
  * + / − règlent les minutes et les secondes (en gardant le doigt appuyé, ça défile vite).
  * À la fin ça sonne ; "Stop" remet le temps réglé, prêt pour la fois suivante.
+ * ↺ : en marche / en pause / fini → retour au temps réglé ; déjà arrêté → 00:00.
  *
  * Le son est fabriqué par le navigateur (Web Audio), pas besoin de fichier.
  * Les navigateurs n'autorisent le son qu'après un appui : le bouton ▶ "débloque" le son.
@@ -124,7 +125,7 @@
       zone.innerHTML = `
         <div class="minuteur">
           <button class="minuteur-bouton" data-reglage="60" aria-label="Une minute de plus">+</button>
-          <button class="minuteur-bouton minuteur-petit" data-action="zero" aria-label="Remettre au temps réglé">↺</button>
+          <button class="minuteur-bouton" data-action="zero" aria-label="Remettre à zéro">↺</button>
           <button class="minuteur-bouton" data-reglage="${PAS_SECONDES}" aria-label="Plus de secondes">+</button>
 
           <div class="minuteur-chiffres minuteur-minutes">00</div>
@@ -241,7 +242,11 @@
 
         if (bouton.dataset.action === 'zero') {
           arreterSonnerie();
-          enregistrer({ fin: null, pause: null });
+          if (d().fin == null && !enPause()) {
+            enregistrer({ duree: 0 }); // déjà arrêté : retour à 00:00
+          } else {
+            enregistrer({ fin: null, pause: null }); // en marche, en pause ou fini : retour au temps réglé
+          }
         } else if (fini()) {
           // Fini : on arrête la sonnerie et on remet le temps réglé.
           arreterSonnerie();

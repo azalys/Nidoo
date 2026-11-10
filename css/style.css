@@ -679,8 +679,7 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
 .minuteur-bouton:active { transform: translateY(2px) scale(0.94); }
 .minuteur-bouton:disabled { opacity: 0.2; }
 
-/* ↺ en haut : plus discret. ▶ en bas : bien visible. */
-.minuteur-petit { width: 16cqmin; height: 16cqmin; font-size: max(14px, 10cqmin); background: transparent; box-shadow: none; }
+/* ▶ en bas : bien visible. */
 .minuteur-principal { background: var(--w-texte); color: var(--w-fond); }
 
 /* En 1×2, on resserre au centre pour ne pas écarter les chiffres. */
