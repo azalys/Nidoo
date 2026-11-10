@@ -70,3 +70,27 @@ Nidoo.echapper = function (texte) {
     ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]
   );
 };
+
+/*
+ * Outil : ouvre une fenêtre par-dessus la grille ("popin"), avec un titre et du HTML.
+ * Elle se ferme avec le bouton "Fermer" ou en touchant à côté.
+ *   Nidoo.ouvrirPopin('Titre', '<p>Contenu</p>');
+ */
+Nidoo.ouvrirPopin = function (titre, html) {
+  let popin = document.getElementById('popin');
+  if (!popin) {
+    popin = document.createElement('dialog');
+    popin.id = 'popin';
+    popin.className = 'galerie popin';
+    popin.innerHTML = `
+      <h2 class="popin-titre"></h2>
+      <div class="popin-contenu"></div>
+      <button class="bouton bouton-principal popin-fermer">Fermer</button>`;
+    popin.querySelector('.popin-fermer').addEventListener('click', () => popin.close());
+    popin.addEventListener('click', (e) => e.target === popin && popin.close());
+    document.body.appendChild(popin);
+  }
+  popin.querySelector('.popin-titre').textContent = titre;
+  popin.querySelector('.popin-contenu').innerHTML = html;
+  popin.showModal();
+};

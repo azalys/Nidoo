@@ -284,7 +284,7 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
 
 /* Moins d'animations si l'appareil le demande. */
 @media (prefers-reduced-motion: reduce) {
-  .titre span, .vide::before, .widget { animation: none; }
+  .titre span, .vide::before, .widget, .galerie[open] { animation: none; }
   .edition .widget { animation: none; outline: 3px dashed var(--texte-doux); outline-offset: 4px; }
 }
 
@@ -549,6 +549,8 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
   text-align: center;
   font-weight: 600;
 }
+.meteo-jour { cursor: pointer; border-radius: 16px; transition: transform 0.1s; }
+.meteo-jour:active { transform: scale(0.95); }
 .meteo-titre,
 .tempo-titre { font-size: max(13px, 10cqh); font-weight: 700; }
 .meteo-icone { font-size: 30cqh; line-height: 1.1; }
@@ -716,3 +718,32 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
   font-size: max(11px, 8.5cqh);
   font-weight: 600;
 }
+
+/* --- Popin (fenêtre par-dessus la grille) --- */
+.popin { width: min(760px, calc(100vw - 32px)); }
+.popin-contenu { margin-bottom: 22px; }
+
+/* Détail météo heure par heure */
+.heures {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);   /* 15 heures = 3 lignes de 5 */
+  gap: 10px;
+}
+@media (max-width: 520px) { .heures { grid-template-columns: repeat(3, 1fr); } }
+.heure-carte {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 4px;
+  border-radius: 18px;
+  background: color-mix(in srgb, #3a86ff 14%, transparent);
+  font-weight: 600;
+}
+.heure-heure { font-size: 0.95rem; opacity: 0.8; }
+.heure-icone { font-size: 2rem; line-height: 1.2; }
+.heure-temp  { font-size: 1.35rem; font-weight: 700; }
+.heure-pluie { font-size: 0.85rem; opacity: 0.75; }
+.heure-pluie.forte { opacity: 1; color: #1d63d6; }
+@media (prefers-color-scheme: dark) { .heure-pluie.forte { color: #7fb0ff; } }
+.heures-legende { margin: 12px 0 0; font-size: 0.9rem; color: var(--texte-doux); }
