@@ -1,5 +1,6 @@
 /*
- * Widget "Tempo EDF" : la couleur du moment (petit), ou d'aujourd'hui et de demain (moyen).
+ * Widget "Tempo EDF" : la couleur du moment (petit), ou d'aujourd'hui et de demain (moyen),
+ * avec "heures creuses / heures pleines" en ce moment.
  * Données : https://www.api-couleur-tempo.fr, gratuit et sans clé.
  * La couleur de demain est publiée par RTE vers 11 h ; avant, elle est "pas encore connue".
  */
@@ -52,11 +53,12 @@
             const creuses = /-HC$/.test(maintenant.libTarif || '');
             html = bloc('Maintenant', maintenant.codeCouleur, creuses ? 'Heures creuses' : 'Heures pleines');
           } else {
-            const [aujourdhui, demain] = await Promise.all([lire('/jourTempo/today'), lire('/jourTempo/tomorrow')]);
+            const [aujourdhui, demain, maintenant] = await Promise.all([lire('/jourTempo/today'), lire('/jourTempo/tomorrow'), lire('/now')]);
+            const creuses = /-HC$/.test(maintenant.libTarif || '');
             // Un éclair entre les deux jours, pour qu'on voie tout de suite que c'est EDF.
-            html = bloc("Aujourd'hui", aujourdhui.codeJour) +
+            html = bloc("Aujourd'hui", aujourdhui.codeJour, creuses ? 'Heures creuses' : 'Heures pleines') +
               '<div class="tempo-eclair" aria-hidden="true">⚡</div>' +
-              bloc('Demain', demain.codeJour);
+              bloc('Demain', demain.codeJour, '\u00a0'); // ligne vide : les deux colonnes restent alignées
           }
           if (!arrete) boite.innerHTML = html;
         } catch (erreur) {
@@ -66,9 +68,15 @@
 
       mettreAJour();
       const minuteur = setInterval(mettreAJour, 15 * 60 * 1000); // toutes les 15 minutes
+      // Et pile au passage heures pleines / heures creuses (6 h et 22 h).
+      const passage = setInterval(() => {
+        const d = new Date();
+        if (d.getMinutes() === 0 && (d.getHours() === 6 || d.getHours() === 22)) mettreAJour();
+      }, 60 * 1000);
       return () => {
         arrete = true;
         clearInterval(minuteur);
+        clearInterval(passage);
       };
     },
   });
