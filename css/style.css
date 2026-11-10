@@ -792,3 +792,29 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
 
 .heures-tableau { margin-top: 14px; text-align: left; }
 .heures-tableau summary { cursor: pointer; color: var(--texte-doux); font-weight: 600; margin-bottom: 10px; }
+
+/* Routine : un emoji par étape à la place du rond ; un ✓ vert quand c'est fait. */
+.case.case-emoji {
+  position: relative;
+  border: 0;
+  background: rgba(255, 255, 255, 0.35);
+  font-size: 1.25rem;
+  font-weight: 400;
+}
+.cases li.fait .case.case-emoji { background: rgba(255, 255, 255, 0.6); color: inherit; }
+.cases li.fait .case.case-emoji::after {
+  content: "✓";
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #2e9d4f;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+  box-shadow: 0 0 0 2px var(--w-fond);
+}
