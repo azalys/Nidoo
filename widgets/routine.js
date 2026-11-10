@@ -113,7 +113,7 @@
               ${total ? `<span class="compteur">${nbFaites}/${total}</span>` : ''}
             </div>
             ${total && nbFaites === total ? '<div class="bravo">Bravo, tout est fait ! 🎉</div>' : ''}
-            <ul class="cases">
+            <ul class="cases routine-etapes" style="--etapes:${total}">
               ${total === 0 ? '<li class="liste-vide">Aucune étape. Ajoutez-en avec ⚙️</li>' : ''}
               ${etapes.map((e, i) => {
                 const [emoji, texte] = emojiEtTexte(e);

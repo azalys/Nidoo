@@ -1562,3 +1562,23 @@ html[data-style="adulte"] .trafic-fluide { background: #e3f1e6; }
 html[data-style="adulte"] .famille { font-family: var(--police-titre); font-size: 1.6rem; font-weight: 500; letter-spacing: 0.02em; }
 html[data-style="adulte"] .famille-edition input { border: 1px dashed #d8d2c8; border-radius: 8px; }
 @media (max-width: 700px) { .famille { font-size: 1rem; } .famille-edition input { width: 9em; } }
+
+/* Routine : la hauteur des lignes s'adapte au nombre d'étapes pour que tout tienne
+   sans faire défiler (au-delà de 5 étapes, tout se resserre). */
+.routine-etapes {
+  --ligne: calc((100cqh - 62px) / max(var(--etapes, 5), 5));
+  overflow-y: auto;
+}
+.routine-etapes li {
+  height: var(--ligne);
+  min-height: 24px;
+  padding: 0 4px;
+  gap: min(12px, calc(var(--ligne) * 0.3));
+  font-size: clamp(12px, calc(var(--ligne) * 0.48), 1.15rem);
+}
+.routine-etapes .case.case-emoji {
+  width: clamp(22px, calc(var(--ligne) - 6px), 34px);
+  height: clamp(22px, calc(var(--ligne) - 6px), 34px);
+  font-size: clamp(12px, calc(var(--ligne) * 0.5), 1.25rem);
+}
+.routine-etapes .case.case-emoji::after { width: 15px; height: 15px; line-height: 15px; font-size: 0.65rem; right: -4px; bottom: -4px; }
