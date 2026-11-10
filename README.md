@@ -60,9 +60,9 @@ Les sites d'agendas acceptés sont listés en haut de `api.php`.
   - glisser un widget sur n'importe quelle case (les cases libres sont en pointillés) ;
     sur un widget de même taille, les deux échangent leur place ;
   - **×** pour le supprimer ;
-  - **⤢** pour changer sa taille (petit → moyen → grand) ;
   - **🎨** pour changer sa couleur ;
-  - **⚙️** pour ses réglages (ville, étapes de la routine, adresse de l'agenda…) ;
+  - **⚙️** pour ses réglages : taille (1×1, 1×2 ou 2×2 selon le widget), ville,
+    étapes de la routine, adresse de l'agenda… ;
   - **+ Ajouter** pour ajouter un widget.
 - **Terminé** pour revenir à l'affichage normal.
 
@@ -99,8 +99,8 @@ et l'exemple de `widgets/routine.js`.
 
 ## Taille de l'écran
 
-La grille remplit tout l'écran : la hauteur fixe la taille des cases
-(4 lignes à l'horizontale, 6 à la verticale, réglables en haut de `css/style.css`),
-et il y a autant de colonnes que la largeur le permet (6 sur un iPad à l'horizontale).
-Les positions sont enregistrées par appareil. Si l'écran est plus étroit que celui
-où la grille a été rangée, les widgets qui ne tiennent plus vont à la première place libre.
+La grille a une taille fixe et remplit tout l'écran :
+5 colonnes × 4 lignes à l'horizontale, 4 × 5 à la verticale
+(réglables en haut de `css/style.css`). Sur un téléphone : 2 colonnes, on fait défiler.
+Les positions sont enregistrées par appareil. En passant à la verticale, les widgets
+qui ne tiennent plus vont à la première place libre.

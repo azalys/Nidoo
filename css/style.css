@@ -14,9 +14,11 @@
 
   --marge: 20px;              /* espace autour de la grille */
   --ecart: 16px;              /* espace entre les widgets */
-  --lignes-horizontale: 4;    /* lignes qui tiennent dans la hauteur, écran à l'horizontale */
-  --lignes-verticale: 6;      /* lignes qui tiennent dans la hauteur, écran à la verticale */
-                              /* (le nombre de colonnes est calculé par js/app.js pour remplir la largeur) */
+  /* Taille de la grille : elle remplit tout l'écran (calcul dans js/app.js). */
+  --colonnes-horizontale: 5;  /* écran à l'horizontale (tablette, ordinateur) */
+  --lignes-horizontale: 4;
+  --colonnes-verticale: 4;    /* écran à la verticale */
+  --lignes-verticale: 5;
   --arrondi: 26px;            /* coins arrondis des widgets */
   --relief: 6px;              /* épaisseur de l'effet "relief" sous les widgets */
   --hauteur-barre: 64px;      /* hauteur de la barre du haut */
@@ -136,7 +138,7 @@ button {
 
 .grille {
   display: grid;
-  grid-template-columns: repeat(var(--colonnes, 6), minmax(0, 1fr));
+  grid-template-columns: repeat(var(--colonnes, 5), minmax(0, 1fr));
   grid-auto-rows: var(--case, 160px);
   gap: calc(var(--ecart) + var(--relief)) var(--ecart);
   padding: 12px var(--marge) calc(env(safe-area-inset-bottom) + var(--marge) + var(--relief));
@@ -260,7 +262,6 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
 }
 
 .bouton-supprimer { top: -12px; left: -12px; background: #ef476f; color: #fff; font-size: 1.6rem; }
-.bouton-taille    { bottom: -12px; right: -12px; }
 .bouton-couleur   { bottom: -12px; left: -12px; }
 .bouton-reglages  { top: -12px; right: -12px; }
 

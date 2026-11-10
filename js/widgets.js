@@ -7,10 +7,11 @@
 window.Nidoo = window.Nidoo || {};
 
 /* Les tailles possibles : nombre de colonnes et de lignes occupées. */
+/* "nom" : ce qui est affiché dans ⚙️ (lignes × colonnes). */
 Nidoo.TAILLES = {
-  petit: { colonnes: 1, lignes: 1, nom: 'Petit' },
-  moyen: { colonnes: 2, lignes: 1, nom: 'Moyen' },
-  grand: { colonnes: 2, lignes: 2, nom: 'Grand' },
+  petit: { colonnes: 1, lignes: 1, nom: '1×1 (une case)' },
+  moyen: { colonnes: 2, lignes: 1, nom: '1×2 (une ligne, deux colonnes)' },
+  grand: { colonnes: 2, lignes: 2, nom: '2×2 (carré de 4 cases)' },
 };
 
 /*

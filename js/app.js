@@ -64,13 +64,14 @@
     caseWidget.innerHTML = `
       <div class="contenu"></div>
       <button class="bouton-widget bouton-supprimer" aria-label="Supprimer">×</button>
-      <button class="bouton-widget bouton-taille" aria-label="Changer la taille">⤢</button>
       <button class="bouton-widget bouton-couleur" aria-label="Changer la couleur">🎨</button>
       <button class="bouton-widget bouton-reglages" aria-label="Réglages du widget">⚙️</button>`;
 
     // On cache les boutons inutiles pour ce widget.
-    if (!definition || (definition.tailles || []).length < 2) caseWidget.querySelector('.bouton-taille').remove();
-    if (!definition || !definition.reglages) caseWidget.querySelector('.bouton-reglages').remove();
+    // ⚙️ seulement s'il y a quelque chose à régler (des réglages, ou plusieurs tailles possibles).
+    if (!definition || (!definition.reglages && (definition.tailles || []).length < 2)) {
+      caseWidget.querySelector('.bouton-reglages').remove();
+    }
 
     const zone = caseWidget.querySelector('.contenu');
     if (definition) {
@@ -91,7 +92,6 @@
     }
 
     caseWidget.querySelector('.bouton-supprimer').addEventListener('click', () => supprimerWidget(w.id));
-    caseWidget.querySelector('.bouton-taille')?.addEventListener('click', () => changerTaille(w.id));
     caseWidget.querySelector('.bouton-reglages')?.addEventListener('click', () => ouvrirReglages(w.id));
     caseWidget.querySelector('.bouton-couleur').addEventListener('click', () => {
       w.couleur = couleurSuivante(w.couleur);
@@ -120,14 +120,15 @@
   /* Taille des cases et position des widgets                           */
   /* ------------------------------------------------------------------ */
 
-  let colonnes = 6;     // calculé selon la largeur de l'écran
+  let colonnes = 5;     // colonnes de la grille (réglées en haut de css/style.css)
   let lignesEcran = 4;  // lignes qui tiennent dans la hauteur de l'écran
   let placement = new Map();
 
   /*
-   * Calcule la taille des cases : la hauteur de l'écran fixe la taille
-   * (4 lignes à l'horizontale, 6 à la verticale), puis on met autant
-   * de colonnes que la largeur le permet. Sur un petit écran : 2 colonnes.
+   * Grille fixe qui remplit tout l'écran : à l'horizontale 5 colonnes × 4 lignes,
+   * à la verticale 4 × 5 (réglages en haut de css/style.css).
+   * Les colonnes se partagent la largeur, les lignes la hauteur.
+   * Sur un petit écran (téléphone) : 2 colonnes et on fait défiler.
    */
   function mesurer() {
     const css = getComputedStyle(document.documentElement);
@@ -145,10 +146,11 @@
       taille = (largeur - 2 * marge - ecart) / 2;
       lignesEcran = 1;
     } else {
-      lignesEcran = hauteur > largeur ? nombre('--lignes-verticale') : nombre('--lignes-horizontale');
+      const vertical = hauteur > largeur;
+      colonnes = nombre(vertical ? '--colonnes-verticale' : '--colonnes-horizontale');
+      lignesEcran = nombre(vertical ? '--lignes-verticale' : '--lignes-horizontale');
       const place = hauteur - barre - 12 - marge - relief - (lignesEcran - 1) * (ecart + relief);
-      taille = Math.max(80, place / lignesEcran);
-      colonnes = Math.max(2, Math.floor((largeur - 2 * marge + ecart) / (taille + ecart)));
+      taille = Math.max(60, place / lignesEcran); // hauteur d'une ligne
     }
     grille.style.setProperty('--colonnes', colonnes);
     grille.style.setProperty('--case', taille + 'px');
@@ -222,7 +224,7 @@
   /* Actions sur les widgets                                            */
   /* ------------------------------------------------------------------ */
 
-  /* Crée un widget. `options` (facultatif) : { taille, couleur, donnees }. */
+  /* Crée un widget. `options` (facultatif) : { taille, couleur, donnees, x, y }. */
   function creerWidget(type, options = {}) {
     const definition = Nidoo.catalogue[type];
     const derniere = etat.widgets[etat.widgets.length - 1];
@@ -233,6 +235,10 @@
       couleur: options.couleur || (derniere ? couleurSuivante(derniere.couleur) : nomsCouleurs[0]),
       donnees: { ...(definition.donneesParDefaut || {}), ...(options.donnees || {}) },
     };
+    if (Number.isInteger(options.x) && Number.isInteger(options.y)) {
+      w.x = options.x;
+      w.y = options.y;
+    }
     etat.widgets.push(w);
     return w;
   }
@@ -258,11 +264,10 @@
     placer();
   }
 
-  /* Passe à la taille suivante parmi celles autorisées par le widget. */
-  function changerTaille(id) {
+  /* Donne une nouvelle taille à un widget (choisie dans ⚙️). */
+  function changerTaille(id, taille) {
     const w = trouverWidget(id);
-    const tailles = Nidoo.catalogue[w.type]?.tailles || Object.keys(Nidoo.TAILLES);
-    w.taille = tailles[(tailles.indexOf(w.taille) + 1) % tailles.length];
+    w.taille = taille;
     redessiner(id);
     // Il garde sa place si possible ; ce qu'il recouvre va à la première place libre.
     gelerPositions();
@@ -370,6 +375,23 @@
   const champsReglages = document.getElementById('champs-reglages');
   let widgetEnReglage = null;
 
+  const TAILLE = '__taille'; // nom du champ "Taille" dans le formulaire
+
+  /* Les champs de la fenêtre : la taille (si le widget en a plusieurs), puis ses propres réglages. */
+  function champsDuWidget(definition) {
+    const champs = [];
+    const tailles = definition.tailles || [];
+    if (tailles.length > 1) {
+      champs.push({
+        cle: TAILLE,
+        libelle: 'Taille (lignes × colonnes)',
+        type: 'choix',
+        options: tailles.map((t) => ({ valeur: t, libelle: Nidoo.TAILLES[t].nom })),
+      });
+    }
+    return champs.concat(definition.reglages || []);
+  }
+
   function ouvrirReglages(id) {
     const w = trouverWidget(id);
     const definition = Nidoo.catalogue[w.type];
@@ -377,8 +399,8 @@
     document.getElementById('titre-reglages').textContent = definition.icone + ' ' + definition.nom;
     champsReglages.innerHTML = '';
 
-    definition.reglages.forEach((r) => {
-      const valeur = w.donnees[r.cle];
+    champsDuWidget(definition).forEach((r) => {
+      const valeur = r.cle === TAILLE ? w.taille : w.donnees[r.cle];
       const bloc = document.createElement('label');
       bloc.className = 'champ';
       bloc.innerHTML = '<span class="libelle"></span>';
@@ -424,7 +446,7 @@
     const w = widgetEnReglage;
     const definition = Nidoo.catalogue[w.type];
     const nouvelles = { ...w.donnees };
-    definition.reglages.forEach((r) => {
+    (definition.reglages || []).forEach((r) => {
       const brut = formReglages.elements[r.cle].value;
       nouvelles[r.cle] =
         r.type === 'liste'
@@ -434,7 +456,10 @@
     w.donnees = nouvelles;
     sauvegarder();
     fenetreReglages.close();
-    redessiner(w.id);
+
+    const taille = formReglages.elements[TAILLE]?.value;
+    if (taille && taille !== w.taille) changerTaille(w.id, taille); // redessine et replace
+    else redessiner(w.id);
   });
 
   document.getElementById('annuler-reglages').addEventListener('click', () => fenetreReglages.close());
