@@ -128,7 +128,9 @@ Les styles du mode adulte sont regroupés à la fin de `css/style.css`.
 ## Partager entre appareils (⚙️ Appareil, en mode Modifier)
 
 1. Sur l'appareil qui a la bonne grille : **Afficher un code** (ex. `4T2B`, valable 10 minutes).
-2. Sur l'autre appareil : taper ce code puis **Relier**. Il reprend toute la grille, à l'identique.
+2. Sur l'autre appareil : taper ce code puis **Relier**. Pour chaque grille (enfant, adulte) :
+   si un seul des deux appareils a des widgets, c'est celle-là qui est gardée ; si les deux
+   en ont, Nidoo demande laquelle garder (elle remplace l'autre sur tous les appareils).
 3. Ensuite, les appareils restent synchronisés : une modification apparaît sur les autres
    en une vingtaine de secondes (5 minutes en mode nuit).
 

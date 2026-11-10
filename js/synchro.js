@@ -2,7 +2,9 @@
  * Partage entre appareils.
  *
  * 1. Sur un appareil : "⚙️ Appareil" → "Afficher un code" (ex. 4T2B, valable 10 minutes).
- * 2. Sur l'autre : taper ce code → il reprend toute la grille, à l'identique.
+ * 2. Sur l'autre : taper ce code → il reprend les grilles de l'autre appareil. Si les deux
+ *    appareils ont déjà des widgets dans la même grille (enfant ou adulte), on choisit
+ *    laquelle garder ; sinon, chaque grille non vide est gardée telle quelle.
  * 3. Ensuite les appareils restent synchronisés : chaque modification est envoyée à
  *    api.php (sur le serveur), et chaque appareil vient chercher les nouveautés
  *    toutes les 20 secondes (toutes les 5 minutes en mode nuit).
@@ -29,9 +31,9 @@
 
   /* ---- Échanges avec api.php ------------------------------------------ */
 
-  async function requete(action, { corps, avecCle = false } = {}) {
+  async function requete(action, { corps, avecCle = false, cleFamille = null } = {}) {
     const entetes = { 'Content-Type': 'application/json' };
-    if (avecCle) entetes['X-Nidoo-Famille'] = cle();
+    if (avecCle) entetes['X-Nidoo-Famille'] = cleFamille || cle();
     let reponse;
     try {
       reponse = await fetch(API + '?action=' + action, {
@@ -220,16 +222,94 @@
     saisie.value = saisie.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4);
   });
 
+  /*
+   * Au moment de relier : chaque appareil a peut-être déjà une grille enfant et une
+   * grille adulte. Pour chacune : si un seul côté a des widgets, on garde celle-là ;
+   * si les deux en ont, on demande laquelle garder. Renvoie { enfant: 'ici'|'autre', adulte: … },
+   * ou null si on annule.
+   */
+  const GRILLES = [
+    { cle: 'enfant', nom: 'Grille enfant' },
+    { cle: 'adulte', nom: 'Grille adulte' },
+  ];
+  const deLaGrille = (etat, g) => etat.widgets.filter((w) => (w.grille || 'enfant') === g);
+
+  function choisirGrilles(ici, autre) {
+    const choix = {};
+    const aDemander = [];
+    GRILLES.forEach((g) => {
+      const nIci = deLaGrille(ici, g.cle).length;
+      const nAutre = deLaGrille(autre, g.cle).length;
+      if (!nAutre) choix[g.cle] = 'ici';
+      else if (!nIci) choix[g.cle] = 'autre';
+      else aDemander.push({ ...g, nIci, nAutre });
+    });
+    if (!aDemander.length) return Promise.resolve(choix);
+
+    return new Promise((resoudre) => {
+      const pluriel = (n) => n + ' widget' + (n > 1 ? 's' : '');
+      const contenu = Nidoo.ouvrirPopin(
+        '🔗 Quelles grilles garder ?',
+        `<form class="champs choix-grilles">
+           <p class="aide">Les deux appareils ont déjà des widgets. Pour chaque grille, choisissez celle à garder :
+             elle remplacera l'autre sur tous les appareils reliés.</p>
+           ${aDemander.map((g) => `
+             <fieldset class="choix-grille">
+               <legend>${g.nom}</legend>
+               <label><input type="radio" name="${g.cle}" value="autre" checked> Celle de l'autre appareil (${pluriel(g.nAutre)})</label>
+               <label><input type="radio" name="${g.cle}" value="ici"> Celle de cet appareil (${pluriel(g.nIci)})</label>
+             </fieldset>`).join('')}
+           <div class="boutons-fenetre">
+             <button type="button" class="bouton choix-annuler">Annuler</button>
+             <button type="submit" class="bouton bouton-principal">Relier</button>
+           </div>
+         </form>`
+      );
+      const dialogue = contenu.closest('dialog');
+      const form = contenu.querySelector('form');
+      let repondu = false;
+      form.addEventListener('submit', (ev) => {
+        ev.preventDefault();
+        aDemander.forEach((g) => (choix[g.cle] = form.elements[g.cle].value));
+        repondu = true;
+        dialogue.close();
+        resoudre(choix);
+      });
+      form.querySelector('.choix-annuler').addEventListener('click', () => dialogue.close());
+      dialogue.addEventListener('close', () => !repondu && resoudre(null), { once: true });
+    });
+  }
+
+  // Construit l'état commun à partir des grilles choisies ; les widgets écartés sont
+  // marqués supprimés pour qu'ils ne reviennent pas à la synchro suivante.
+  function assembler(ici, autre, choix) {
+    const widgets = [];
+    const supprimes = { ...autre.supprimes };
+    Object.entries(ici.supprimes).forEach(([id, t]) => (supprimes[id] = Math.max(supprimes[id] || 0, t)));
+    const maintenant = Date.now();
+    GRILLES.forEach((g) => {
+      const garde = deLaGrille(choix[g.cle] === 'ici' ? ici : autre, g.cle);
+      const ecarte = deLaGrille(choix[g.cle] === 'ici' ? autre : ici, g.cle);
+      const ids = new Set(garde.map((w) => w.id));
+      garde.forEach((w) => widgets.push({ ...w, maj: Math.max(w.maj || 0, maintenant) }));
+      ecarte.forEach((w) => !ids.has(w.id) && (supprimes[w.id] = maintenant));
+    });
+    return { widgets, supprimes };
+  }
+
   formulaire.addEventListener('submit', async (e) => {
     e.preventDefault();
     montrerErreur('');
     if (saisie.value.length !== 4) return montrerErreur('Le code fait 4 caractères.');
-    if (!confirm('Cet appareil va reprendre la grille de l\'autre appareil.\nLes widgets actuels de cet appareil seront remplacés. Continuer ?')) return;
     try {
       const r = await requete('rejoindre', { corps: { code: saisie.value } });
+      const distant = await requete('lire', { avecCle: true, cleFamille: r.famille });
+      const autre = normaliser(distant.etat);
+      const ici = Nidoo.grilleApp.etat();
+      const choix = await choisirGrilles(ici, autre);
+      if (!choix) return; // annulé : rien n'a changé
       Nidoo.appareil.modifier({ famille: r.famille });
-      const distant = await requete('lire', { avecCle: true });
-      if (distant.etat) Nidoo.grilleApp.remplacer(normaliser(distant.etat));
+      Nidoo.grilleApp.remplacer(assembler(ici, autre, choix));
       saisie.value = '';
       zoneCode.hidden = true;
       await synchroniser();

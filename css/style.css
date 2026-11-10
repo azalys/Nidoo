@@ -1477,3 +1477,11 @@ html[data-style="adulte"] .echeance-quand.bientot { background: #fde3c2; color: 
 html[data-style="adulte"] .echeance-quand.retard { background: #f6d2cf; color: #9b1c12; }
 html[data-style="adulte"] .echeance { border-bottom-color: var(--filet); }
 html[data-style="adulte"] .echeance-ajouter { background: var(--texte); color: #fff; }
+
+/* Liaison : choix des grilles à garder */
+.choix-grilles { text-align: left; }
+.choix-grille { border: 2px solid var(--bouton-ombre); border-radius: 16px; padding: 10px 14px 12px; margin: 0; }
+.choix-grille legend { font-weight: 700; padding: 0 6px; }
+.choix-grille label { display: flex; align-items: center; gap: 10px; padding: 6px 0; font-weight: 600; cursor: pointer; }
+.choix-grille input { width: 20px; height: 20px; accent-color: #3a86ff; }
+html[data-style="adulte"] .choix-grille { border: 1px solid var(--filet); }
