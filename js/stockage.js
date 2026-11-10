@@ -22,7 +22,8 @@ Nidoo.stockage = {
     } catch (erreur) {
       console.warn('Nidoo : impossible de lire les données enregistrées.', erreur);
     }
-    return { widgets: [] };
+    // Rien d'enregistré : c'est le premier lancement.
+    return { widgets: [], nouveau: true };
   },
 
   enregistrer(etat) {

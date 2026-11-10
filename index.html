@@ -35,15 +35,33 @@
     <button id="fermer-galerie" class="bouton">Annuler</button>
   </dialog>
 
+  <!-- Fenêtre "Réglages" d'un widget (bouton ⚙️ en mode Modifier) -->
+  <dialog id="reglages" class="galerie">
+    <form id="form-reglages">
+      <h2 id="titre-reglages">Réglages</h2>
+      <div id="champs-reglages" class="champs"></div>
+      <div class="boutons-fenetre">
+        <button type="button" id="annuler-reglages" class="bouton">Annuler</button>
+        <button type="submit" class="bouton bouton-principal">Enregistrer</button>
+      </div>
+    </form>
+  </dialog>
+
   <!-- 1. Les outils de base -->
   <script src="js/stockage.js"></script>
   <script src="js/widgets.js"></script>
 
   <!-- 2. Les widgets (un fichier par widget, à ajouter ici) -->
+  <script src="widgets/meteo.js"></script>
+  <script src="widgets/tempo.js"></script>
+  <script src="widgets/courses.js"></script>
+  <script src="widgets/routine.js"></script>
+  <script src="widgets/agenda.js"></script>
   <script src="widgets/horloge.js"></script>
   <script src="widgets/note.js"></script>
 
-  <!-- 3. L'application (toujours en dernier) -->
+  <!-- 3. La grille du premier lancement, puis l'application (toujours en dernier) -->
+  <script src="js/depart.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

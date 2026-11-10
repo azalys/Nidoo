@@ -40,6 +40,11 @@ Nidoo.catalogue = {};
  *   icone           un emoji (ex. '📝')
  *   tailles         tailles autorisées (ex. ['petit', 'moyen', 'grand'])
  *   tailleParDefaut taille à l'ajout (ex. 'moyen')
+ *   donneesParDefaut (facultatif) données de départ, ex. { titre: 'Agenda' }
+ *   reglages        (facultatif) champs de la fenêtre ⚙️, ex.
+ *                   [{ cle: 'ville', libelle: 'Ville', type: 'texte', exemple: 'Paris', aide: '…' }]
+ *                   types : 'texte', 'url', 'liste' (une ligne = un élément).
+ *                   Les valeurs saisies sont rangées dans widget.donnees[cle].
  *   afficher(zone, widget)
  *       Dessine le widget dans `zone` (un élément HTML vide).
  *       `widget` contient :
@@ -55,4 +60,11 @@ Nidoo.declarerWidget = function (definition) {
     return;
   }
   Nidoo.catalogue[definition.type] = definition;
+};
+
+/* Outil : rend un texte sûr à insérer dans du HTML (évite qu'un "<" casse la page). */
+Nidoo.echapper = function (texte) {
+  return String(texte ?? '').replace(/[&<>"']/g, (c) =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]
+  );
 };

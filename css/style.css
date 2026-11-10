@@ -12,14 +12,20 @@
   --bouton: #ffffff;
   --bouton-ombre: #e6d3b3;
 
-  --marge: 24px;              /* espace autour de la grille */
-  --ecart: 20px;              /* espace entre les widgets */
-  --colonnes: 6;              /* nombre de colonnes (adapté à l'écran plus bas) */
-  --arrondi: 30px;            /* coins arrondis des widgets */
-  --relief: 8px;              /* épaisseur de l'effet "relief" sous les widgets */
+  --marge: 20px;              /* espace autour de la grille */
+  --ecart: 16px;              /* espace entre les widgets */
+  --colonnes: 4;              /* nombre de colonnes (adapté à l'écran plus bas) */
+  --lignes: 6;                /* nombre de lignes qui doivent tenir dans la hauteur de l'écran */
+  --arrondi: 26px;            /* coins arrondis des widgets */
+  --relief: 6px;              /* épaisseur de l'effet "relief" sous les widgets */
+  --hauteur-barre: 64px;      /* hauteur de la barre du haut */
 
-  /* Taille d'une case : la largeur disponible divisée par le nombre de colonnes. */
-  --case: calc((100vw - 2 * var(--marge) - (var(--colonnes) - 1) * var(--ecart)) / var(--colonnes));
+  /* Taille d'une case : selon la largeur ET la hauteur de l'écran (la plus petite des deux), */
+  /* pour que toute la grille tienne sur un iPad sans faire défiler.                          */
+  --case-largeur: calc((100vw - 2 * var(--marge) - (var(--colonnes) - 1) * var(--ecart)) / var(--colonnes));
+  --case-hauteur: calc((100dvh - var(--hauteur-barre) - var(--marge) - var(--relief) - 12px
+                        - (var(--lignes) - 1) * (var(--ecart) + var(--relief))) / var(--lignes));
+  --case: min(var(--case-largeur), var(--case-hauteur));
 
   --police: "Fredoka", ui-rounded, "SF Pro Rounded", "Arial Rounded MT Bold", system-ui, sans-serif;
 }
@@ -36,9 +42,12 @@
   }
 }
 
-/* Nombre de colonnes selon la largeur de l'écran. */
-@media (max-width: 1100px) { :root { --colonnes: 4; } }
-@media (max-width: 600px)  { :root { --colonnes: 2; --marge: 16px; --ecart: 16px; --arrondi: 24px; } }
+/* Nombre de colonnes et de lignes selon l'écran :                                  */
+/*   iPad à l'horizontale : 6 colonnes × 4 lignes                                     */
+/*   iPad à la verticale  : 4 colonnes × 6 lignes                                     */
+/*   petit écran          : 2 colonnes, on fait défiler                               */
+@media (orientation: landscape) and (min-width: 900px) { :root { --colonnes: 6; --lignes: 4; } }
+@media (max-width: 600px) { :root { --colonnes: 2; --case: var(--case-largeur); } }
 
 * { box-sizing: border-box; }
 
@@ -73,14 +82,15 @@ button {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: calc(env(safe-area-inset-top) + 18px) var(--marge) 12px;
+  height: calc(env(safe-area-inset-top) + var(--hauteur-barre));
+  padding: env(safe-area-inset-top) var(--marge) 0;
 }
 
 /* Le titre : chaque lettre a sa couleur et sautille. */
 .titre {
   margin: 0;
   display: flex;
-  font-size: 2.6rem;
+  font-size: 2.2rem;
   font-weight: 700;
   line-height: 1;
   letter-spacing: 1px;
@@ -107,7 +117,7 @@ button {
 .bouton {
   border: 0;
   border-radius: 999px;
-  padding: 12px 22px;
+  padding: 9px 20px;
   background: var(--bouton);
   box-shadow: 0 5px 0 var(--bouton-ombre);
   font-size: 1.1rem;
@@ -136,11 +146,13 @@ button {
 
 .grille {
   display: grid;
-  grid-template-columns: repeat(var(--colonnes), 1fr);
+  grid-template-columns: repeat(var(--colonnes), minmax(0, 1fr));
   grid-auto-rows: var(--case);
   grid-auto-flow: dense;          /* bouche les trous automatiquement */
   gap: calc(var(--ecart) + var(--relief)) var(--ecart);
   padding: 12px var(--marge) calc(env(safe-area-inset-bottom) + var(--marge) + var(--relief));
+  max-width: calc(var(--colonnes) * var(--case) + (var(--colonnes) - 1) * var(--ecart) + 2 * var(--marge));
+  margin: 0 auto;
 }
 
 .vide {
@@ -250,6 +262,7 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
 .bouton-supprimer { top: -12px; left: -12px; background: #ef476f; color: #fff; font-size: 1.6rem; }
 .bouton-taille    { bottom: -12px; right: -12px; }
 .bouton-couleur   { bottom: -12px; left: -12px; }
+.bouton-reglages  { top: -12px; right: -12px; }
 
 .edition .bouton-widget { display: grid; place-items: center; }
 
@@ -303,6 +316,27 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
 .galerie[open] { animation: apparaitre 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
 .galerie::backdrop { background: rgba(40, 20, 80, 0.45); }
 .galerie h2 { margin: 0 0 22px; font-size: 1.8rem; font-weight: 700; }
+
+/* Fenêtre "Réglages" */
+.champs { display: grid; gap: 16px; text-align: left; margin-bottom: 24px; }
+.champ { display: grid; gap: 6px; font-weight: 600; }
+.champ input,
+.champ textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 3px solid var(--bouton-ombre);
+  border-radius: 16px;
+  background: var(--bouton);
+  color: var(--texte);
+  font: inherit;
+  font-weight: 500;
+}
+.champ textarea { resize: vertical; line-height: 1.4; }
+.champ input:focus,
+.champ textarea:focus { outline: none; border-color: #3a86ff; }
+.champ small { color: var(--texte-doux); font-weight: 500; line-height: 1.35; }
+.boutons-fenetre { display: flex; gap: 12px; justify-content: center; }
+.bouton-principal { background: #3a86ff; color: #fff; box-shadow: 0 5px 0 #1d63d6; }
 
 .liste-widgets {
   display: grid;
@@ -376,3 +410,182 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
   outline: none;
 }
 .note::placeholder { color: var(--w-texte); opacity: 0.65; }
+
+/* --- Éléments communs aux widgets --- */
+.widget-message {
+  margin: 0;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 12px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.widget-entete {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 18px 8px;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+.compteur {
+  padding: 2px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.3);
+  font-size: 1rem;
+}
+
+/* Liste dans un widget (courses, routine, agenda) : la liste défile si elle est longue. */
+.liste-widget { height: 100%; display: flex; flex-direction: column; }
+.liste-widget ul {
+  flex: 1;
+  margin: 0;
+  padding: 0 14px 10px;
+  list-style: none;
+  overflow-y: auto;
+}
+.liste-vide { padding: 10px 4px; opacity: 0.85; font-weight: 600; }
+
+/* Cases à cocher rondes */
+.cases li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 4px;
+  font-size: 1.15rem;
+  font-weight: 600;
+  transition: opacity 0.3s, transform 0.3s;
+}
+.case {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 3px solid currentColor;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  display: grid;
+  place-items: center;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+.cases li.fait .case,
+.cases li.coche .case { background: var(--w-texte); color: var(--w-fond); }
+.cases li.fait .case::after,
+.cases li.coche .case::after { content: "✓"; }
+.cases li.fait span { text-decoration: line-through; opacity: 0.7; }
+.cases li.coche { opacity: 0; transform: translateX(30px); }
+
+.bravo {
+  margin: 0 14px 6px;
+  padding: 6px 12px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.3);
+  text-align: center;
+  font-weight: 700;
+}
+
+/* Ligne d'ajout (courses) */
+.ajout { display: flex; gap: 8px; padding: 8px 14px 14px; }
+.ajout input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  color: #3b2a5c;
+  font: inherit;
+  font-weight: 600;
+}
+.ajout input:focus { outline: 3px solid rgba(255, 255, 255, 0.8); }
+.ajout button {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--w-texte);
+  color: var(--w-fond);
+  font-size: 1.8rem;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* --- Météo et Tempo (même mise en page : une colonne par jour) --- */
+.meteo,
+.tempo {
+  height: 100%;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  align-items: center;
+  padding: 4cqh 3cqw;
+}
+.meteo-jour,
+.tempo-jour {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  font-weight: 600;
+}
+.meteo-titre,
+.tempo-titre { font-size: max(13px, 10cqh); font-weight: 700; }
+.meteo-icone { font-size: 30cqh; line-height: 1.1; }
+.meteo-temp  { font-size: 22cqh; font-weight: 700; line-height: 1; }
+.meteo-minmax { font-size: max(12px, 8cqh); opacity: 0.9; }
+
+.tempo-pastille {
+  width: 42cqh;
+  height: 42cqh;
+  margin: 4cqh 0;
+  border-radius: 50%;
+  border: 4px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 1.5cqh 0 rgba(0, 0, 0, 0.15);
+  display: grid;
+  place-items: center;
+  font-size: 22cqh;
+  font-weight: 700;
+}
+.tempo-nom    { font-size: max(13px, 11cqh); font-weight: 700; }
+.tempo-detail { font-size: max(11px, 8cqh); opacity: 0.85; }
+
+/* --- Agenda --- */
+.agenda li { padding: 3px 4px; }
+.agenda-jour {
+  margin-top: 6px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  opacity: 0.85;
+}
+.agenda-evt {
+  display: flex;
+  gap: 10px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.agenda-heure {
+  flex: none;
+  min-width: 4.2em;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.28);
+  text-align: center;
+  font-size: 0.9rem;
+}
+.agenda-exemple {
+  margin-bottom: 4px;
+  padding: 4px 10px !important;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.15);
+  font-size: 0.85rem;
+  font-weight: 600;
+}

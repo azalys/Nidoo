@@ -6,15 +6,36 @@ Code simple en HTML, CSS, JavaScript (et un peu de PHP), sans rien à installer.
 
 ## Lancer Nidoo
 
-**Sans PHP** : ouvrir `index.html` dans le navigateur (double-clic).
-
-**Avec PHP** (nécessaire pour `api.php`) : dans le dossier du projet, lancer
+Dans le dossier du projet, lancer
 
 ```
 php -S localhost:8000
 ```
 
 puis ouvrir http://localhost:8000
+
+(Un double-clic sur `index.html` marche aussi, mais sans PHP les agendas ne peuvent pas se charger.)
+
+## Les widgets
+
+| Widget | Tailles | Source des données |
+|---|---|---|
+| 🌤️ Météo | petit : aujourd'hui · moyen : aujourd'hui + demain | [Open-Meteo](https://open-meteo.com), gratuit, sans clé |
+| ⚡ Tempo EDF | petit : couleur du moment · moyen : aujourd'hui + demain | [api-couleur-tempo.fr](https://www.api-couleur-tempo.fr), gratuit, sans clé |
+| 🛒 Courses | grand | cocher un article le retire, « + » pour ajouter |
+| ✅ Routine | grand | matin avant midi, soir après midi ; étapes réglables avec ⚙️ |
+| 📅 Agenda | grand | adresse iCal de l'agenda, lue par `api.php` ; exemples tant qu'elle n'est pas réglée |
+| 🕒 Horloge, 📝 Note | petit, moyen, grand | — |
+
+### Brancher un agenda Google
+
+1. Sur un ordinateur, ouvrir Google Agenda → ⚙️ Paramètres.
+2. À gauche, cliquer sur l'agenda voulu → « Intégrer l'agenda ».
+3. Copier l'« Adresse secrète au format iCal ».
+4. Dans Nidoo : Modifier → ⚙️ sur le widget Agenda → coller l'adresse.
+
+Cette adresse donne accès à l'agenda : ne pas la partager.
+Les sites d'agendas acceptés sont listés en haut de `api.php`.
 
 ## Utilisation
 
@@ -23,6 +44,7 @@ puis ouvrir http://localhost:8000
   - **×** pour le supprimer ;
   - **⤢** pour changer sa taille (petit → moyen → grand) ;
   - **🎨** pour changer sa couleur ;
+  - **⚙️** pour ses réglages (ville, étapes de la routine, adresse de l'agenda…) ;
   - **+ Ajouter** pour ajouter un widget.
 - **Terminé** pour revenir à l'affichage normal.
 
@@ -36,9 +58,10 @@ index.html         la page (liste des fichiers JS à charger)
 css/style.css      tous les styles (couleurs et tailles réglables en haut)
 js/stockage.js     lecture / enregistrement dans le localStorage
 js/widgets.js      le catalogue des widgets, les tailles et les couleurs
-js/app.js          la grille, le mode Modifier, le glisser-déposer
+js/depart.js       les widgets installés au premier lancement
+js/app.js          la grille, le mode Modifier, le glisser-déposer, les réglages
 widgets/           un fichier par widget
-api.php            l'API côté serveur (pour plus tard : Google Agenda…)
+api.php            l'API côté serveur (lecture des agendas iCal)
 ```
 
 ## Créer un nouveau widget
@@ -52,3 +75,11 @@ api.php            l'API côté serveur (pour plus tard : Google Agenda…)
 4. (Facultatif) Ajouter ses styles à la fin de `css/style.css`.
 
 Le widget apparaît alors dans la fenêtre « + Ajouter ».
+Pour lui donner des réglages (bouton ⚙️), voir `reglages` dans `js/widgets.js`
+et l'exemple de `widgets/routine.js`.
+
+## Taille de l'écran
+
+La grille est prévue pour tenir sur un iPad sans faire défiler :
+6 colonnes × 4 lignes à l'horizontale, 4 × 6 à la verticale.
+Ces réglages sont en haut de `css/style.css`.

@@ -65,13 +65,21 @@
       <div class="contenu"></div>
       <button class="bouton-widget bouton-supprimer" aria-label="Supprimer">×</button>
       <button class="bouton-widget bouton-taille" aria-label="Changer la taille">⤢</button>
-      <button class="bouton-widget bouton-couleur" aria-label="Changer la couleur">🎨</button>`;
+      <button class="bouton-widget bouton-couleur" aria-label="Changer la couleur">🎨</button>
+      <button class="bouton-widget bouton-reglages" aria-label="Réglages du widget">⚙️</button>`;
+
+    // On cache les boutons inutiles pour ce widget.
+    if (!definition || (definition.tailles || []).length < 2) caseWidget.querySelector('.bouton-taille').remove();
+    if (!definition || !definition.reglages) caseWidget.querySelector('.bouton-reglages').remove();
 
     const zone = caseWidget.querySelector('.contenu');
     if (definition) {
       const nettoyage = definition.afficher(zone, {
         taille: w.taille,
-        donnees: w.donnees,
+        // "get" : on lit toujours les données les plus récentes.
+        get donnees() {
+          return w.donnees;
+        },
         enregistrer(nouvellesDonnees) {
           w.donnees = nouvellesDonnees;
           sauvegarder();
@@ -83,7 +91,8 @@
     }
 
     caseWidget.querySelector('.bouton-supprimer').addEventListener('click', () => supprimerWidget(w.id));
-    caseWidget.querySelector('.bouton-taille').addEventListener('click', () => changerTaille(w.id));
+    caseWidget.querySelector('.bouton-taille')?.addEventListener('click', () => changerTaille(w.id));
+    caseWidget.querySelector('.bouton-reglages')?.addEventListener('click', () => ouvrirReglages(w.id));
     caseWidget.querySelector('.bouton-couleur').addEventListener('click', () => {
       w.couleur = couleurSuivante(w.couleur);
       sauvegarder();
@@ -122,17 +131,23 @@
   /* Actions sur les widgets                                            */
   /* ------------------------------------------------------------------ */
 
-  function ajouterWidget(type) {
+  /* Crée un widget. `options` (facultatif) : { taille, couleur, donnees }. */
+  function creerWidget(type, options = {}) {
     const definition = Nidoo.catalogue[type];
     const derniere = etat.widgets[etat.widgets.length - 1];
     const w = {
       id: nouvelIdentifiant(),
       type,
-      taille: definition.tailleParDefaut,
-      couleur: derniere ? couleurSuivante(derniere.couleur) : nomsCouleurs[0],
-      donnees: {},
+      taille: options.taille || definition.tailleParDefaut,
+      couleur: options.couleur || (derniere ? couleurSuivante(derniere.couleur) : nomsCouleurs[0]),
+      donnees: { ...(definition.donneesParDefaut || {}), ...(options.donnees || {}) },
     };
     etat.widgets.push(w);
+    return w;
+  }
+
+  function ajouterWidget(type) {
+    const w = creerWidget(type);
     sauvegarder();
     const caseWidget = creerCase(w);
     grille.appendChild(caseWidget);
@@ -157,9 +172,14 @@
     const tailles = Nidoo.catalogue[w.type]?.tailles || Object.keys(Nidoo.TAILLES);
     w.taille = tailles[(tailles.indexOf(w.taille) + 1) % tailles.length];
     sauvegarder();
+    redessiner(id);
+  }
+
+  /* Redessine un seul widget (après un changement de taille ou de réglages). */
+  function redessiner(id) {
     nettoyer(id);
     const ancienne = grille.querySelector('[data-id="' + id + '"]');
-    ancienne.replaceWith(creerCase(w));
+    ancienne.replaceWith(creerCase(trouverWidget(id)));
   }
 
   /* ------------------------------------------------------------------ */
@@ -223,6 +243,77 @@
   galerie.addEventListener('click', (e) => {
     if (e.target === galerie) galerie.close();
   });
+
+  /* ------------------------------------------------------------------ */
+  /* Fenêtre "Réglages" d'un widget                                     */
+  /*                                                                    */
+  /* Le formulaire est construit à partir de `reglages` dans la         */
+  /* déclaration du widget (voir js/widgets.js).                        */
+  /* ------------------------------------------------------------------ */
+
+  const fenetreReglages = document.getElementById('reglages');
+  const formReglages = document.getElementById('form-reglages');
+  const champsReglages = document.getElementById('champs-reglages');
+  let widgetEnReglage = null;
+
+  function ouvrirReglages(id) {
+    const w = trouverWidget(id);
+    const definition = Nidoo.catalogue[w.type];
+    widgetEnReglage = w;
+    document.getElementById('titre-reglages').textContent = definition.icone + ' ' + definition.nom;
+    champsReglages.innerHTML = '';
+
+    definition.reglages.forEach((r) => {
+      const valeur = w.donnees[r.cle];
+      const bloc = document.createElement('label');
+      bloc.className = 'champ';
+      bloc.innerHTML = '<span class="libelle"></span>';
+      bloc.querySelector('.libelle').textContent = r.libelle;
+
+      let champ;
+      if (r.type === 'liste') {
+        // Une ligne = un élément.
+        champ = document.createElement('textarea');
+        champ.rows = 5;
+        champ.value = Array.isArray(valeur) ? valeur.join('\n') : '';
+      } else {
+        champ = document.createElement('input');
+        champ.type = r.type === 'url' ? 'url' : 'text';
+        champ.value = valeur || '';
+      }
+      champ.name = r.cle;
+      if (r.exemple) champ.placeholder = r.exemple;
+      bloc.appendChild(champ);
+
+      if (r.aide) {
+        const aide = document.createElement('small');
+        aide.textContent = r.aide;
+        bloc.appendChild(aide);
+      }
+      champsReglages.appendChild(bloc);
+    });
+    fenetreReglages.showModal();
+  }
+
+  formReglages.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const w = widgetEnReglage;
+    const definition = Nidoo.catalogue[w.type];
+    const nouvelles = { ...w.donnees };
+    definition.reglages.forEach((r) => {
+      const brut = formReglages.elements[r.cle].value;
+      nouvelles[r.cle] =
+        r.type === 'liste'
+          ? brut.split('\n').map((l) => l.trim()).filter(Boolean)
+          : brut.trim();
+    });
+    w.donnees = nouvelles;
+    sauvegarder();
+    fenetreReglages.close();
+    redessiner(w.id);
+  });
+
+  document.getElementById('annuler-reglages').addEventListener('click', () => fenetreReglages.close());
 
   /* ------------------------------------------------------------------ */
   /* Glisser-déposer (en mode "Modifier")                               */
@@ -297,6 +388,15 @@
   /* ------------------------------------------------------------------ */
   /* Démarrage                                                          */
   /* ------------------------------------------------------------------ */
+
+  // Premier lancement : on installe la grille de départ (voir js/depart.js).
+  if (etat.nouveau) {
+    delete etat.nouveau;
+    Nidoo.GRILLE_DE_DEPART.forEach((widget) => {
+      if (Nidoo.catalogue[widget.type]) creerWidget(widget.type, widget);
+    });
+    sauvegarder();
+  }
 
   remplirGalerie();
   afficherGrille();
