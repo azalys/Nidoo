@@ -82,6 +82,11 @@ function telecharger(string $url, bool $forcer = false): string
         if (is_file($fichier)) {
             return file_get_contents($fichier);
         }
+        if (strpos($url, '/public/') !== false) {
+            // Cas fréquent : l'adresse publique d'un agenda qui n'est pas public.
+            erreur("Impossible de lire l'agenda : il n'est sans doute pas public. Dans Google Agenda → Paramètres "
+                . "→ l'agenda → « Intégrer l'agenda », copiez plutôt l'« Adresse secrète au format iCal ».", 502);
+        }
         erreur("Impossible de lire l'agenda (adresse incorrecte ou pas de connexion).", 502);
     }
     @file_put_contents($fichier, $texte);
