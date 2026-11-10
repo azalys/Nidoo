@@ -46,6 +46,8 @@ que le serveur l'a reçue (fichier `version.txt`).
 | 📅 Agenda | grand | adresse iCal de l'agenda, lue par `api.php` ; exemples tant qu'elle n'est pas réglée |
 | ⏰ Minuteur | 1×1, 1×2, 2×2 | minuteur de cuisine : + / − pour les minutes et les secondes, ▶/⏸, ↺ ; sonne à la fin ; empêche la mise en veille tant qu'il tourne (page en https uniquement) |
 | 🧹 Corvées | petit | qui s'en occupe aujourd'hui (et demain) ; rotation jours pairs/impairs, chaque jour ou chaque semaine (⚙️) |
+| ⏳ Compte à rebours | 1×1 | « Vacances dans 12 jours » ; date, emoji, une fois ou chaque année, jours ou dodos (⚙️) |
+| 🗑️ Poubelles | 1×1 | « Ce soir : sortir la jaune » ; jours de ramassage et semaines paires/impaires pour chaque poubelle (⚙️) |
 | 🕒 Horloge, 📝 Note | petit, moyen, grand | — |
 
 ### Brancher un agenda Google
