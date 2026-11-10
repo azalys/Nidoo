@@ -6,7 +6,7 @@ Nidoo.declarerWidget({
   type: 'courses',
   nom: 'Courses',
   icone: '🛒',
-  tailles: ['grand'],
+  tailles: ['moyen', 'grand'], // 1×2 ou 2×2 (choix dans ⚙️)
   tailleParDefaut: 'grand',
   donneesParDefaut: { articles: [] },
 

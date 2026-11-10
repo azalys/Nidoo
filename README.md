@@ -41,7 +41,7 @@ que le serveur l'a reçue (fichier `version.txt`).
 |---|---|---|
 | 🌤️ Météo | petit : aujourd'hui · moyen : aujourd'hui + demain ; toucher un jour = détail heure par heure de 7 h à 21 h | [Open-Meteo](https://open-meteo.com), gratuit, sans clé |
 | ⚡ Tempo EDF | petit : couleur du moment · moyen : aujourd'hui + demain | [api-couleur-tempo.fr](https://www.api-couleur-tempo.fr), gratuit, sans clé |
-| 🛒 Courses | grand | cocher un article le retire, « + » pour ajouter |
+| 🛒 Courses | 1×2, 2×2 | cocher un article le retire, « + » pour ajouter |
 | ✅ Routine | grand | matin avant midi, soir après midi ; étapes réglables avec ⚙️ |
 | 📅 Agenda | grand | adresse iCal de l'agenda, lue par `api.php` ; exemples tant qu'elle n'est pas réglée |
 | ⏰ Minuteur | 1×1, 1×2, 2×2 | minuteur de cuisine : + / − pour les minutes et les secondes, ▶/⏸, ↺ ; sonne à la fin ; empêche la mise en veille tant qu'il tourne (page en https uniquement) |

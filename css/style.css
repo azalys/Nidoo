@@ -748,3 +748,11 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
 .heure-pluie.forte { opacity: 1; color: #1d63d6; }
 @media (prefers-color-scheme: dark) { .heure-pluie.forte { color: #7fb0ff; } }
 .heures-legende { margin: 12px 0 0; font-size: 0.9rem; color: var(--texte-doux); }
+
+/* Courses en 1×2 : plus compact pour garder de la place à la liste. */
+.taille-moyen .liste-widget .widget-entete { padding: 8px 14px 2px; font-size: 1.05rem; }
+.taille-moyen .liste-widget .cases li { padding: 2px 4px; font-size: 1rem; }
+.taille-moyen .liste-widget .case { width: 26px; height: 26px; border-width: 2.5px; }
+.taille-moyen .liste-widget .ajout { padding: 4px 12px 10px; }
+.taille-moyen .liste-widget .ajout input { padding: 6px 12px; }
+.taille-moyen .liste-widget .ajout button { width: 34px; height: 34px; font-size: 1.4rem; }
