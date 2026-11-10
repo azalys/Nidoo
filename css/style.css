@@ -754,7 +754,7 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
 .heure-pluie.forte { opacity: 1; color: #1d63d6; }
 @media (prefers-color-scheme: dark) { .heure-pluie.forte { color: #7fb0ff; } }
 
-/* Courses en 1×2 : plus compact pour garder de la place à la liste. */
+/* Liste en 1×2 : plus compact pour garder de la place aux éléments. */
 .taille-moyen .liste-widget .widget-entete { padding: 8px 14px 2px; font-size: 1.05rem; }
 .taille-moyen .liste-widget .cases li { padding: 2px 4px; font-size: 1rem; }
 .taille-moyen .liste-widget .case { width: 26px; height: 26px; border-width: 2.5px; }
@@ -817,3 +817,61 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
   text-align: center;
   box-shadow: 0 0 0 2px var(--w-fond);
 }
+
+/* Réglages : jours de la semaine à cocher */
+.jours { display: flex; gap: 6px; flex-wrap: wrap; }
+.jour { position: relative; }
+.jour input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.jour span {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 3px solid var(--bouton-ombre);
+  background: var(--bouton);
+  font-weight: 700;
+}
+.jour input:checked + span { background: #3a86ff; border-color: #3a86ff; color: #fff; }
+.jour input:focus-visible + span { outline: 3px solid #3a86ff; outline-offset: 2px; }
+
+/* --- Liste --- */
+.liste-corps { flex: 1; min-width: 0; }
+.liste-infos { display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+.liste-texte {
+  display: block;
+  width: 100%;
+  padding: 2px 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.liste-qui {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.7);
+}
+.liste-date {
+  flex: none;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  color: #3b2a5c;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.liste-date.urgent { color: #9a5b00; }
+.liste-date.retard { background: #fff; color: #c62828; }
+.liste-edition { margin-bottom: 0; }
+.liste-edition .champ span { font-weight: 600; }

@@ -43,6 +43,9 @@
     if (!Nidoo.COULEURS[w.couleur]) w.couleur = nomsCouleurs[i % nomsCouleurs.length];
   });
 
+  // Les anciens widgets "Courses" deviennent des Listes "🛒 Courses" (voir widgets/liste.js).
+  if (etat.widgets.filter((w) => Nidoo.convertirCourses(w)).length > 0) sauvegarder();
+
   function trouverWidget(id) {
     return etat.widgets.find((w) => w.id === id);
   }
@@ -401,13 +404,25 @@
 
     champsDuWidget(definition).forEach((r) => {
       const valeur = r.cle === TAILLE ? w.taille : w.donnees[r.cle];
-      const bloc = document.createElement('label');
+      // (Pour les jours de la semaine, plusieurs cases : le bloc ne peut pas être un <label>.)
+      const bloc = document.createElement(r.type === 'jours' ? 'div' : 'label');
       bloc.className = 'champ';
       bloc.innerHTML = '<span class="libelle"></span>';
       bloc.querySelector('.libelle').textContent = r.libelle;
 
       let champ;
-      if (r.type === 'choix') {
+      if (r.type === 'jours') {
+        // Jours de la semaine à cocher : la valeur est une liste de numéros (1 = lundi … 7 = dimanche).
+        champ = document.createElement('div');
+        champ.className = 'jours';
+        ['L', 'M', 'M', 'J', 'V', 'S', 'D'].forEach((lettre, i) => {
+          const jour = document.createElement('label');
+          jour.className = 'jour';
+          jour.innerHTML = `<input type="checkbox" name="${r.cle}" value="${i + 1}"><span>${lettre}</span>`;
+          jour.querySelector('input').checked = Array.isArray(valeur) && valeur.includes(i + 1);
+          champ.appendChild(jour);
+        });
+      } else if (r.type === 'choix') {
         // Liste déroulante : r.options = [{ valeur, libelle }, ...]
         champ = document.createElement('select');
         r.options.forEach((o) => {
@@ -424,10 +439,10 @@
         champ.value = Array.isArray(valeur) ? valeur.join('\n') : '';
       } else {
         champ = document.createElement('input');
-        champ.type = r.type === 'url' ? 'url' : 'text';
+        champ.type = { url: 'url', date: 'date', heure: 'time' }[r.type] || 'text';
         champ.value = valeur || '';
       }
-      champ.name = r.cle;
+      if (r.type !== 'jours') champ.name = r.cle;
       if (r.exemple) champ.placeholder = r.exemple;
       bloc.appendChild(champ);
 
@@ -447,6 +462,10 @@
     const definition = Nidoo.catalogue[w.type];
     const nouvelles = { ...w.donnees };
     (definition.reglages || []).forEach((r) => {
+      if (r.type === 'jours') {
+        nouvelles[r.cle] = [...formReglages.querySelectorAll(`[name="${r.cle}"]:checked`)].map((c) => Number(c.value));
+        return;
+      }
       const brut = formReglages.elements[r.cle].value;
       nouvelles[r.cle] =
         r.type === 'liste'

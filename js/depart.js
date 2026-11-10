@@ -13,7 +13,7 @@ Nidoo.GRILLE_DE_DEPART = [
   { type: 'agenda',   taille: 'grand', x: 0, y: 0, couleur: 'raisin',    donnees: { titre: 'Famille' } },
   { type: 'agenda',   taille: 'grand', x: 2, y: 0, couleur: 'lagon',     donnees: { titre: 'Tibo' } },
   { type: 'agenda',   taille: 'grand', x: 4, y: 0, couleur: 'framboise', donnees: { titre: 'Gwen' } },
-  { type: 'courses',  taille: 'grand', x: 6, y: 0, couleur: 'pomme' },
+  { type: 'liste',    taille: 'grand', x: 6, y: 0, couleur: 'pomme',     donnees: { titre: 'Courses', emoji: '🛒' } },
   { type: 'meteo',    taille: 'moyen', x: 0, y: 2, couleur: 'ciel' },
   { type: 'tempo',    taille: 'moyen', x: 0, y: 3, couleur: 'soleil' },
   { type: 'routine',  taille: 'grand', x: 2, y: 2, couleur: 'orange' },

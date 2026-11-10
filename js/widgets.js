@@ -45,7 +45,9 @@ Nidoo.catalogue = {};
  *   reglages        (facultatif) champs de la fenêtre ⚙️, ex.
  *                   [{ cle: 'ville', libelle: 'Ville', type: 'texte', exemple: 'Paris', aide: '…' }]
  *                   types : 'texte', 'url', 'liste' (une ligne = un élément),
- *                   'choix' (liste déroulante, avec options: [{ valeur, libelle }, …]).
+ *                   'choix' (liste déroulante, avec options: [{ valeur, libelle }, …]),
+ *                   'date' (ex. "2026-12-19"), 'heure' (ex. "21:30"),
+ *                   'jours' (jours de la semaine à cocher : [1, 4] = lundi et jeudi).
  *                   Les valeurs saisies sont rangées dans widget.donnees[cle].
  *   afficher(zone, widget)
  *       Dessine le widget dans `zone` (un élément HTML vide).
