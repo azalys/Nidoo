@@ -1,19 +1,26 @@
 /*
- * Widget "Minuteur" : un compte à rebours qui sonne à la fin.
+ * Widget "Minuteur" : un minuteur de cuisine (œufs, pâtes…) qui sonne à la fin.
+ *
+ *     −    ↺    −
+ *    MM    :    SS
+ *     +    ▶    +
+ *
+ * − / + règlent les minutes et les secondes (en gardant le doigt appuyé, ça défile vite).
+ * À la fin ça sonne ; "Stop" remet le temps réglé, prêt pour la fois suivante.
  *
  * Le son est fabriqué par le navigateur (Web Audio), pas besoin de fichier.
- * Les navigateurs n'autorisent le son qu'après un appui de l'utilisateur :
- * chaque bouton du minuteur "débloque" donc le son au passage.
- *
+ * Les navigateurs n'autorisent le son qu'après un appui : le bouton ▶ "débloque" le son.
  * Tant qu'il tourne, il empêche l'écran de se mettre en veille (voir "eveil" plus bas).
  *
  * Données enregistrées :
- *   fin      heure de fin (en millisecondes) quand le minuteur tourne, sinon null
- *   restant  temps restant (en millisecondes) quand il est arrêté ou en pause
+ *   duree    le temps réglé (en millisecondes)
+ *   fin      heure de fin (en millisecondes) quand il tourne, sinon null
+ *   pause    temps restant (en millisecondes) quand il est en pause, sinon null
  */
 (function () {
   const SONNERIE_MAX_MS = 60 * 1000; // la sonnerie s'arrête seule après 1 minute
-  const PRESETS = [1, 5, 10];        // boutons "+1 min", "+5 min", "+10 min"
+  const PAS_SECONDES = 5;            // les boutons des secondes avancent de 5 en 5
+  const MAX_MINUTES = 99;
 
   /* ---- Le son ---------------------------------------------------------- */
 
@@ -85,13 +92,12 @@
 
   /* ---- Outils ---------------------------------------------------------- */
 
-  // 125 000 ms → "2:05" ; 3 725 000 ms → "1:02:05"
-  function formater(ms) {
+  const deuxChiffres = (n) => String(n).padStart(2, '0');
+
+  // 390 000 ms → ["06", "30"]
+  function minutesSecondes(ms) {
     const total = Math.ceil(Math.max(0, ms) / 1000);
-    const h = Math.floor(total / 3600);
-    const m = Math.floor((total % 3600) / 60);
-    const s = String(total % 60).padStart(2, '0');
-    return h > 0 ? h + ':' + String(m).padStart(2, '0') + ':' + s : m + ':' + s;
+    return [deuxChiffres(Math.floor(total / 60)), deuxChiffres(total % 60)];
   }
 
   /* ---- Le widget ------------------------------------------------------- */
@@ -101,33 +107,44 @@
     nom: 'Minuteur',
     icone: '⏰',
     tailles: ['petit', 'moyen', 'grand'],
-    tailleParDefaut: 'moyen',
-    donneesParDefaut: { fin: null, restant: 0 },
+    tailleParDefaut: 'petit',
+    donneesParDefaut: { duree: 0, fin: null, pause: null },
 
     afficher(zone, widget) {
       zone.innerHTML = `
         <div class="minuteur">
-          <div class="minuteur-temps">0:00</div>
-          <div class="minuteur-presets">
-            ${PRESETS.map((m) => `<button data-ajout="${m}">+${m} min</button>`).join('')}
-          </div>
-          <div class="minuteur-commandes">
-            <button class="minuteur-zero" aria-label="Remettre à zéro">↺</button>
-            <button class="minuteur-principal">▶</button>
-          </div>
+          <button class="minuteur-bouton" data-reglage="-60" aria-label="Une minute de moins">−</button>
+          <button class="minuteur-bouton minuteur-petit" data-action="zero" aria-label="Remettre au temps réglé">↺</button>
+          <button class="minuteur-bouton" data-reglage="-${PAS_SECONDES}" aria-label="Moins de secondes">−</button>
+
+          <div class="minuteur-chiffres minuteur-minutes">00</div>
+          <div class="minuteur-deux-points">:</div>
+          <div class="minuteur-chiffres minuteur-secondes">00</div>
+
+          <button class="minuteur-bouton" data-reglage="60" aria-label="Une minute de plus">+</button>
+          <button class="minuteur-bouton minuteur-principal" data-action="principal" aria-label="Démarrer">▶</button>
+          <button class="minuteur-bouton" data-reglage="${PAS_SECONDES}" aria-label="Plus de secondes">+</button>
         </div>`;
 
       const boite = zone.querySelector('.minuteur');
-      const affichage = zone.querySelector('.minuteur-temps');
+      const minutes = zone.querySelector('.minuteur-minutes');
+      const secondes = zone.querySelector('.minuteur-secondes');
       const principal = zone.querySelector('.minuteur-principal');
+      const reglages = zone.querySelectorAll('[data-reglage]');
       const caseWidget = zone.closest('.widget');
 
-      let sonnerie = null;     // minuteur de répétition du bip
+      let sonnerie = null;     // répétition du bip
       let finSonnerie = null;  // arrêt automatique de la sonnerie
 
-      const enCours = () => widget.donnees.fin !== null && widget.donnees.fin !== undefined;
-      const restant = () => (enCours() ? widget.donnees.fin - Date.now() : widget.donnees.restant || 0);
-      const enregistrer = (changements) => widget.enregistrer({ ...widget.donnees, ...changements });
+      // Anciennes données (première version du minuteur) : on repart proprement.
+      if (typeof widget.donnees.duree !== 'number') widget.enregistrer({ duree: 0, fin: null, pause: null });
+
+      const d = () => widget.donnees;
+      const tourne = () => d().fin != null && Date.now() < d().fin;
+      const fini = () => d().fin != null && Date.now() >= d().fin;
+      const enPause = () => d().fin == null && d().pause != null;
+      const restant = () => (d().fin != null ? d().fin - Date.now() : enPause() ? d().pause : d().duree);
+      const enregistrer = (changements) => widget.enregistrer({ ...d(), ...changements });
 
       function arreterSonnerie() {
         clearInterval(sonnerie);
@@ -145,68 +162,96 @@
       }
 
       function rafraichir() {
-        const reste = restant();
-        const termine = enCours() && reste <= 0;
-        affichage.textContent = termine ? '🎉 Fini !' : formater(reste);
-        boite.classList.toggle('termine', termine);
+        const [m, s] = minutesSecondes(restant());
+        minutes.textContent = m;
+        secondes.textContent = s;
+        boite.classList.toggle('tourne', tourne());
+        boite.classList.toggle('termine', fini());
 
-        if (termine) {
-          principal.textContent = sonnerie ? '🔕 Stop' : 'OK';
-        } else if (enCours()) {
+        if (fini()) {
+          principal.textContent = sonnerie ? '🔕' : '✓';
+          principal.setAttribute('aria-label', 'Arrêter');
+        } else if (tourne()) {
           principal.textContent = '⏸';
+          principal.setAttribute('aria-label', 'Pause');
         } else {
           principal.textContent = '▶';
+          principal.setAttribute('aria-label', 'Démarrer');
         }
-        principal.disabled = !enCours() && reste <= 0;
+        principal.disabled = !fini() && !tourne() && restant() <= 0;
+        // On règle le temps seulement quand le minuteur est arrêté.
+        const reglable = d().fin == null && !enPause();
+        reglages.forEach((b) => (b.disabled = !reglable));
 
         // Écran gardé allumé tant que le minuteur tourne ou sonne.
-        eveil.garder(zone, (enCours() && reste > 0) || sonnerie !== null);
+        eveil.garder(zone, tourne() || sonnerie !== null);
       }
 
-      // Toutes les 250 ms : on met à jour l'affichage, et on sonne si c'est fini.
+      // Toutes les 250 ms : affichage, et sonnerie si on vient d'arriver à zéro.
       function tic() {
-        if (enCours() && restant() <= 0 && !boite.classList.contains('termine')) {
-          // Le minuteur vient de finir (pas au rechargement de la page :
-          // dans ce cas le navigateur bloquerait le son, on affiche juste "Fini !").
-          if (audio) sonner();
-        }
+        // Pas de sonnerie si la page vient d'être (re)chargée après la fin :
+        // le navigateur bloquerait le son, on affiche juste 00:00.
+        if (fini() && !boite.classList.contains('termine') && audio) sonner();
         rafraichir();
       }
 
+      /* Régler le temps : un appui = un pas ; doigt appuyé = ça défile de plus en plus vite. */
+      function regler(pasSecondes) {
+        const total = Math.round(d().duree / 1000) + pasSecondes;
+        const max = MAX_MINUTES * 60 + 59;
+        enregistrer({ duree: Math.min(max, Math.max(0, total)) * 1000 });
+        rafraichir();
+      }
+
+      let repetition = null;
+      function arreterRepetition() {
+        clearTimeout(repetition);
+        repetition = null;
+      }
+      zone.addEventListener('pointerdown', (e) => {
+        const bouton = e.target.closest('[data-reglage]');
+        if (!bouton || bouton.disabled) return;
+        e.preventDefault();
+        const pas = Number(bouton.dataset.reglage);
+        regler(pas);
+        let attente = 450;
+        const encore = () => {
+          regler(pas);
+          attente = Math.max(60, attente * 0.8);
+          repetition = setTimeout(encore, attente);
+        };
+        repetition = setTimeout(encore, attente);
+      });
+      ['pointerup', 'pointerleave', 'pointercancel'].forEach((evt) => zone.addEventListener(evt, arreterRepetition));
+
       zone.addEventListener('click', (e) => {
-        const bouton = e.target.closest('button');
+        const bouton = e.target.closest('[data-action]');
         if (!bouton) return;
         debloquerSon();
 
-        if (bouton.dataset.ajout) {
-          const ajout = Number(bouton.dataset.ajout) * 60 * 1000;
-          if (enCours() && restant() > 0) enregistrer({ fin: widget.donnees.fin + ajout });
-          else enregistrer({ fin: null, restant: (enCours() ? 0 : restant()) + ajout });
+        if (bouton.dataset.action === 'zero') {
           arreterSonnerie();
-        } else if (bouton.classList.contains('minuteur-zero')) {
+          enregistrer({ fin: null, pause: null });
+        } else if (fini()) {
+          // Fini : on arrête la sonnerie et on remet le temps réglé.
           arreterSonnerie();
-          enregistrer({ fin: null, restant: 0 });
-        } else if (bouton === principal) {
-          if (enCours() && restant() <= 0) {
-            // Fini : on arrête la sonnerie et on revient à zéro.
-            arreterSonnerie();
-            enregistrer({ fin: null, restant: 0 });
-          } else if (enCours()) {
-            enregistrer({ fin: null, restant: restant() }); // pause
-          } else if (restant() > 0) {
-            enregistrer({ fin: Date.now() + restant(), restant: 0 }); // départ
-          }
+          enregistrer({ fin: null, pause: null });
+        } else if (tourne()) {
+          enregistrer({ fin: null, pause: restant() }); // pause
+        } else if (restant() > 0) {
+          enregistrer({ fin: Date.now() + restant(), pause: null }); // départ ou reprise
         }
         rafraichir();
       });
 
       // Au premier affichage, on ne sonne pas pour un minuteur déjà fini avant.
-      if (enCours() && restant() <= 0) boite.classList.add('termine');
+      if (fini()) boite.classList.add('termine');
       rafraichir();
       const minuteur = setInterval(tic, 250);
 
       return () => {
         clearInterval(minuteur);
+        arreterRepetition();
         arreterSonnerie();
         eveil.garder(zone, false);
       };
