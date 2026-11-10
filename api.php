@@ -4,6 +4,7 @@
  *
  *   api.php?action=ping                 vérifie que l'API fonctionne
  *   api.php?action=agenda&url=...       événements des 7 prochains jours d'un agenda iCal
+ *                                       (&forcer=1 : relire tout de suite, sans la copie en cache)
  *
  * Partage entre appareils (voir js/synchro.js) :
  *   POST api.php?action=code             donne un code de 4 caractères valable 10 min
@@ -55,14 +56,19 @@ function erreur(string $message, int $code = 400): void
 // Téléchargement avec cache (fichiers dans le dossier temporaire du système)
 // ---------------------------------------------------------------------
 
-function telecharger(string $url): string
+/*
+ * $forcer : relit tout de suite (bouton ↻ de l'agenda), sauf si la copie a moins
+ * de 30 secondes (évite de solliciter Google à chaque appui).
+ */
+function telecharger(string $url, bool $forcer = false): string
 {
     $dossier = sys_get_temp_dir() . '/nidoo-cache';
     if (!is_dir($dossier)) {
         @mkdir($dossier, 0700, true);
     }
     $fichier = $dossier . '/' . md5($url);
-    if (is_file($fichier) && time() - filemtime($fichier) < CACHE_SECONDES) {
+    $age = is_file($fichier) ? time() - filemtime($fichier) : PHP_INT_MAX;
+    if ($age < ($forcer ? 30 : CACHE_SECONDES)) {
         return file_get_contents($fichier);
     }
 
@@ -498,7 +504,7 @@ switch ($action) {
             erreur("Adresse d'agenda non autorisée. Sites acceptés : " . implode(', ', SITES_AGENDA)
                 . ' (à modifier en haut de api.php).');
         }
-        $ics = telecharger($url);
+        $ics = telecharger($url, ($_GET['forcer'] ?? '') === '1');
         if (strpos($ics, 'BEGIN:VCALENDAR') === false) {
             erreur("Ce n'est pas un agenda iCal. Vérifiez l'adresse.", 502);
         }

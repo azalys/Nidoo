@@ -81,19 +81,25 @@
       let arrete = false;
       zone.innerHTML = `
         <div class="liste-widget">
-          <div class="widget-entete">📅 ${Nidoo.echapper(widget.donnees.titre || 'Agenda')}</div>
+          <div class="widget-entete">
+            <span>📅 ${Nidoo.echapper(widget.donnees.titre || 'Agenda')}</span>
+            <button class="agenda-recharger" aria-label="Recharger l'agenda" title="Recharger l'agenda">
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v4.5h-4.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+          </div>
           <ul class="agenda"><li class="liste-vide">Chargement…</li></ul>
         </div>`;
       const liste = zone.querySelector('.agenda');
 
-      async function mettreAJour() {
+      // `forcer` : relire l'agenda chez Google tout de suite, sans la copie gardée par api.php.
+      async function mettreAJour(forcer = false) {
         const url = (widget.donnees.url || '').trim();
         if (!url) {
           liste.innerHTML = '<li class="agenda-exemple">Exemple · branchez l\'agenda avec ⚙️</li>' + listeHtml(exemples());
           return;
         }
         try {
-          const reponse = await fetch('api.php?action=agenda&url=' + encodeURIComponent(url));
+          const reponse = await fetch('api.php?action=agenda&url=' + encodeURIComponent(url) + (forcer ? '&forcer=1' : ''), { cache: 'no-store' });
           const json = await reponse.json().catch(() => {
             throw new Error('api.php ne répond pas. Lancez Nidoo avec PHP.');
           });
@@ -105,8 +111,17 @@
         }
       }
 
+      // Flèche ↻ : recharge tout de suite (elle tourne pendant le chargement).
+      const recharger = zone.querySelector('.agenda-recharger');
+      recharger.addEventListener('click', async () => {
+        if (recharger.classList.contains('tourne')) return;
+        recharger.classList.add('tourne');
+        await Promise.all([mettreAJour(true), new Promise((r) => setTimeout(r, 600))]);
+        recharger.classList.remove('tourne');
+      });
+
       mettreAJour();
-      const minuteur = setInterval(mettreAJour, 10 * 60 * 1000); // toutes les 10 minutes
+      const minuteur = setInterval(() => mettreAJour(), 10 * 60 * 1000); // toutes les 10 minutes
       return () => {
         arrete = true;
         clearInterval(minuteur);

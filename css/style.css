@@ -1208,3 +1208,23 @@ html[data-style="adulte"] .minuteur-principal { background: var(--texte); color:
 /* Liste : l'initiale de la personne s'affiche dans la case à cocher. */
 .case.case-personne .liste-qui { box-shadow: none; pointer-events: none; }
 .cases li.coche .case.case-personne .liste-qui { display: none; }   /* cochée : on voit le ✓ */
+
+/* Agenda : flèche ↻ pour recharger */
+.agenda-recharger {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(var(--voile) / calc(0.28 * var(--voile-force)));
+  color: inherit;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.agenda-recharger:active { transform: scale(0.92); }
+.agenda-recharger.tourne svg { animation: tourner 0.8s linear infinite; }
+@keyframes tourner { to { transform: rotate(360deg); } }
+html[data-style="adulte"] .agenda-recharger { background: #f5f2ed; }
+.edition .agenda-recharger { visibility: hidden; }   /* pas en mode Modifier (le ⚙️ est à cet endroit) */
