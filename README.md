@@ -41,6 +41,7 @@ Attention : les fichiers retirés du projet sont aussi supprimés sur le serveur
 | ✅ Routine | grand | matin avant midi, soir après midi ; étapes réglables avec ⚙️ |
 | 📅 Agenda | grand | adresse iCal de l'agenda, lue par `api.php` ; exemples tant qu'elle n'est pas réglée |
 | ⏰ Minuteur | petit, moyen, grand | +1/+5/+10 min, ▶/⏸, ↺ ; sonne à la fin ; empêche la mise en veille tant qu'il tourne (page en https uniquement) |
+| 🧹 Corvées | petit | qui s'en occupe aujourd'hui (et demain) ; rotation jours pairs/impairs, chaque jour ou chaque semaine (⚙️) |
 | 🕒 Horloge, 📝 Note | petit, moyen, grand | — |
 
 ### Brancher un agenda Google

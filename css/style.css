@@ -321,6 +321,7 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
 .champs { display: grid; gap: 16px; text-align: left; margin-bottom: 24px; }
 .champ { display: grid; gap: 6px; font-weight: 600; }
 .champ input,
+.champ select,
 .champ textarea {
   width: 100%;
   padding: 12px 14px;
@@ -333,6 +334,7 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
 }
 .champ textarea { resize: vertical; line-height: 1.4; }
 .champ input:focus,
+.champ select:focus,
 .champ textarea:focus { outline: none; border-color: #3a86ff; }
 .champ small { color: var(--texte-doux); font-weight: 500; line-height: 1.35; }
 .boutons-fenetre { display: flex; gap: 12px; justify-content: center; }
@@ -668,4 +670,31 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
 }
 @media (prefers-reduced-motion: reduce) {
   .widget.sonne { animation: none; outline: 6px solid var(--w-texte); }
+}
+
+/* --- Corvées --- */
+.corvee {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3cqh;
+  padding: 6cqh 6cqw;
+  text-align: center;
+}
+.corvee-titre { font-size: max(12px, 11cqh); font-weight: 700; line-height: 1.15; }
+.corvee-qui {
+  font-size: 20cqh;
+  font-weight: 700;
+  line-height: 1.05;
+  text-shadow: 0 1cqh 0 rgba(0, 0, 0, 0.15);
+  overflow-wrap: anywhere;
+}
+.corvee-demain {
+  padding: 1cqh 4cqw;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.28);
+  font-size: max(11px, 8.5cqh);
+  font-weight: 600;
 }

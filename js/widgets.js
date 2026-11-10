@@ -43,7 +43,8 @@ Nidoo.catalogue = {};
  *   donneesParDefaut (facultatif) données de départ, ex. { titre: 'Agenda' }
  *   reglages        (facultatif) champs de la fenêtre ⚙️, ex.
  *                   [{ cle: 'ville', libelle: 'Ville', type: 'texte', exemple: 'Paris', aide: '…' }]
- *                   types : 'texte', 'url', 'liste' (une ligne = un élément).
+ *                   types : 'texte', 'url', 'liste' (une ligne = un élément),
+ *                   'choix' (liste déroulante, avec options: [{ valeur, libelle }, …]).
  *                   Les valeurs saisies sont rangées dans widget.donnees[cle].
  *   afficher(zone, widget)
  *       Dessine le widget dans `zone` (un élément HTML vide).

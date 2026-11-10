@@ -385,7 +385,17 @@
       bloc.querySelector('.libelle').textContent = r.libelle;
 
       let champ;
-      if (r.type === 'liste') {
+      if (r.type === 'choix') {
+        // Liste déroulante : r.options = [{ valeur, libelle }, ...]
+        champ = document.createElement('select');
+        r.options.forEach((o) => {
+          const option = document.createElement('option');
+          option.value = o.valeur;
+          option.textContent = o.libelle;
+          champ.appendChild(option);
+        });
+        champ.value = valeur || r.options[0].valeur;
+      } else if (r.type === 'liste') {
         // Une ligne = un élément.
         champ = document.createElement('textarea');
         champ.rows = 5;
