@@ -341,6 +341,7 @@
     widgetsAffiches().forEach((w) => {
       const p = placement.get(w.id);
       if (p) {
+        if (w.x !== p.x || w.y !== p.y) toucher(w); // nouvelle position : à partager
         w.x = p.x;
         w.y = p.y;
       }
@@ -635,6 +636,7 @@
       const autre = trouverWidget(dessous[0]);
       autre.x = p.x;
       autre.y = p.y;
+      toucher(autre);
     } else {
       // Les widgets recouverts iront à la première place libre.
       dessous.forEach((autreId) => {
@@ -645,6 +647,7 @@
     const w = trouverWidget(id);
     w.x = cible.x;
     w.y = cible.y;
+    toucher(w); // le déplacement doit être partagé avec les autres appareils
     placer({ enregistrer: true, prioritaire: id });
   }
 

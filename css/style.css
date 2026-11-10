@@ -1485,3 +1485,5 @@ html[data-style="adulte"] .echeance-ajouter { background: var(--texte); color: #
 .choix-grille label { display: flex; align-items: center; gap: 10px; padding: 6px 0; font-weight: 600; cursor: pointer; }
 .choix-grille input { width: 20px; height: 20px; accent-color: #3a86ff; }
 html[data-style="adulte"] .choix-grille { border: 1px solid var(--filet); }
+
+.version-appareil { text-align: center; font-size: 0.85rem; margin: -6px 0 14px; }
