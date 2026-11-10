@@ -9,7 +9,7 @@
 Nidoo.declarerWidget({
   type: 'note',
   nom: 'Note',
-  icone: '📝',
+  icone: '🗒️',
   tailles: ['petit', 'moyen', 'grand'],
   tailleParDefaut: 'moyen',
 

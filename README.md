@@ -85,6 +85,7 @@ js/widgets.js      le catalogue des widgets, les tailles et les couleurs
 js/appareil.js     réglages propres à cet appareil (mode nuit, partage)
 js/nuit.js         le mode nuit
 js/synchro.js      le partage entre appareils (code, synchronisation)
+js/style.js        l'interrupteur enfant / adulte
 js/depart.js       les widgets installés au premier lancement
 js/placement.js    calcul de la position des widgets (sans chevauchement)
 js/app.js          la grille, le mode Modifier, le glisser-déposer, les réglages
@@ -105,6 +106,14 @@ api.php            l'API côté serveur (lecture des agendas iCal)
 Le widget apparaît alors dans la fenêtre « + Ajouter ».
 Pour lui donner des réglages (bouton ⚙️), voir `reglages` dans `js/widgets.js`
 et l'exemple de `widgets/routine.js`.
+
+## Mode enfant / mode adulte
+
+L'interrupteur **Adulte** en haut à droite passe de la version colorée (pour les enfants)
+à une version sobre : fond blanc, cartes à fin filet, typographie élégante
+(Cormorant Garamond pour les titres et les chiffres, Manrope pour le texte).
+Tout le reste est identique. Le choix est propre à chaque appareil.
+Les styles du mode adulte sont regroupés à la fin de `css/style.css`.
 
 ## Partager entre appareils (⚙️ Appareil, en mode Modifier)
 

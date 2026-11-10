@@ -28,6 +28,12 @@
   --courbe-pluie: #2f7de1;    /* graphique météo : risque de pluie */
   --grille: rgba(59, 42, 92, 0.12);
 
+  /* Voiles clairs posés sur les widgets colorés (boutons, pastilles…), et ombre des gros textes.
+     Le mode adulte les remplace (voir tout en bas). */
+  --voile: 255 255 255;
+  --voile-force: 1;
+  --ombre-texte: rgba(0, 0, 0, 0.15);
+
   --police: "Fredoka", ui-rounded, "SF Pro Rounded", "Arial Rounded MT Bold", system-ui, sans-serif;
 }
 
@@ -96,7 +102,7 @@ button {
 }
 .titre span {
   display: inline-block;
-  text-shadow: 0 4px 0 rgba(0, 0, 0, 0.15);
+  text-shadow: 0 4px 0 var(--ombre-texte);
   animation: sautiller 2.4s ease-in-out infinite;
 }
 .titre span:nth-child(1) { color: #ef476f; animation-delay: 0s; }
@@ -233,7 +239,7 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
   content: "";
   position: absolute;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.18);
+  background: rgb(var(--voile) / calc(0.18 * var(--voile-force)));
   pointer-events: none;
 }
 .contenu::before { width: 60cqmin; height: 60cqmin; top: -22cqmin; right: -18cqmin; }
@@ -393,7 +399,7 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
   font-weight: 700;
   line-height: 1;
   font-variant-numeric: tabular-nums;
-  text-shadow: 0 1.2cqmin 0 rgba(0, 0, 0, 0.15);
+  text-shadow: 0 1.2cqmin 0 var(--ombre-texte);
 }
 .horloge-date {
   font-size: 11cqmin;
@@ -444,7 +450,7 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
 .compteur {
   padding: 2px 12px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.3);
+  background: rgb(var(--voile) / calc(0.3 * var(--voile-force)));
   font-size: 1rem;
 }
 
@@ -488,7 +494,7 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
   padding: 0;
   border: 3px solid currentColor;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.25);
+  background: rgb(var(--voile) / calc(0.25 * var(--voile-force)));
   display: grid;
   place-items: center;
   font-size: 1.2rem;
@@ -505,7 +511,7 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
   margin: 0 14px 6px;
   padding: 6px 12px;
   border-radius: 14px;
-  background: rgba(255, 255, 255, 0.3);
+  background: rgb(var(--voile) / calc(0.3 * var(--voile-force)));
   text-align: center;
   font-weight: 700;
 }
@@ -518,12 +524,12 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
   padding: 10px 14px;
   border: 0;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.85);
+  background: rgb(var(--voile) / calc(0.85 * var(--voile-force)));
   color: #3b2a5c;
   font: inherit;
   font-weight: 600;
 }
-.ajout input:focus { outline: 3px solid rgba(255, 255, 255, 0.8); }
+.ajout input:focus { outline: 3px solid rgb(var(--voile) / calc(0.8 * var(--voile-force))); }
 .ajout button {
   flex: none;
   width: 44px;
@@ -569,7 +575,7 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
   height: 42cqh;
   margin: 4cqh 0;
   border-radius: 50%;
-  border: 4px solid rgba(255, 255, 255, 0.8);
+  border: 4px solid rgb(var(--voile) / calc(0.8 * var(--voile-force)));
   box-shadow: 0 1.5cqh 0 rgba(0, 0, 0, 0.15);
   display: grid;
   place-items: center;
@@ -614,7 +620,7 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
   min-width: 4.2em;
   padding: 1px 8px;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.28);
+  background: rgb(var(--voile) / calc(0.28 * var(--voile-force)));
   text-align: center;
   font-size: 0.9rem;
 }
@@ -644,7 +650,7 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
   font-weight: 700;
   line-height: 1;
   font-variant-numeric: tabular-nums;
-  text-shadow: 0 1cqmin 0 rgba(0, 0, 0, 0.15);
+  text-shadow: 0 1cqmin 0 var(--ombre-texte);
 }
 .minuteur-deux-points {
   font-size: min(28cqmin, 18cqw);
@@ -663,7 +669,7 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
   padding: 0;
   border: 0;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.3);
+  background: rgb(var(--voile) / calc(0.3 * var(--voile-force)));
   color: inherit;
   font-size: max(18px, 14cqmin);
   font-weight: 700;
@@ -715,13 +721,13 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
   font-size: 20cqh;
   font-weight: 700;
   line-height: 1.05;
-  text-shadow: 0 1cqh 0 rgba(0, 0, 0, 0.15);
+  text-shadow: 0 1cqh 0 var(--ombre-texte);
   overflow-wrap: anywhere;
 }
 .corvee-demain {
   padding: 1cqh 4cqw;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.28);
+  background: rgb(var(--voile) / calc(0.28 * var(--voile-force)));
   font-size: max(11px, 8.5cqh);
   font-weight: 600;
 }
@@ -796,11 +802,11 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
 .case.case-emoji {
   position: relative;
   border: 0;
-  background: rgba(255, 255, 255, 0.35);
+  background: rgb(var(--voile) / calc(0.35 * var(--voile-force)));
   font-size: 1.25rem;
   font-weight: 400;
 }
-.cases li.fait .case.case-emoji { background: rgba(255, 255, 255, 0.6); color: inherit; }
+.cases li.fait .case.case-emoji { background: rgb(var(--voile) / calc(0.6 * var(--voile-force))); color: inherit; }
 .cases li.fait .case.case-emoji::after {
   content: "✓";
   position: absolute;
@@ -859,13 +865,13 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
   color: #fff;
   font-size: 0.75rem;
   font-weight: 700;
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.7);
+  box-shadow: 0 0 0 2px rgb(var(--voile) / calc(0.7 * var(--voile-force)));
 }
 .liste-date {
   flex: none;
   padding: 1px 8px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.85);
+  background: rgb(var(--voile) / calc(0.85 * var(--voile-force)));
   color: #3b2a5c;
   font-size: 0.75rem;
   font-weight: 700;
@@ -893,7 +899,7 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
   font-weight: 700;
   line-height: 1;
   font-variant-numeric: tabular-nums;
-  text-shadow: 0 1cqh 0 rgba(0, 0, 0, 0.15);
+  text-shadow: 0 1cqh 0 var(--ombre-texte);
 }
 .compte-unite  { font-size: max(12px, min(10cqh, 11cqw)); font-weight: 600; opacity: 0.9; }
 .compte-titre  { font-size: max(12px, min(10cqh, 11cqw)); font-weight: 700; line-height: 1.15; overflow-wrap: anywhere; }
@@ -925,7 +931,7 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
   place-items: center;
 }
 .poubelle-bacs .poubelle-bac:only-child { width: min(44cqh, 46cqw); }
-.poubelle-bac span { font-size: min(20cqh, 22cqw); filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.4)); }
+.poubelle-bac span { font-size: min(20cqh, 22cqw); filter: drop-shadow(0 1px 0 rgb(var(--voile) / calc(0.4 * var(--voile-force)))); }
 .poubelle.ce-soir .poubelle-bac { animation: sautiller 1.6s ease-in-out infinite; }
 
 /* --- Fenêtre "⚙️ Appareil" --- */
@@ -994,3 +1000,207 @@ body.nuit * { animation: none !important; }
 .erreur { color: #c62828; font-weight: 600; margin: 8px 0 0; min-height: 1em; }
 @media (prefers-color-scheme: dark) { .erreur { color: #ff8a8a; } }
 #appareil { max-height: calc(100dvh - 32px); overflow-y: auto; }
+
+/* --- Interrupteur enfant / adulte (barre du haut) --- */
+.interrupteur-style {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 4px;
+  border: 0;
+  background: none;
+  font-weight: 600;
+  color: var(--texte);
+}
+.interrupteur-style .piste {
+  position: relative;
+  width: 46px;
+  height: 28px;
+  border-radius: 999px;
+  background: var(--bouton-ombre);
+  transition: background 0.2s;
+}
+.interrupteur-style .pastille {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s;
+}
+.interrupteur-style[aria-checked="true"] .piste { background: #1b1b1d; }
+.interrupteur-style[aria-checked="true"] .pastille { transform: translateX(18px); }
+@media (max-width: 600px) { .interrupteur-style .etiquette { display: none; } }
+
+/* ==================================================================== */
+/* MODE ADULTE : fond blanc, cartes sobres, typographie élégante.        */
+/* Tout le reste de l'application est identique.                        */
+/* ==================================================================== */
+
+html[data-style="adulte"] {
+  --fond: #ffffff;
+  --pois: transparent;
+  --texte: #1b1b1d;
+  --texte-doux: #7a756d;
+  --bouton: #ffffff;
+  --bouton-ombre: #e6e1d8;
+  --filet: #ebe6de;               /* fins traits (bordures des cartes, champs) */
+
+  --police: "Manrope", "Helvetica Neue", system-ui, sans-serif;
+  --police-titre: "Cormorant Garamond", "Didot", Georgia, serif;
+
+  --arrondi: 18px;
+  --relief: 0px;
+  --voile: 27 27 29;              /* les voiles deviennent de légers gris */
+  --voile-force: 0.2;
+  --ombre-texte: transparent;
+
+  /* Graphique météo : toujours sur fond blanc */
+  --courbe-temp: #b06a00;
+  --courbe-pluie: #2f6fd6;
+  --grille: rgba(0, 0, 0, 0.07);
+
+  color-scheme: light;
+}
+
+html[data-style="adulte"] body {
+  background: var(--fond);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+/* Titre : une seule couleur, sans animation, en serif. */
+html[data-style="adulte"] .titre {
+  font-family: var(--police-titre);
+  font-weight: 600;
+  font-size: 2.1rem;
+  letter-spacing: 0.04em;
+}
+html[data-style="adulte"] .titre span { color: var(--texte); text-shadow: none; animation: none; }
+
+/* Boutons : fins, noir et blanc. */
+html[data-style="adulte"] .bouton {
+  background: #fff;
+  color: var(--texte);
+  border: 1px solid var(--texte);
+  box-shadow: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+}
+html[data-style="adulte"] .bouton:active { transform: none; box-shadow: none; opacity: 0.7; }
+html[data-style="adulte"] #bouton-ajouter,
+
+html[data-style="adulte"] .edition #bouton-modifier,
+html[data-style="adulte"] .bouton-principal { background: var(--texte); color: #fff; box-shadow: none; }
+
+/* Les widgets : cartes blanches, filet fin, ombre douce ; la couleur du widget
+   devient un fin trait en haut de la carte. */
+html[data-style="adulte"] .widget {
+  background: #fff;
+  color: var(--texte);
+  border: 1px solid var(--filet);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03), 0 10px 30px rgba(0, 0, 0, 0.05);
+  animation: none;
+}
+html[data-style="adulte"] .widget::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 22px;
+  right: 22px;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  background: var(--w-fond);
+  z-index: 2;
+}
+/* À l'intérieur, les widgets se croient sur une carte blanche à texte foncé. */
+html[data-style="adulte"] .widget .contenu {
+  --w-texte: #1b1b1d;
+  --w-fond: #ffffff;
+  --w-ombre: #e6e1d8;
+}
+html[data-style="adulte"] .contenu::before,
+html[data-style="adulte"] .contenu::after { display: none; }   /* plus de bulles décoratives */
+html[data-style="adulte"] .edition .widget { animation-duration: 0.35s; }
+html[data-style="adulte"] .fantome { box-shadow: 0 24px 60px rgba(0, 0, 0, 0.15); }
+
+/* Gros chiffres et titres en serif élégante. */
+html[data-style="adulte"] :is(.horloge-heure, .minuteur-chiffres, .minuteur-deux-points, .meteo-temp,
+  .compte-nombre, .corvee-qui, .heure-temp, .code-gros, .nuit-heure) {
+  font-family: var(--police-titre);
+  font-weight: 600;
+  font-variant-numeric: lining-nums tabular-nums;
+  letter-spacing: 0.01em;
+}
+html[data-style="adulte"] :is(.widget-entete, .galerie h2, .section-appareil h3, .graph-titre) {
+  font-family: var(--police-titre);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+html[data-style="adulte"] .widget-entete { font-size: 1.45rem; }
+html[data-style="adulte"] :is(.meteo-titre, .tempo-titre, .corvee-titre, .compte-titre, .poubelle-titre, .agenda-jour, .heure-heure) {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: max(10px, 0.72rem);
+  font-weight: 600;
+  color: var(--texte-doux);
+}
+html[data-style="adulte"] .graph-titre { font-size: 17px; }
+
+/* Petits boutons du mode Modifier */
+html[data-style="adulte"] .bouton-widget {
+  background: #fff;
+  color: var(--texte);
+  border: 1px solid var(--filet);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+html[data-style="adulte"] .bouton-supprimer { background: var(--texte); color: #fff; border-color: var(--texte); }
+html[data-style="adulte"] .emplacement { border: 1px dashed #d8d2c8; }
+html[data-style="adulte"] .emplacement.cible { border: 1px solid var(--texte); background: rgba(0, 0, 0, 0.04); }
+
+/* Fenêtres */
+html[data-style="adulte"] .galerie {
+  background: #fff;
+  border: 1px solid var(--filet);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.16);
+}
+html[data-style="adulte"] .galerie[open] { animation: none; }
+html[data-style="adulte"] .galerie::backdrop { background: rgba(20, 20, 22, 0.35); }
+html[data-style="adulte"] .galerie h2 { font-size: 2rem; }
+html[data-style="adulte"] .choix-widget {
+  background: #fff;
+  color: var(--texte);
+  border: 1px solid var(--filet);
+  box-shadow: none;
+  font-weight: 600;
+}
+html[data-style="adulte"] .choix-widget:active { transform: none; background: #faf8f5; }
+html[data-style="adulte"] :is(.champ input, .champ select, .champ textarea, .partage-rejoindre input) {
+  border: 1px solid #d8d2c8;
+  border-radius: 10px;
+}
+html[data-style="adulte"] :is(.champ input, .champ select, .champ textarea):focus { border-color: var(--texte); }
+html[data-style="adulte"] .jour span { border: 1px solid #d8d2c8; }
+html[data-style="adulte"] .jour input:checked + span { background: var(--texte); border-color: var(--texte); }
+html[data-style="adulte"] .code-gros { box-shadow: none; border: 1px solid var(--filet); }
+html[data-style="adulte"] .heure-carte { background: #faf8f5; }
+
+/* Détails enfantins retirés */
+html[data-style="adulte"] .vide::before { content: none; }
+html[data-style="adulte"] :is(.compte.jour-j .compte-emoji, .poubelle.ce-soir .poubelle-bac) { animation: none; }
+html[data-style="adulte"] .poubelle-bac { box-shadow: none; }
+html[data-style="adulte"] .tempo-pastille { box-shadow: none; border-width: 2px; }
+html[data-style="adulte"] .interrupteur-style .piste { background: #ddd8cf; }
+html[data-style="adulte"] .interrupteur-style[aria-checked="true"] .piste { background: var(--texte); }
+html[data-style="adulte"] .agenda-exemple { background: #f5f2ed; color: var(--texte-doux); font-weight: 500; }
+html[data-style="adulte"] .agenda-evt + .agenda-jour { border-top: 1px solid var(--filet); }
+html[data-style="adulte"] .case { border-width: 1.5px; background: #fff; }
+html[data-style="adulte"] .case.case-emoji { background: #f5f2ed; }
+html[data-style="adulte"] :is(.agenda-heure, .compteur, .corvee-demain, .liste-date) { background: #f5f2ed; }
+html[data-style="adulte"] .ajout input { background: #f5f2ed; color: var(--texte); }
+html[data-style="adulte"] .minuteur-bouton { background: #f5f2ed; box-shadow: none; }
+html[data-style="adulte"] .minuteur-principal { background: var(--texte); color: #fff; }
