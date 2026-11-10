@@ -16,6 +16,25 @@
   // Pour chaque widget affiché : sa fonction de nettoyage (voir js/widgets.js).
   const nettoyages = new Map();
 
+  // Nom de la famille affiché en haut ("Nidoo — Famille Dupond"), partagé entre appareils.
+  const NOM_PAR_DEFAUT = 'Famille Dupond';
+  const nomFamille = document.getElementById('famille-nom');
+  const champFamille = document.getElementById('famille-champ');
+  function afficherNomFamille() {
+    const texte = (etat.famille && etat.famille.texte) || NOM_PAR_DEFAUT;
+    nomFamille.textContent = texte;
+    if (document.activeElement !== champFamille) champFamille.value = texte;
+  }
+  function changerNomFamille() {
+    const texte = champFamille.value.trim() || NOM_PAR_DEFAUT;
+    if (texte === ((etat.famille && etat.famille.texte) || NOM_PAR_DEFAUT)) return afficherNomFamille();
+    etat.famille = { texte, maj: Date.now() };
+    sauvegarder();
+    afficherNomFamille();
+  }
+  champFamille.addEventListener('change', changerNomFamille);
+  champFamille.addEventListener('keydown', (e) => e.key === 'Enter' && champFamille.blur());
+
   // Les widgets supprimés (id → date), pour que la suppression se propage aux autres appareils.
   etat.supprimes = etat.supprimes && !Array.isArray(etat.supprimes) ? etat.supprimes : {};
 
@@ -716,6 +735,8 @@
       return a;
     });
     etat.supprimes = nouveau.supprimes;
+    if (nouveau.famille) etat.famille = nouveau.famille;
+    afficherNomFamille();
     Nidoo.stockage.enregistrer(etat);
     if (grilleArretee) return;
 
@@ -785,11 +806,13 @@
     minuteurEnCours: () => etat.widgets.some((w) => w.type === 'minuteur' && w.donnees && w.donnees.fin != null),
 
     // Partage entre appareils : une copie de l'état, et deux façons de le changer.
-    etat: () => JSON.parse(JSON.stringify({ widgets: etat.widgets, supprimes: etat.supprimes })),
+    etat: () => JSON.parse(JSON.stringify({ widgets: etat.widgets, supprimes: etat.supprimes, famille: etat.famille || null })),
     appliquer: appliquerEtat,
     remplacer(nouveau) {
       etat.widgets = nouveau.widgets;
       etat.supprimes = nouveau.supprimes;
+      if (nouveau.famille) etat.famille = nouveau.famille;
+      afficherNomFamille();
       Nidoo.stockage.enregistrer(etat);
       if (!grilleArretee) afficherGrille();
     },
@@ -802,6 +825,7 @@
     afficherGrille();
   });
 
+  afficherNomFamille();
   remplirGalerie();
   mesurer();
   afficherGrille();

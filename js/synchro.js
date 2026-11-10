@@ -62,6 +62,7 @@
     return {
       widgets: Array.isArray(e && e.widgets) ? e.widgets : [],
       supprimes: e && e.supprimes && !Array.isArray(e.supprimes) ? e.supprimes : {},
+      famille: e && e.famille && e.famille.texte ? e.famille : null, // nom affiché en haut
     };
   }
 
@@ -92,14 +93,16 @@
       }
     });
     const widgets = ordre.map((id) => parId.get(id)).filter((w) => !(supprimes[w.id] >= (w.maj || 0)));
-    return { widgets, supprimes };
+    // Le nom de la famille : le plus récent gagne.
+    const famille = [a.famille, b.famille].filter(Boolean).sort((x, y) => (y.maj || 0) - (x.maj || 0))[0] || null;
+    return { widgets, supprimes, famille };
   }
 
   // Pour comparer deux états sans tenir compte de l'ordre.
   function signature(e) {
     const widgets = [...e.widgets].sort((x, y) => (x.id < y.id ? -1 : 1));
     const supprimes = Object.keys(e.supprimes).sort().map((k) => [k, e.supprimes[k]]);
-    return JSON.stringify([widgets, supprimes]);
+    return JSON.stringify([widgets, supprimes, e.famille || null]);
   }
 
   /* ---- Synchronisation -------------------------------------------------- */
@@ -294,7 +297,8 @@
       garde.forEach((w) => widgets.push({ ...w, maj: Math.max(w.maj || 0, maintenant) }));
       ecarte.forEach((w) => !ids.has(w.id) && (supprimes[w.id] = maintenant));
     });
-    return { widgets, supprimes };
+    const famille = [ici.famille, autre.famille].filter(Boolean).sort((x, y) => (y.maj || 0) - (x.maj || 0))[0] || null;
+    return { widgets, supprimes, famille };
   }
 
   formulaire.addEventListener('submit', async (e) => {

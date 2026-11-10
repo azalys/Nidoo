@@ -30,9 +30,20 @@
 
   <!-- Barre du haut -->
   <header class="barre">
-    <h1 class="titre" aria-label="Nidoo">
-      <span>N</span><span>i</span><span>d</span><span>o</span><span>o</span>
-    </h1>
+    <div class="titre-bloc">
+      <h1 class="titre" aria-label="Nidoo">
+        <span>N</span><span>i</span><span>d</span><span>o</span><span>o</span>
+      </h1>
+      <!-- Nom de la famille : modifiable en mode Modifier, partagé entre appareils (js/app.js) -->
+      <span class="famille">
+        <span class="famille-tiret">—</span>
+        <span id="famille-nom" class="famille-nom">Famille Dupond</span>
+        <label class="famille-edition">
+          <input id="famille-champ" maxlength="40" autocomplete="off" aria-label="Nom de la famille">
+          <span aria-hidden="true">✏️</span>
+        </label>
+      </span>
+    </div>
     <div class="actions">
       <!-- Interrupteur enfant / adulte (js/style.js) -->
       <button id="bouton-style" class="interrupteur-style" role="switch" aria-checked="false" aria-label="Mode adulte (sinon mode enfant)">
