@@ -16,6 +16,19 @@ puis ouvrir http://localhost:8000
 
 (Un double-clic sur `index.html` marche aussi, mais sans PHP les agendas ne peuvent pas se charger.)
 
+## Mettre en ligne
+
+Depuis un ordinateur qui a accès SSH au serveur :
+
+```
+./deploy.sh --test    # montre ce qui serait envoyé, sans rien changer
+./deploy.sh           # envoie les fichiers dans /home/latanieregeek/nidoo
+```
+
+Indiquer d'abord l'adresse du serveur en haut de `deploy.sh` (variable `SERVEUR`).
+Le serveur doit avoir PHP 8 ou plus.
+Attention : les fichiers retirés du projet sont aussi supprimés sur le serveur.
+
 ## Les widgets
 
 | Widget | Tailles | Source des données |
