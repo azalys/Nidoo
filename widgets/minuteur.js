@@ -20,7 +20,7 @@
  */
 (function () {
   const SONNERIE_MAX_MS = 60 * 1000; // la sonnerie s'arrête seule après 1 minute
-  const PAS_SECONDES = 5;            // les boutons des secondes avancent de 5 en 5
+  const PAS_SECONDES = 1;            // les boutons des secondes avancent de 1 en 1 (appui long : défilement rapide)
   const MAX_MINUTES = 99;
 
   /* ---- Le son ---------------------------------------------------------- */
