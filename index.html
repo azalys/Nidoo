@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <title>Nidoo</title>
+  <!-- Style "enfant" ou "adulte" choisi sur cet appareil : appliqué tout de suite (évite un clignotement). -->
+  <script>
+    try {
+      var style = JSON.parse(localStorage.getItem('nidoo.appareil') || '{}').style;
+      if (style) document.documentElement.dataset.style = style;
+    } catch (e) {}
+  </script>
+  <!-- Icônes (onglet, écran d'accueil iPad/iPhone) : fichiers du dossier favicon/ -->
+  <link rel="icon" type="image/png" href="favicon/favicon-96x96.png" sizes="96x96" />
+  <link rel="icon" type="image/svg+xml" href="favicon/favicon.svg" />
+  <link rel="shortcut icon" href="favicon/favicon.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="favicon/apple-touch-icon.png" />
+  <meta name="apple-mobile-web-app-title" content="Nidoo" />
+  <link rel="manifest" href="favicon/site.webmanifest" />
+  <!-- Police ronde et ludique (Google Fonts). Sans internet, une police ronde du système prend le relais. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Cormorant+Garamond:wght@500;600;700&family=Manrope:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Barre du haut -->
+  <header class="barre">
+    <h1 class="titre" aria-label="Nidoo">
+      <span>N</span><span>i</span><span>d</span><span>o</span><span>o</span>
+    </h1>
+    <div class="actions">
+      <!-- Interrupteur enfant / adulte (js/style.js) -->
+      <button id="bouton-style" class="interrupteur-style" role="switch" aria-checked="false" aria-label="Mode adulte">
+        <span class="piste"><span class="pastille"></span></span>
+        <span class="etiquette">Adulte</span>
+      </button>
+      <button id="bouton-appareil" class="bouton" hidden>⚙️ Appareil</button>
+      <button id="bouton-ajouter" class="bouton" hidden>+ Ajouter</button>
+      <button id="bouton-modifier" class="bouton">Modifier</button>
+    </div>
+  </header>
+
+  <!-- La grille : les widgets sont ajoutés ici par js/app.js -->
+  <main id="grille" class="grille"></main>
+
+  <!-- Fenêtre "Ajouter un widget" -->
+  <!-- Fenêtre "⚙️ Appareil" : réglages propres à cet appareil -->
+  <dialog id="appareil" class="galerie">
+    <h2>⚙️ Cet appareil</h2>
+
+    <section class="section-appareil">
+      <h3>🌙 Mode nuit</h3>
+      <p class="aide">Aux heures choisies : écran noir avec juste l'heure, widgets en pause. Toucher l'écran rallume pour 2 minutes.</p>
+      <label class="interrupteur"><input type="checkbox" id="nuit-actif"><span>Activer le mode nuit</span></label>
+      <div class="heures-nuit">
+        <label class="champ"><span>De</span><input type="time" id="nuit-debut"></label>
+        <label class="champ"><span>À</span><input type="time" id="nuit-fin"></label>
+      </div>
+    </section>
+
+    <section class="section-appareil">
+      <h3>🔗 Partager avec un autre appareil</h3>
+      <p class="aide" id="partage-statut"></p>
+      <div class="partage-code" id="partage-code" hidden>
+        <div class="code-gros"></div>
+        <div class="aide code-expire"></div>
+      </div>
+      <div class="partage-boutons">
+        <button class="bouton" id="partage-afficher" type="button">Afficher un code</button>
+        <button class="bouton" id="partage-delier" type="button" hidden>Délier cet appareil</button>
+      </div>
+      <form id="partage-rejoindre" class="partage-rejoindre">
+        <input id="partage-saisie" maxlength="4" placeholder="J'ai un code (ex. 4T2B)" autocapitalize="characters" autocomplete="off" spellcheck="false" aria-label="Code de partage">
+        <button class="bouton bouton-principal" type="submit">Relier</button>
+      </form>
+      <p class="erreur" id="partage-erreur"></p>
+    </section>
+
+    <button id="fermer-appareil" class="bouton bouton-principal">Fermer</button>
+  </dialog>
+
+  <!-- Écran du mode nuit (js/nuit.js) -->
+  <div id="nuit" class="nuit" hidden><div class="nuit-heure"></div></div>
+
+  <dialog id="galerie" class="galerie">
+    <h2>Ajouter un widget</h2>
+    <div id="liste-widgets" class="liste-widgets"></div>
+    <button id="fermer-galerie" class="bouton">Annuler</button>
+  </dialog>
+
+  <!-- Fenêtre "Réglages" d'un widget (bouton ⚙️ en mode Modifier) -->
+  <dialog id="reglages" class="galerie">
+    <form id="form-reglages">
+      <h2 id="titre-reglages">Réglages</h2>
+      <div id="champs-reglages" class="champs"></div>
+      <div class="boutons-fenetre">
+        <button type="button" id="annuler-reglages" class="bouton">Annuler</button>
+        <button type="submit" class="bouton bouton-principal">Enregistrer</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- 1. Les outils de base -->
+  <script src="js/stockage.js"></script>
+  <script src="js/appareil.js"></script>
+  <script src="js/widgets.js"></script>
+  <script src="js/placement.js"></script>
+
+  <!-- 2. Les widgets (un fichier par widget, à ajouter ici) -->
+  <script src="widgets/meteo-graphique.js"></script>
+  <script src="widgets/meteo.js"></script>
+  <script src="widgets/tempo.js"></script>
+  <script src="widgets/liste.js"></script>
+  <script src="widgets/routine.js"></script>
+  <script src="widgets/agenda.js"></script>
+  <script src="widgets/minuteur.js"></script>
+  <script src="widgets/corvees.js"></script>
+  <script src="widgets/compte.js"></script>
+  <script src="widgets/poubelle.js"></script>
+  <script src="widgets/horloge.js"></script>
+  <script src="widgets/note.js"></script>
+
+  <!-- 3. La grille du premier lancement, puis l'application (toujours en dernier) -->
+  <script src="js/depart.js"></script>
+  <script src="js/app.js"></script>
+
+  <!-- 4. Les fonctions qui s'appuient sur la grille -->
+  <script src="js/nuit.js"></script>
+  <script src="js/synchro.js"></script>
+  <script src="js/style.js"></script>
+</body>
+</html>

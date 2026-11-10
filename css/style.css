@@ -1,0 +1,1234 @@
+/* ==================================================================== */
+/* Nidoo — styles (thème ludique pour les enfants)                      */
+/* Les couleurs et dimensions principales sont réglables ci-dessous.    */
+/* Les couleurs des widgets sont dans js/widgets.js (Nidoo.COULEURS).   */
+/* ==================================================================== */
+
+:root {
+  --fond: #fff6e5;            /* fond de la page */
+  --pois: #ffe2b8;            /* petits pois décoratifs du fond */
+  --texte: #3b2a5c;
+  --texte-doux: #8a7aa8;
+  --bouton: #ffffff;
+  --bouton-ombre: #e6d3b3;
+
+  --marge: 20px;              /* espace autour de la grille */
+  --ecart: 16px;              /* espace entre les widgets */
+  /* Taille de la grille : elle remplit tout l'écran (calcul dans js/app.js). */
+  --colonnes-horizontale: 8;  /* écran à l'horizontale (tablette, ordinateur) */
+  --lignes-horizontale: 4;
+  --colonnes-verticale: 4;    /* écran à la verticale */
+  --lignes-verticale: 8;
+  --arrondi: 26px;            /* coins arrondis des widgets */
+  --relief: 6px;              /* épaisseur de l'effet "relief" sous les widgets */
+  --hauteur-barre: 64px;      /* hauteur de la barre du haut */
+
+
+  --courbe-temp: #c27400;     /* graphique météo : température (contraste vérifié sur le fond) */
+  --courbe-pluie: #2f7de1;    /* graphique météo : risque de pluie */
+  --grille: rgba(59, 42, 92, 0.12);
+
+  /* Voiles clairs posés sur les widgets colorés (boutons, pastilles…), et ombre des gros textes.
+     Le mode adulte les remplace (voir tout en bas). */
+  --voile: 255 255 255;
+  --voile-force: 1;
+  --ombre-texte: rgba(0, 0, 0, 0.15);
+
+  --police: "Fredoka", ui-rounded, "SF Pro Rounded", "Arial Rounded MT Bold", system-ui, sans-serif;
+}
+
+/* Mode sombre automatique : un ciel de nuit étoilé. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fond: #1f1b3d;
+    --pois: #2c2756;
+    --texte: #f4f0ff;
+    --texte-doux: #a9a2d0;
+    --bouton: #34306a;
+    --bouton-ombre: #16132e;
+    --courbe-temp: #c27f18;
+    --courbe-pluie: #4f93ec;
+    --grille: rgba(244, 240, 255, 0.12);
+  }
+}
+
+
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  min-height: 100%;
+  color: var(--texte);
+  font-family: var(--police);
+  font-weight: 500;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  /* Fond à pois */
+  background-color: var(--fond);
+  background-image: radial-gradient(var(--pois) 3px, transparent 3.5px);
+  background-size: 34px 34px;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* -------------------------------------------------------------------- */
+/* Barre du haut                                                        */
+/* -------------------------------------------------------------------- */
+
+.barre {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: calc(env(safe-area-inset-top) + var(--hauteur-barre));
+  padding: env(safe-area-inset-top) var(--marge) 0;
+}
+
+/* Le titre : chaque lettre a sa couleur et sautille. */
+.titre {
+  margin: 0;
+  display: flex;
+  font-size: 2.2rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 1px;
+}
+.titre span {
+  display: inline-block;
+  text-shadow: 0 4px 0 var(--ombre-texte);
+  animation: sautiller 2.4s ease-in-out infinite;
+}
+.titre span:nth-child(1) { color: #ef476f; animation-delay: 0s; }
+.titre span:nth-child(2) { color: #ff9f1c; animation-delay: 0.15s; }
+.titre span:nth-child(3) { color: #8ac926; animation-delay: 0.3s; }
+.titre span:nth-child(4) { color: #3a86ff; animation-delay: 0.45s; }
+.titre span:nth-child(5) { color: #8338ec; animation-delay: 0.6s; }
+
+@keyframes sautiller {
+  0%, 60%, 100% { transform: translateY(0) rotate(0); }
+  30%           { transform: translateY(-6px) rotate(-4deg); }
+}
+
+.actions { display: flex; gap: 12px; }
+
+/* Bouton "bonbon" avec relief qui s'enfonce quand on appuie. */
+.bouton {
+  border: 0;
+  border-radius: 999px;
+  padding: 9px 20px;
+  background: var(--bouton);
+  box-shadow: 0 5px 0 var(--bouton-ombre);
+  font-size: 1.1rem;
+  font-weight: 600;
+  transition: transform 0.08s, box-shadow 0.08s;
+}
+.bouton:active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 0 var(--bouton-ombre);
+}
+
+#bouton-ajouter {
+  background: #8ac926;
+  color: #1f3300;
+  box-shadow: 0 5px 0 #64a000;
+}
+.edition #bouton-modifier {
+  background: #3a86ff;
+  color: #fff;
+  box-shadow: 0 5px 0 #1d63d6;
+}
+
+/* -------------------------------------------------------------------- */
+/* La grille                                                            */
+/* -------------------------------------------------------------------- */
+
+.grille {
+  display: grid;
+  grid-template-columns: repeat(var(--colonnes, 8), minmax(0, 1fr));
+  grid-auto-rows: var(--case, 160px);
+  gap: calc(var(--ecart) + var(--relief)) var(--ecart);
+  padding: 12px var(--marge) calc(env(safe-area-inset-bottom) + var(--marge) + var(--relief));
+}
+
+.vide {
+  grid-column: 1 / -1;
+  grid-row: 1 / span 2;
+  z-index: 1;
+  text-align: center;
+  color: var(--texte-doux);
+  font-size: 1.4rem;
+  font-weight: 600;
+  line-height: 1.6;
+  margin-top: 12vh;
+}
+.vide::before {
+  content: "🧸";
+  display: block;
+  font-size: 4rem;
+  margin-bottom: 8px;
+  animation: sautiller 2.4s ease-in-out infinite;
+}
+
+/* -------------------------------------------------------------------- */
+/* Un widget                                                            */
+/* Ses couleurs viennent de --w-fond, --w-ombre et --w-texte,           */
+/* posées par js/app.js selon la couleur choisie.                       */
+/* -------------------------------------------------------------------- */
+
+.widget {
+  --w-fond: #3a86ff;
+  --w-ombre: #1d63d6;
+  --w-texte: #ffffff;
+
+  position: relative;
+  background: var(--w-fond);
+  color: var(--w-texte);
+  border-radius: var(--arrondi);
+  box-shadow:
+    0 var(--relief) 0 var(--w-ombre),
+    0 calc(var(--relief) + 10px) 24px rgba(0, 0, 0, 0.12);
+  user-select: none;
+  -webkit-user-select: none;
+  transition: transform 0.12s ease-out;
+  animation: apparaitre 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Un petit "rebond" quand on appuie sur un widget. */
+body:not(.edition) .widget:active { transform: scale(0.97); }
+
+@keyframes apparaitre {
+  from { transform: scale(0.6); opacity: 0; }
+  to   { transform: scale(1);   opacity: 1; }
+}
+
+/* La position de chaque widget (colonne, ligne) est posée par js/app.js. */
+.widget { z-index: 1; }
+
+/* Les cases de la grille, visibles seulement en mode "Modifier". */
+.emplacement {
+  display: none;
+  border: 3px dashed color-mix(in srgb, var(--texte-doux) 35%, transparent);
+  border-radius: var(--arrondi);
+}
+.edition .emplacement { display: block; }
+.emplacement.cible {
+  border: 3px solid #3a86ff;
+  background: color-mix(in srgb, #3a86ff 22%, transparent);
+}
+
+/* Le contenu prend toute la place ; "container-type" permet aux widgets */
+/* d'adapter la taille du texte à leur case (unités cqmin, cqw...).     */
+.contenu {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: inherit;
+  container-type: size;
+}
+
+/* Décor : deux bulles claires dans les coins de chaque widget. */
+.contenu::before,
+.contenu::after {
+  content: "";
+  position: absolute;
+  border-radius: 50%;
+  background: rgb(var(--voile) / calc(0.18 * var(--voile-force)));
+  pointer-events: none;
+}
+.contenu::before { width: 60cqmin; height: 60cqmin; top: -22cqmin; right: -18cqmin; }
+.contenu::after  { width: 26cqmin; height: 26cqmin; bottom: -8cqmin; left: 10cqmin; }
+
+.contenu > * { position: relative; z-index: 1; }
+
+.widget-inconnu {
+  margin: 0;
+  padding: 16px;
+  font-weight: 600;
+}
+
+/* -------------------------------------------------------------------- */
+/* Mode "Modifier"                                                      */
+/* -------------------------------------------------------------------- */
+
+.bouton-widget {
+  display: none;
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #3b2a5c;
+  font-size: 1.2rem;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.2);
+  z-index: 2;
+}
+
+.bouton-supprimer { top: -12px; left: -12px; background: #ef476f; color: #fff; font-size: 1.6rem; }
+.bouton-couleur   { bottom: -12px; left: -12px; }
+.bouton-reglages  { top: -12px; right: -12px; }
+
+.edition .bouton-widget { display: grid; place-items: center; }
+
+.edition .widget {
+  cursor: grab;
+  touch-action: none;             /* le doigt déplace le widget au lieu de faire défiler */
+  animation: trembler 0.28s ease-in-out infinite alternate;
+}
+.edition .widget:nth-child(2n) { animation-delay: -0.14s; }
+
+/* En mode "Modifier", on ne peut pas utiliser le contenu des widgets. */
+.edition .contenu { pointer-events: none; }
+
+@keyframes trembler {
+  from { transform: rotate(-1.2deg); }
+  to   { transform: rotate(1.2deg); }
+}
+
+/* Moins d'animations si l'appareil le demande. */
+@media (prefers-reduced-motion: reduce) {
+  .titre span, .vide::before, .widget, .galerie[open] { animation: none; }
+  .edition .widget { animation: none; outline: 3px dashed var(--texte-doux); outline-offset: 4px; }
+}
+
+/* Pendant un glisser-déposer */
+.widget.en-deplacement { opacity: 0.3; animation: none; }
+
+.fantome {
+  position: fixed;
+  z-index: 100;
+  pointer-events: none;
+  animation: none !important;
+  transform: scale(1.06) rotate(3deg);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+/* -------------------------------------------------------------------- */
+/* Fenêtre "Ajouter un widget"                                          */
+/* -------------------------------------------------------------------- */
+
+.galerie {
+  border: 0;
+  border-radius: 32px;
+  padding: 28px;
+  width: min(560px, calc(100vw - 32px));
+  background: var(--fond);
+  color: var(--texte);
+  box-shadow: 0 10px 0 rgba(0, 0, 0, 0.15), 0 30px 60px rgba(0, 0, 0, 0.3);
+  text-align: center;
+}
+.galerie[open] { animation: apparaitre 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+.galerie::backdrop { background: rgba(40, 20, 80, 0.45); }
+.galerie h2 { margin: 0 0 22px; font-size: 1.8rem; font-weight: 700; }
+
+/* Fenêtre "Réglages" */
+.champs { display: grid; gap: 16px; text-align: left; margin-bottom: 24px; }
+.champ { display: grid; gap: 6px; font-weight: 600; }
+.champ input,
+.champ select,
+.champ textarea {
+  width: 100%;
+  padding: 12px 14px;
+  border: 3px solid var(--bouton-ombre);
+  border-radius: 16px;
+  background: var(--bouton);
+  color: var(--texte);
+  font: inherit;
+  font-weight: 500;
+}
+.champ textarea { resize: vertical; line-height: 1.4; }
+.champ input:focus,
+.champ select:focus,
+.champ textarea:focus { outline: none; border-color: #3a86ff; }
+.champ small { color: var(--texte-doux); font-weight: 500; line-height: 1.35; }
+.boutons-fenetre { display: flex; gap: 12px; justify-content: center; }
+.bouton-principal { background: #3a86ff; color: #fff; box-shadow: 0 5px 0 #1d63d6; }
+
+.liste-widgets {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 18px;
+  margin-bottom: 24px;
+}
+
+.choix-widget {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 20px 8px;
+  border: 0;
+  border-radius: 24px;
+  background: var(--w-fond);
+  color: var(--w-texte);
+  box-shadow: 0 6px 0 var(--w-ombre);
+  font-size: 1.2rem;
+  font-weight: 600;
+  transition: transform 0.08s, box-shadow 0.08s;
+}
+.choix-widget:active { transform: translateY(5px); box-shadow: 0 1px 0 var(--w-ombre); }
+.choix-widget .icone { font-size: 2.6rem; }
+
+/* ==================================================================== */
+/* Styles des widgets (un bloc par widget)                              */
+/* Utiliser var(--w-texte) pour la couleur du texte.                    */
+/* ==================================================================== */
+
+/* --- Horloge --- */
+.horloge {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4cqmin;
+  padding: 8cqmin;
+}
+.horloge-heure {
+  font-size: 36cqmin;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 1.2cqmin 0 var(--ombre-texte);
+}
+.horloge-date {
+  font-size: 11cqmin;
+  font-weight: 600;
+  text-align: center;
+  opacity: 0.9;
+}
+.taille-petit .horloge-heure { font-size: 30cqmin; }
+.taille-petit .horloge-date  { font-size: 12cqmin; }
+
+/* --- Note --- */
+.note {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  resize: none;
+  padding: 22px 24px;
+  background: transparent;
+  color: var(--w-texte);
+  font: inherit;
+  font-size: 1.35rem;
+  font-weight: 600;
+  line-height: 1.4;
+  outline: none;
+}
+.note::placeholder { color: var(--w-texte); opacity: 0.65; }
+
+/* --- Éléments communs aux widgets --- */
+.widget-message {
+  margin: 0;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  padding: 12px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.widget-entete {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 18px 8px;
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+.compteur {
+  padding: 2px 12px;
+  border-radius: 999px;
+  background: rgb(var(--voile) / calc(0.3 * var(--voile-force)));
+  font-size: 1rem;
+}
+
+/* Liste dans un widget (courses, routine, agenda) : la liste défile si elle est longue. */
+.liste-widget { height: 100%; display: flex; flex-direction: column; }
+.liste-widget ul {
+  flex: 1;
+  margin: 0 6px 10px 0;       /* laisse un peu d'air à droite de la barre de défilement */
+  padding: 0 8px 0 14px;
+  list-style: none;
+  overflow-y: auto;
+
+  /* Barre de défilement discrète : fine, un peu transparente, sans fond. */
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--w-texte) 40%, transparent) transparent;
+}
+
+/* Même chose pour les navigateurs qui utilisent l'ancienne méthode (Safari plus ancien). */
+.liste-widget ul::-webkit-scrollbar { width: 6px; }
+.liste-widget ul::-webkit-scrollbar-track { background: transparent; }
+.liste-widget ul::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--w-texte) 40%, transparent);
+  border-radius: 999px;
+}
+.liste-vide { padding: 10px 4px; opacity: 0.85; font-weight: 600; }
+
+/* Cases à cocher rondes */
+.cases li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 4px;
+  font-size: 1.15rem;
+  font-weight: 600;
+  transition: opacity 0.3s, transform 0.3s;
+}
+.case {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 3px solid currentColor;
+  border-radius: 50%;
+  background: rgb(var(--voile) / calc(0.25 * var(--voile-force)));
+  display: grid;
+  place-items: center;
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+.cases li.fait .case,
+.cases li.coche .case { background: var(--w-texte); color: var(--w-fond); }
+.cases li.fait .case::after,
+.cases li.coche .case::after { content: "✓"; }
+.cases li.fait span { text-decoration: line-through; opacity: 0.7; }
+.cases li.coche { opacity: 0; transform: translateX(30px); }
+
+.bravo {
+  margin: 0 14px 6px;
+  padding: 6px 12px;
+  border-radius: 14px;
+  background: rgb(var(--voile) / calc(0.3 * var(--voile-force)));
+  text-align: center;
+  font-weight: 700;
+}
+
+/* Ligne d'ajout (courses) */
+.ajout { display: flex; gap: 8px; padding: 8px 14px 14px; }
+.ajout input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 14px;
+  border: 0;
+  border-radius: 999px;
+  background: rgb(var(--voile) / calc(0.85 * var(--voile-force)));
+  color: #3b2a5c;
+  font: inherit;
+  font-weight: 600;
+}
+.ajout input:focus { outline: 3px solid rgb(var(--voile) / calc(0.8 * var(--voile-force))); }
+.ajout button {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--w-texte);
+  color: var(--w-fond);
+  font-size: 1.8rem;
+  font-weight: 700;
+  line-height: 1;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, 0.2);
+}
+
+/* --- Météo et Tempo (même mise en page : une colonne par jour) --- */
+.meteo,
+.tempo {
+  height: 100%;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  align-items: center;
+  padding: 4cqh 3cqw;
+}
+.meteo-jour,
+.tempo-jour {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  font-weight: 600;
+}
+.meteo-jour { cursor: pointer; border-radius: 16px; transition: transform 0.1s; }
+.meteo-jour:active { transform: scale(0.95); }
+.meteo-titre,
+.tempo-titre { font-size: max(13px, 10cqh); font-weight: 700; }
+.meteo-icone { font-size: 30cqh; line-height: 1.1; }
+.meteo-temp  { font-size: 22cqh; font-weight: 700; line-height: 1; }
+.meteo-minmax { font-size: max(12px, 8cqh); opacity: 0.9; }
+
+.tempo-pastille {
+  width: 42cqh;
+  height: 42cqh;
+  margin: 4cqh 0;
+  border-radius: 50%;
+  border: 4px solid rgb(var(--voile) / calc(0.8 * var(--voile-force)));
+  box-shadow: 0 1.5cqh 0 rgba(0, 0, 0, 0.15);
+  display: grid;
+  place-items: center;
+  font-size: 22cqh;
+  font-weight: 700;
+}
+/* Aujourd'hui | ⚡ | Demain : l'éclair prend juste la place dont il a besoin. */
+.tempo:has(.tempo-eclair) { grid-auto-flow: row; grid-template-columns: 1fr auto 1fr; }
+.tempo-eclair {
+  font-size: 22cqh;
+  filter: drop-shadow(0 1cqh 0 rgba(0, 0, 0, 0.15));
+}
+.tempo-nom    { font-size: max(13px, 11cqh); font-weight: 700; }
+.tempo-detail { font-size: max(11px, 8cqh); opacity: 0.85; }
+
+/* --- Agenda --- */
+.agenda li { padding: 3px 4px; }
+.agenda-jour {
+  margin-top: 6px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  opacity: 0.85;
+}
+/* Trait de séparation entre deux jours (pas au-dessus du premier). */
+.agenda-evt + .agenda-jour {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 2px solid color-mix(in srgb, var(--w-texte) 30%, transparent);
+}
+.agenda-evt {
+  display: flex;
+  align-items: flex-start;   /* la pastille d'heure ne s'étire pas si le titre fait 2 lignes */
+  gap: 10px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.agenda-heure {
+  flex: none;
+  min-width: 4.2em;
+  padding: 1px 8px;
+  border-radius: 10px;
+  background: rgb(var(--voile) / calc(0.28 * var(--voile-force)));
+  text-align: center;
+  font-size: 0.9rem;
+}
+.agenda-exemple {
+  margin-bottom: 4px;
+  padding: 4px 10px !important;
+  border-radius: 12px;
+  background: rgba(0, 0, 0, 0.15);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* --- Minuteur (façon minuteur de cuisine) --- */
+/*    +   ↺   +                                                         */
+/*   MM   :   SS                                                        */
+/*    −   ▶   −                                                         */
+.minuteur {
+  height: 100%;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  grid-template-rows: 1fr auto 1fr;
+  place-items: center;
+  padding: 4cqh 6cqw;
+}
+.minuteur-chiffres {
+  font-size: min(36cqmin, 25cqw);   /* tient aussi dans une case étroite */
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 1cqmin 0 var(--ombre-texte);
+}
+.minuteur-deux-points {
+  font-size: min(28cqmin, 18cqw);
+  font-weight: 700;
+  line-height: 1;
+  padding-bottom: 3cqmin;
+}
+.minuteur.tourne .minuteur-deux-points { animation: clignoter 1s steps(1) infinite; }
+@keyframes clignoter { 50% { opacity: 0.25; } }
+
+.minuteur-bouton {
+  width: 22cqmin;
+  height: 22cqmin;
+  min-width: 34px;
+  min-height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(var(--voile) / calc(0.3 * var(--voile-force)));
+  color: inherit;
+  font-size: max(18px, 14cqmin);
+  font-weight: 700;
+  line-height: 1;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 0.8cqmin 0 rgba(0, 0, 0, 0.18);
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: transform 0.08s, opacity 0.2s;
+}
+.minuteur-bouton:active { transform: translateY(2px) scale(0.94); }
+.minuteur-bouton:disabled { opacity: 0.2; }
+
+/* ▶ en bas : bien visible. */
+.minuteur-principal { background: var(--w-texte); color: var(--w-fond); }
+
+/* En 1×2, on resserre au centre pour ne pas écarter les chiffres. */
+.taille-moyen .minuteur { padding: 4cqh 24cqw; }
+
+/* Fini : les chiffres clignotent. */
+.minuteur.termine .minuteur-chiffres { animation: clignoter 0.6s steps(1) infinite; }
+
+/* Quand ça sonne : le widget se secoue. */
+.widget.sonne { animation: secouer 0.5s ease-in-out infinite; }
+@keyframes secouer {
+  0%, 100% { transform: rotate(0) scale(1); }
+  25%      { transform: rotate(-3deg) scale(1.03); }
+  75%      { transform: rotate(3deg) scale(1.03); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .widget.sonne { animation: none; outline: 6px solid var(--w-texte); }
+}
+
+/* --- Corvées --- */
+.corvee {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3cqh;
+  padding: 6cqh 6cqw;
+  text-align: center;
+}
+.corvee-titre { font-size: max(12px, 11cqh); font-weight: 700; line-height: 1.15; }
+.corvee-qui {
+  font-size: 20cqh;
+  font-weight: 700;
+  line-height: 1.05;
+  text-shadow: 0 1cqh 0 var(--ombre-texte);
+  overflow-wrap: anywhere;
+}
+.corvee-demain {
+  padding: 1cqh 4cqw;
+  border-radius: 999px;
+  background: rgb(var(--voile) / calc(0.28 * var(--voile-force)));
+  font-size: max(11px, 8.5cqh);
+  font-weight: 600;
+}
+
+/* --- Popin (fenêtre par-dessus la grille) --- */
+.popin { width: min(760px, calc(100vw - 32px)); }
+.popin-contenu { margin-bottom: 22px; }
+
+/* Détail météo heure par heure */
+.heures {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);   /* 15 heures = 3 lignes de 5 */
+  gap: 10px;
+}
+@media (max-width: 520px) { .heures { grid-template-columns: repeat(3, 1fr); } }
+.heure-carte {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 4px;
+  border-radius: 18px;
+  background: color-mix(in srgb, #3a86ff 14%, transparent);
+  font-weight: 600;
+}
+.heure-heure { font-size: 0.95rem; opacity: 0.8; }
+.heure-icone { font-size: 2rem; line-height: 1.2; }
+.heure-temp  { font-size: 1.35rem; font-weight: 700; }
+.heure-pluie { font-size: 0.85rem; opacity: 0.75; }
+.heure-pluie.forte { opacity: 1; color: #1d63d6; }
+@media (prefers-color-scheme: dark) { .heure-pluie.forte { color: #7fb0ff; } }
+
+/* Liste en 1×2 : plus compact pour garder de la place aux éléments. */
+.taille-moyen .liste-widget .widget-entete { padding: 8px 14px 2px; font-size: 1.05rem; }
+.taille-moyen .liste-widget .cases li { padding: 2px 4px; font-size: 1rem; }
+.taille-moyen .liste-widget .case { width: 26px; height: 26px; border-width: 2.5px; }
+.taille-moyen .liste-widget .ajout { padding: 4px 12px 10px; }
+.taille-moyen .liste-widget .ajout input { padding: 6px 12px; }
+.taille-moyen .liste-widget .ajout button { width: 34px; height: 34px; font-size: 1.4rem; }
+
+/* --- Graphique météo (widgets/meteo-graphique.js) --- */
+.graph-lecture {
+  min-height: 1.6em;
+  margin: 0 0 6px;
+  font-size: 1.1rem;
+  color: var(--texte);
+}
+.graph-meteo { display: block; width: 100%; height: auto; touch-action: none; user-select: none; -webkit-user-select: none; }
+.graph-titre  { fill: var(--texte); font: 600 15px var(--police); }
+.graph-axe    { fill: var(--texte-doux); font: 500 13px var(--police); }
+.graph-valeur { fill: var(--texte); font: 700 15px var(--police); }
+.graph-icone  { font-size: 22px; }
+.graph-grille { stroke: var(--grille); stroke-width: 1; }
+.graph-maintenant { stroke: var(--texte-doux); stroke-width: 1; stroke-dasharray: 3 4; }
+.graph-ligne-temp,
+.graph-ligne-pluie { fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.graph-ligne-temp  { stroke: var(--courbe-temp); }
+.graph-ligne-pluie { stroke: var(--courbe-pluie); }
+.graph-zone-temp   { fill: var(--courbe-temp); opacity: 0.12; }
+.graph-zone-pluie  { fill: var(--courbe-pluie); opacity: 0.2; }
+.graph-point-temp,
+.graph-point-pluie { stroke: var(--fond); stroke-width: 2.5; }
+.graph-point-temp  { fill: var(--courbe-temp); }
+.graph-point-pluie { fill: var(--courbe-pluie); }
+.graph-repere-ligne { stroke: var(--texte-doux); stroke-width: 1.5; }
+.graph-toucher { fill: transparent; cursor: crosshair; }
+
+.heures-tableau { margin-top: 14px; text-align: left; }
+.heures-tableau summary { cursor: pointer; color: var(--texte-doux); font-weight: 600; margin-bottom: 10px; }
+
+/* Routine : un emoji par étape à la place du rond ; un ✓ vert quand c'est fait. */
+.case.case-emoji {
+  position: relative;
+  border: 0;
+  background: rgb(var(--voile) / calc(0.35 * var(--voile-force)));
+  font-size: 1.25rem;
+  font-weight: 400;
+}
+.cases li.fait .case.case-emoji { background: rgb(var(--voile) / calc(0.6 * var(--voile-force))); color: inherit; }
+.cases li.fait .case.case-emoji::after {
+  content: "✓";
+  position: absolute;
+  right: -5px;
+  bottom: -5px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #2e9d4f;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 18px;
+  text-align: center;
+  box-shadow: 0 0 0 2px var(--w-fond);
+}
+
+/* Réglages : jours de la semaine à cocher */
+.jours { display: flex; gap: 6px; flex-wrap: wrap; }
+.jour { position: relative; }
+.jour input { position: absolute; opacity: 0; inset: 0; margin: 0; cursor: pointer; }
+.jour span {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 3px solid var(--bouton-ombre);
+  background: var(--bouton);
+  font-weight: 700;
+}
+.jour input:checked + span { background: #3a86ff; border-color: #3a86ff; color: #fff; }
+.jour input:focus-visible + span { outline: 3px solid #3a86ff; outline-offset: 2px; }
+
+/* --- Liste --- */
+.liste-corps { flex: 1; min-width: 0; }
+.liste-infos { display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+.liste-texte {
+  display: block;
+  width: 100%;
+  padding: 2px 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+.liste-qui {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-size: 0.75rem;
+  font-weight: 700;
+  box-shadow: 0 0 0 2px rgb(var(--voile) / calc(0.7 * var(--voile-force)));
+}
+.liste-date {
+  flex: none;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: rgb(var(--voile) / calc(0.85 * var(--voile-force)));
+  color: #3b2a5c;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+.liste-date.urgent { color: #9a5b00; }
+.liste-date.retard { background: #fff; color: #c62828; }
+.liste-edition { margin-bottom: 0; }
+.liste-edition .champ span { font-weight: 600; }
+
+/* --- Compte à rebours --- */
+.compte {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1cqh;
+  padding: 6cqh 6cqw;
+  text-align: center;
+}
+.compte-emoji  { font-size: min(22cqh, 26cqw); line-height: 1.1; }
+.compte-nombre {
+  font-size: min(34cqh, 40cqw);
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 1cqh 0 var(--ombre-texte);
+}
+.compte-unite  { font-size: max(12px, min(10cqh, 11cqw)); font-weight: 600; opacity: 0.9; }
+.compte-titre  { font-size: max(12px, min(10cqh, 11cqw)); font-weight: 700; line-height: 1.15; overflow-wrap: anywhere; }
+.compte-jour-j { font-size: max(14px, min(13cqh, 14cqw)); font-weight: 700; line-height: 1.15; }
+.compte.jour-j .compte-emoji { animation: sautiller 1.6s ease-in-out infinite; }
+
+/* --- Poubelles --- */
+.poubelle {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3cqh;
+  padding: 6cqh 6cqw;
+  text-align: center;
+}
+.poubelle-titre { font-size: max(12px, min(11cqh, 12cqw)); font-weight: 700; }
+.poubelle-quand { font-size: max(11px, min(9cqh, 10cqw)); font-weight: 600; line-height: 1.2; }
+.poubelle-bacs  { display: flex; gap: 4cqw; }
+.poubelle-bac {
+  width: min(38cqh, 40cqw);
+  aspect-ratio: 1;
+  border-radius: 28%;
+  background: var(--bac);
+  border: 3px solid var(--bac-bord);
+  box-shadow: 0 1.2cqh 0 rgba(0, 0, 0, 0.18);
+  display: grid;
+  place-items: center;
+}
+.poubelle-bacs .poubelle-bac:only-child { width: min(44cqh, 46cqw); }
+.poubelle-bac span { font-size: min(20cqh, 22cqw); filter: drop-shadow(0 1px 0 rgb(var(--voile) / calc(0.4 * var(--voile-force)))); }
+.poubelle.ce-soir .poubelle-bac { animation: sautiller 1.6s ease-in-out infinite; }
+
+/* --- Fenêtre "⚙️ Appareil" --- */
+.section-appareil { text-align: left; margin-bottom: 22px; }
+.section-appareil h3 { margin: 0 0 6px; font-size: 1.25rem; }
+.section-appareil .aide { margin: 0 0 12px; color: var(--texte-doux); line-height: 1.35; }
+.interrupteur { display: flex; align-items: center; gap: 10px; font-weight: 600; cursor: pointer; margin-bottom: 12px; }
+.interrupteur input { width: 24px; height: 24px; accent-color: #3a86ff; }
+.heures-nuit { display: flex; gap: 12px; }
+.heures-nuit .champ { flex: 1; }
+.heures-nuit input:disabled { opacity: 0.5; }
+
+/* --- Mode nuit : noir complet, heure très sombre, rien d'autre --- */
+.nuit {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: #000;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.nuit[hidden] { display: none; }
+.nuit-heure {
+  color: #3a3a3a;
+  font: 600 clamp(64px, 14vw, 180px) / 1 var(--police);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 2px;
+}
+body.nuit { background: #000; }
+body.nuit .barre,
+body.nuit .grille { display: none; }
+body.nuit * { animation: none !important; }
+
+/* Section "Partager avec un autre appareil" */
+.partage-code { text-align: center; margin: 4px 0 14px; }
+.code-gros {
+  display: inline-block;
+  padding: 10px 26px;
+  border-radius: 20px;
+  background: var(--bouton);
+  box-shadow: 0 5px 0 var(--bouton-ombre);
+  font-size: 3rem;
+  font-weight: 700;
+  letter-spacing: 0.35em;
+  padding-right: calc(26px - 0.35em);
+  font-variant-numeric: tabular-nums;
+}
+.partage-code .aide { margin-top: 10px; }
+.partage-boutons { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.partage-rejoindre { display: flex; gap: 10px; }
+.partage-rejoindre input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 14px;
+  border: 3px solid var(--bouton-ombre);
+  border-radius: 16px;
+  background: var(--bouton);
+  color: var(--texte);
+  font: inherit;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+.partage-rejoindre input::placeholder { letter-spacing: normal; text-transform: none; font-weight: 500; }
+.erreur { color: #c62828; font-weight: 600; margin: 8px 0 0; min-height: 1em; }
+@media (prefers-color-scheme: dark) { .erreur { color: #ff8a8a; } }
+#appareil { max-height: calc(100dvh - 32px); overflow-y: auto; }
+
+/* --- Interrupteur enfant / adulte (barre du haut) --- */
+.interrupteur-style {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 4px;
+  border: 0;
+  background: none;
+  font-weight: 600;
+  color: var(--texte);
+}
+.interrupteur-style .piste {
+  position: relative;
+  width: 46px;
+  height: 28px;
+  border-radius: 999px;
+  background: var(--bouton-ombre);
+  transition: background 0.2s;
+}
+.interrupteur-style .pastille {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s;
+}
+.interrupteur-style[aria-checked="true"] .piste { background: #1b1b1d; }
+.interrupteur-style[aria-checked="true"] .pastille { transform: translateX(18px); }
+@media (max-width: 600px) { .interrupteur-style .etiquette { display: none; } }
+
+/* ==================================================================== */
+/* MODE ADULTE : fond blanc, cartes sobres, typographie élégante.        */
+/* Tout le reste de l'application est identique.                        */
+/* ==================================================================== */
+
+html[data-style="adulte"] {
+  --fond: #ffffff;
+  --pois: transparent;
+  --texte: #1b1b1d;
+  --texte-doux: #7a756d;
+  --bouton: #ffffff;
+  --bouton-ombre: #e6e1d8;
+  --filet: #ebe6de;               /* fins traits (bordures des cartes, champs) */
+
+  --police: "Manrope", "Helvetica Neue", system-ui, sans-serif;
+  --police-titre: "Cormorant Garamond", "Didot", Georgia, serif;
+
+  --arrondi: 18px;
+  --relief: 0px;
+  --voile: 27 27 29;              /* les voiles deviennent de légers gris */
+  --voile-force: 0.2;
+  --ombre-texte: transparent;
+
+  /* Graphique météo : toujours sur fond blanc */
+  --courbe-temp: #b06a00;
+  --courbe-pluie: #2f6fd6;
+  --grille: rgba(0, 0, 0, 0.07);
+
+  color-scheme: light;
+}
+
+html[data-style="adulte"] body {
+  background: var(--fond);
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
+/* Titre : une seule couleur, sans animation, en serif. */
+html[data-style="adulte"] .titre {
+  font-family: var(--police-titre);
+  font-weight: 600;
+  font-size: 2.1rem;
+  letter-spacing: 0.04em;
+}
+html[data-style="adulte"] .titre span { color: var(--texte); text-shadow: none; animation: none; }
+
+/* Boutons : fins, noir et blanc. */
+html[data-style="adulte"] .bouton {
+  background: #fff;
+  color: var(--texte);
+  border: 1px solid var(--texte);
+  box-shadow: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+}
+html[data-style="adulte"] .bouton:active { transform: none; box-shadow: none; opacity: 0.7; }
+html[data-style="adulte"] #bouton-ajouter,
+
+html[data-style="adulte"] .edition #bouton-modifier,
+html[data-style="adulte"] .bouton-principal { background: var(--texte); color: #fff; box-shadow: none; }
+
+/* Les widgets : cartes blanches, filet fin, ombre douce ; la couleur du widget
+   devient un fin trait en haut de la carte. */
+html[data-style="adulte"] .widget {
+  background: #fff;
+  color: var(--texte);
+  border: 1px solid var(--filet);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03), 0 10px 30px rgba(0, 0, 0, 0.05);
+  animation: none;
+}
+html[data-style="adulte"] .widget::before {
+  content: "";
+  position: absolute;
+  top: -1px;
+  left: 22px;
+  right: 22px;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  background: var(--w-fond);
+  z-index: 2;
+}
+/* À l'intérieur, les widgets se croient sur une carte blanche à texte foncé. */
+html[data-style="adulte"] .widget .contenu {
+  --w-texte: #1b1b1d;
+  --w-fond: #ffffff;
+  --w-ombre: #e6e1d8;
+}
+html[data-style="adulte"] .contenu::before,
+html[data-style="adulte"] .contenu::after { display: none; }   /* plus de bulles décoratives */
+html[data-style="adulte"] .edition .widget { animation-duration: 0.35s; }
+html[data-style="adulte"] .fantome { box-shadow: 0 24px 60px rgba(0, 0, 0, 0.15); }
+
+/* Gros chiffres et titres en serif élégante. */
+html[data-style="adulte"] :is(.horloge-heure, .minuteur-chiffres, .minuteur-deux-points, .meteo-temp,
+  .compte-nombre, .corvee-qui, .heure-temp, .code-gros, .nuit-heure) {
+  font-family: var(--police-titre);
+  font-weight: 600;
+  font-variant-numeric: lining-nums tabular-nums;
+  letter-spacing: 0.01em;
+}
+html[data-style="adulte"] :is(.widget-entete, .galerie h2, .section-appareil h3, .graph-titre) {
+  font-family: var(--police-titre);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+html[data-style="adulte"] .widget-entete { font-size: 1.45rem; }
+html[data-style="adulte"] :is(.meteo-titre, .tempo-titre, .corvee-titre, .compte-titre, .poubelle-titre, .agenda-jour, .heure-heure) {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: max(10px, 0.72rem);
+  font-weight: 600;
+  color: var(--texte-doux);
+}
+html[data-style="adulte"] .graph-titre { font-size: 17px; }
+
+/* Petits boutons du mode Modifier */
+html[data-style="adulte"] .bouton-widget {
+  background: #fff;
+  color: var(--texte);
+  border: 1px solid var(--filet);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+html[data-style="adulte"] .bouton-supprimer { background: var(--texte); color: #fff; border-color: var(--texte); }
+html[data-style="adulte"] .emplacement { border: 1px dashed #d8d2c8; }
+html[data-style="adulte"] .emplacement.cible { border: 1px solid var(--texte); background: rgba(0, 0, 0, 0.04); }
+
+/* Fenêtres */
+html[data-style="adulte"] .galerie {
+  background: #fff;
+  border: 1px solid var(--filet);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.16);
+}
+html[data-style="adulte"] .galerie[open] { animation: none; }
+html[data-style="adulte"] .galerie::backdrop { background: rgba(20, 20, 22, 0.35); }
+html[data-style="adulte"] .galerie h2 { font-size: 2rem; }
+html[data-style="adulte"] .choix-widget {
+  background: #fff;
+  color: var(--texte);
+  border: 1px solid var(--filet);
+  box-shadow: none;
+  font-weight: 600;
+}
+html[data-style="adulte"] .choix-widget:active { transform: none; background: #faf8f5; }
+html[data-style="adulte"] :is(.champ input, .champ select, .champ textarea, .partage-rejoindre input) {
+  border: 1px solid #d8d2c8;
+  border-radius: 10px;
+}
+html[data-style="adulte"] :is(.champ input, .champ select, .champ textarea):focus { border-color: var(--texte); }
+html[data-style="adulte"] .jour span { border: 1px solid #d8d2c8; }
+html[data-style="adulte"] .jour input:checked + span { background: var(--texte); border-color: var(--texte); }
+html[data-style="adulte"] .code-gros { box-shadow: none; border: 1px solid var(--filet); }
+html[data-style="adulte"] .heure-carte { background: #faf8f5; }
+
+/* Détails enfantins retirés */
+html[data-style="adulte"] .vide::before { content: none; }
+html[data-style="adulte"] :is(.compte.jour-j .compte-emoji, .poubelle.ce-soir .poubelle-bac) { animation: none; }
+html[data-style="adulte"] .poubelle-bac { box-shadow: none; }
+html[data-style="adulte"] .tempo-pastille { box-shadow: none; border-width: 2px; }
+html[data-style="adulte"] .interrupteur-style .piste { background: #ddd8cf; }
+html[data-style="adulte"] .interrupteur-style[aria-checked="true"] .piste { background: var(--texte); }
+html[data-style="adulte"] .agenda-exemple { background: #f5f2ed; color: var(--texte-doux); font-weight: 500; }
+html[data-style="adulte"] .agenda-evt + .agenda-jour { border-top: 1px solid var(--filet); }
+html[data-style="adulte"] .case { border-width: 1.5px; background: #fff; }
+html[data-style="adulte"] .case.case-emoji { background: #f5f2ed; }
+html[data-style="adulte"] :is(.agenda-heure, .compteur, .corvee-demain, .liste-date) { background: #f5f2ed; }
+html[data-style="adulte"] .ajout input { background: #f5f2ed; color: var(--texte); }
+html[data-style="adulte"] .minuteur-bouton { background: #f5f2ed; box-shadow: none; }
+html[data-style="adulte"] .minuteur-principal { background: var(--texte); color: #fff; }
+
+/* Liste : l'initiale de la personne s'affiche dans la case à cocher. */
+.case.case-personne .liste-qui { box-shadow: none; pointer-events: none; }
+.cases li.coche .case.case-personne .liste-qui { display: none; }   /* cochée : on voit le ✓ */
+
+/* Agenda : flèche ↻ pour recharger */
+.agenda-recharger {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(var(--voile) / calc(0.28 * var(--voile-force)));
+  color: inherit;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.agenda-recharger:active { transform: scale(0.92); }
+.agenda-recharger.tourne svg { animation: tourner 0.8s linear infinite; }
+@keyframes tourner { to { transform: rotate(360deg); } }
+html[data-style="adulte"] .agenda-recharger { background: #f5f2ed; }
+.edition .agenda-recharger { visibility: hidden; }   /* pas en mode Modifier (le ⚙️ est à cet endroit) */
+
+/* Grille vide : bouton pour copier la grille enfant dans la grille adulte */
+.vide p { margin: 0 0 14px; }
+.vide .aide { font-size: 0.95rem; margin-top: 10px; }
