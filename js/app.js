@@ -80,6 +80,48 @@
   if (convertis.length > 0) sauvegarder();
 
   /*
+   * Listes partagées : le contenu des widgets Liste est rangé à part, dans etat.listes,
+   * et chaque widget Liste indique juste quelle liste il affiche (donnees.liste).
+   * Deux widgets (côté enfant et côté parents) peuvent ainsi afficher LA MÊME liste.
+   */
+  // Les types de widgets dont le contenu peut être partagé entre plusieurs widgets.
+  const PARTAGEABLES = new Set(['liste', 'echeances']);
+  etat.listes = etat.listes && !Array.isArray(etat.listes) ? etat.listes : {};
+  let listesConverties = false;
+  etat.widgets.forEach((w) => {
+    if (!PARTAGEABLES.has(w.type) || (w.donnees && w.donnees.liste)) return;
+    // Ancienne liste (contenu dans le widget) → liste partagée. L'identifiant dépend du
+    // widget : deux appareils qui convertissent la même liste obtiennent le même.
+    const id = 'l' + w.id;
+    etat.listes[id] = { ...(etat.listes[id] || {}), ...(w.donnees || {}), maj: w.maj || Date.now() };
+    w.donnees = { liste: id };
+    listesConverties = true;
+  });
+  if (listesConverties) sauvegarder();
+
+  const estListePartagee = (w) => PARTAGEABLES.has(w.type) && w.donnees && w.donnees.liste;
+
+  // Les données d'un widget : les siennes, ou celles de la liste partagée qu'il affiche.
+  function donneesDe(w) {
+    if (estListePartagee(w)) return etat.listes[w.donnees.liste] || {};
+    return w.donnees;
+  }
+
+  // Enregistre les données d'un widget (dans la liste partagée si c'en est une).
+  function ecrireDonnees(w, donnees) {
+    if (estListePartagee(w)) {
+      etat.listes[w.donnees.liste] = { ...donnees, maj: Date.now() };
+      // Les autres widgets affichés qui montrent la même liste se redessinent.
+      widgetsAffiches()
+        .filter((x) => x.id !== w.id && estListePartagee(x) && x.donnees.liste === w.donnees.liste)
+        .forEach((x) => grille.querySelector('.widget[data-id="' + x.id + '"]') && redessinerEnGardantSaisie(x.id));
+    } else {
+      w.donnees = donnees;
+      toucher(w);
+    }
+  }
+
+  /*
    * Deux grilles : celle du mode enfant et celle du mode adulte (interrupteur "Adulte").
    * Chaque widget appartient à l'une des deux (w.grille = 'adulte', sinon enfant).
    * Les deux sont partagées entre appareils ; seule celle du mode en cours est affichée.
@@ -124,11 +166,10 @@
         taille: w.taille,
         // "get" : on lit toujours les données les plus récentes.
         get donnees() {
-          return w.donnees;
+          return donneesDe(w);
         },
         enregistrer(nouvellesDonnees) {
-          w.donnees = nouvellesDonnees;
-          toucher(w);
+          ecrireDonnees(w, nouvellesDonnees);
           sauvegarder();
         },
       });
@@ -268,7 +309,7 @@
         '<div class="vide"><p>La grille ' + grilleActive() + ' est vide.<br>' +
           'Touchez « Modifier » puis « + Ajouter ».</p>' +
           (copiable ? '<button class="bouton copier-grille">Copier la grille ' + autre + '</button>' +
-            '<p class="aide">Les widgets sont copiés : une liste copiée devient une liste séparée.</p>' : '') +
+            '<p class="aide">Les listes restent les mêmes des deux côtés ; les autres widgets sont copiés.</p>' : '') +
           '</div>'
       );
       grille.querySelector('.copier-grille')?.addEventListener('click', () => copierGrille(autre));
@@ -277,7 +318,8 @@
     }
   }
 
-  /* Copie les widgets de l'autre grille dans celle affichée (nouvelles copies indépendantes). */
+  /* Copie les widgets de l'autre grille dans celle affichée. Les Listes copiées affichent
+     les mêmes listes (partagées) ; les autres widgets sont des copies indépendantes. */
   function copierGrille(source) {
     const cible = grilleActive();
     etat.widgets
@@ -307,7 +349,10 @@
       type,
       taille: options.taille || definition.tailleParDefaut,
       couleur: options.couleur || (derniere ? couleurSuivante(derniere.couleur) : nomsCouleurs[0]),
-      donnees: { ...(definition.donneesParDefaut || {}), ...(options.donnees || {}) },
+      // Une Liste partagée ne garde que la référence à sa liste (le contenu est dans etat.listes).
+      donnees: options.donnees && options.donnees.liste
+        ? { liste: options.donnees.liste }
+        : { ...(definition.donneesParDefaut || {}), ...(options.donnees || {}) },
       maj: Date.now(),
     };
     if (grilleActive() === 'adulte') w.grille = 'adulte';
@@ -319,13 +364,56 @@
     return w;
   }
 
-  function ajouterWidget(type) {
-    const w = creerWidget(type);
+  function ajouterWidget(type, options) {
+    if (PARTAGEABLES.has(type) && !options) return choisirListe(type);
+    const w = creerWidget(type, options);
     const caseWidget = creerCase(w);
     grille.appendChild(caseWidget);
     afficherMessageVide();
     placer({ enregistrer: true }); // il va à la première place libre
     caseWidget.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  /*
+   * Ajouter une Liste : une liste vierge, ou une liste qui existe déjà (côté enfant ou
+   * parents). Une liste existante est partagée : même contenu des deux côtés.
+   */
+  function choisirListe(type) {
+    const definition = Nidoo.catalogue[type];
+    const existantes = new Map(); // id de liste → { donnees, cotes }
+    etat.widgets.filter((w) => w.type === type && estListePartagee(w)).forEach((w) => {
+      const id = w.donnees.liste;
+      if (!etat.listes[id]) return;
+      const e = existantes.get(id) || { donnees: etat.listes[id], cotes: new Set() };
+      e.cotes.add((w.grille || 'enfant') === 'adulte' ? 'parents' : 'enfant');
+      existantes.set(id, e);
+    });
+    const nouvelleListe = () => {
+      const id = 'l' + nouvelIdentifiant();
+      etat.listes[id] = { ...JSON.parse(JSON.stringify(definition.donneesParDefaut || {})), maj: Date.now() };
+      return id;
+    };
+    if (existantes.size === 0) return ajouterWidget(type, { donnees: { liste: nouvelleListe() } });
+
+    const contenu = Nidoo.ouvrirPopin(
+      `${definition.icone} ${type === 'liste' ? 'Quelle liste ?' : 'Quelles ' + definition.nom.toLowerCase() + ' ?'}`,
+      `<div class="choix-listes">
+         <button class="choix-liste" data-liste=""><span>➕</span><strong>${type === 'liste' ? 'Nouvelle liste vierge' : 'Nouveau widget vierge'}</strong></button>
+         ${[...existantes].map(([id, e]) => `
+           <button class="choix-liste" data-liste="${id}">
+             <span>${Nidoo.echapper(e.donnees.emoji || definition.icone)}</span>
+             <strong>${Nidoo.echapper(e.donnees.titre || definition.nom)}</strong>
+             <small>${(e.donnees.elements || []).length} élément(s) · côté ${[...e.cotes].join(' et ')}</small>
+           </button>`).join('')}
+       </div>
+       <p class="aide">Si vous choisissez un existant, il est partagé : ce qu'on y ajoute ou coche apparaît des deux côtés.</p>`
+    );
+    contenu.querySelectorAll('.choix-liste').forEach((bouton) =>
+      bouton.addEventListener('click', () => {
+        contenu.closest('dialog').close();
+        ajouterWidget(type, { donnees: { liste: bouton.dataset.liste || nouvelleListe() } });
+      })
+    );
   }
 
   function supprimerWidget(id) {
@@ -480,7 +568,7 @@
     champsReglages.innerHTML = '';
 
     champsDuWidget(definition).forEach((r) => {
-      const valeur = r.cle === TAILLE ? w.taille : w.donnees[r.cle];
+      const valeur = r.cle === TAILLE ? w.taille : donneesDe(w)[r.cle];
       // (Pour les jours de la semaine, plusieurs cases : le bloc ne peut pas être un <label>.)
       const bloc = document.createElement(r.type === 'jours' ? 'div' : 'label');
       bloc.className = 'champ';
@@ -537,7 +625,7 @@
     e.preventDefault();
     const w = widgetEnReglage;
     const definition = Nidoo.catalogue[w.type];
-    const nouvelles = { ...w.donnees };
+    const nouvelles = { ...donneesDe(w) };
     (definition.reglages || []).forEach((r) => {
       if (r.type === 'jours') {
         nouvelles[r.cle] = [...formReglages.querySelectorAll(`[name="${r.cle}"]:checked`)].map((c) => Number(c.value));
@@ -549,8 +637,7 @@
           ? brut.split('\n').map((l) => l.trim()).filter(Boolean)
           : brut.trim();
     });
-    w.donnees = nouvelles;
-    toucher(w);
+    ecrireDonnees(w, nouvelles);
     sauvegarder();
     fenetreReglages.close();
 
@@ -736,6 +823,14 @@
     });
     etat.supprimes = nouveau.supprimes;
     if (nouveau.famille) etat.famille = nouveau.famille;
+    // Listes partagées modifiées ailleurs : on redessine les widgets qui les affichent.
+    const listesChangees = new Set(
+      Object.keys(nouveau.listes || {}).filter((id) => JSON.stringify((etat.listes || {})[id]) !== JSON.stringify(nouveau.listes[id]))
+    );
+    etat.listes = nouveau.listes || {};
+    etat.widgets
+      .filter((w) => estListePartagee(w) && listesChangees.has(w.donnees.liste) && !changes.some((c) => c.id === w.id))
+      .forEach((w) => changes.push({ id: w.id }));
     afficherNomFamille();
     Nidoo.stockage.enregistrer(etat);
     if (grilleArretee) return;
@@ -806,12 +901,13 @@
     minuteurEnCours: () => etat.widgets.some((w) => w.type === 'minuteur' && w.donnees && w.donnees.fin != null),
 
     // Partage entre appareils : une copie de l'état, et deux façons de le changer.
-    etat: () => JSON.parse(JSON.stringify({ widgets: etat.widgets, supprimes: etat.supprimes, famille: etat.famille || null })),
+    etat: () => JSON.parse(JSON.stringify({ widgets: etat.widgets, supprimes: etat.supprimes, famille: etat.famille || null, listes: etat.listes })),
     appliquer: appliquerEtat,
     remplacer(nouveau) {
       etat.widgets = nouveau.widgets;
       etat.supprimes = nouveau.supprimes;
       if (nouveau.famille) etat.famille = nouveau.famille;
+      etat.listes = nouveau.listes || {};
       afficherNomFamille();
       Nidoo.stockage.enregistrer(etat);
       if (!grilleArretee) afficherGrille();

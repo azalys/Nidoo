@@ -63,6 +63,7 @@
       widgets: Array.isArray(e && e.widgets) ? e.widgets : [],
       supprimes: e && e.supprimes && !Array.isArray(e.supprimes) ? e.supprimes : {},
       famille: e && e.famille && e.famille.texte ? e.famille : null, // nom affiché en haut
+      listes: e && e.listes && !Array.isArray(e.listes) ? e.listes : {}, // listes partagées (widgets Liste)
     };
   }
 
@@ -86,7 +87,9 @@
       const ancien = recent === w ? deja : w;
       // Certains widgets savent fusionner leurs données (ex. Liste : élément par élément).
       const definition = Nidoo.catalogue[w.type];
-      if (definition && definition.fusionner && JSON.stringify(w) !== JSON.stringify(deja)) {
+      // (Une Liste partagée ne contient que la référence à sa liste : rien à fusionner ici.)
+      const partagee = w.donnees && w.donnees.liste;
+      if (definition && definition.fusionner && !partagee && JSON.stringify(w) !== JSON.stringify(deja)) {
         parId.set(w.id, { ...recent, donnees: definition.fusionner(ancien.donnees || {}, recent.donnees || {}) });
       } else {
         parId.set(w.id, recent);
@@ -95,14 +98,29 @@
     const widgets = ordre.map((id) => parId.get(id)).filter((w) => !(supprimes[w.id] >= (w.maj || 0)));
     // Le nom de la famille : le plus récent gagne.
     const famille = [a.famille, b.famille].filter(Boolean).sort((x, y) => (y.maj || 0) - (x.maj || 0))[0] || null;
-    return { widgets, supprimes, famille };
+    return { widgets, supprimes, famille, listes: fusionnerListes(a.listes, b.listes) };
+  }
+
+  // Les listes partagées : élément par élément (les ajouts des deux côtés sont gardés).
+  function fusionnerListes(a = {}, b = {}) {
+    const resultat = { ...a };
+    Object.entries(b).forEach(([id, liste]) => {
+      const deja = resultat[id];
+      if (!deja) resultat[id] = liste;
+      else if (JSON.stringify(deja) !== JSON.stringify(liste)) {
+        const [ancienne, recente] = (deja.maj || 0) > (liste.maj || 0) ? [liste, deja] : [deja, liste];
+        resultat[id] = { ...Nidoo.catalogue.liste.fusionner(ancienne, recente), maj: Math.max(deja.maj || 0, liste.maj || 0) };
+      }
+    });
+    return resultat;
   }
 
   // Pour comparer deux états sans tenir compte de l'ordre.
   function signature(e) {
     const widgets = [...e.widgets].sort((x, y) => (x.id < y.id ? -1 : 1));
     const supprimes = Object.keys(e.supprimes).sort().map((k) => [k, e.supprimes[k]]);
-    return JSON.stringify([widgets, supprimes, e.famille || null]);
+    const listes = Object.keys(e.listes || {}).sort().map((k) => [k, e.listes[k]]);
+    return JSON.stringify([widgets, supprimes, e.famille || null, listes]);
   }
 
   /* ---- Synchronisation -------------------------------------------------- */
@@ -298,7 +316,7 @@
       ecarte.forEach((w) => !ids.has(w.id) && (supprimes[w.id] = maintenant));
     });
     const famille = [ici.famille, autre.famille].filter(Boolean).sort((x, y) => (y.maj || 0) - (x.maj || 0))[0] || null;
-    return { widgets, supprimes, famille };
+    return { widgets, supprimes, famille, listes: fusionnerListes(ici.listes, autre.listes) };
   }
 
   formulaire.addEventListener('submit', async (e) => {

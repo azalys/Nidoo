@@ -1582,3 +1582,25 @@ html[data-style="adulte"] .famille-edition input { border: 1px dashed #d8d2c8; b
   font-size: clamp(12px, calc(var(--ligne) * 0.5), 1.25rem);
 }
 .routine-etapes .case.case-emoji::after { width: 15px; height: 15px; line-height: 15px; font-size: 0.65rem; right: -4px; bottom: -4px; }
+
+/* Ajout d'une Liste : vierge ou existante */
+.choix-listes { display: grid; gap: 10px; text-align: left; }
+.choix-liste {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+  column-gap: 12px;
+  align-items: center;
+  padding: 12px 16px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--bouton);
+  box-shadow: 0 4px 0 var(--bouton-ombre);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+}
+.choix-liste span { grid-row: 1 / span 2; font-size: 1.8rem; }
+.choix-liste small { color: var(--texte-doux); font-weight: 500; }
+.choix-liste:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--bouton-ombre); }
+html[data-style="adulte"] .choix-liste { box-shadow: none; border: 1px solid var(--filet); }

@@ -126,6 +126,13 @@ Chaque mode a **sa propre grille** de widgets : basculer l'interrupteur change d
 séparées). Les deux grilles sont partagées entre appareils reliés.
 Les styles du mode adulte sont regroupés à la fin de `css/style.css`.
 
+## Listes partagées entre le côté enfant et le côté parents
+
+En ajoutant une **Liste** ou des **Échéances**, on choisit « vierge » ou un widget qui
+existe déjà (côté enfant ou parents). Dans ce cas, c'est le même contenu des deux côtés :
+ce qu'on ajoute, coche ou renomme d'un côté apparaît de l'autre (et sur les appareils reliés).
+« Copier la grille » garde aussi les mêmes listes.
+
 ## Partager entre appareils (⚙️ Appareil, en mode Modifier)
 
 1. Sur l'appareil qui a la bonne grille : **Afficher un code** (ex. `4T2B`, valable 10 minutes).
