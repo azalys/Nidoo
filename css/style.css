@@ -1604,3 +1604,20 @@ html[data-style="adulte"] .famille-edition input { border: 1px dashed #d8d2c8; b
 .choix-liste small { color: var(--texte-doux); font-weight: 500; }
 .choix-liste:active { transform: translateY(3px); box-shadow: 0 1px 0 var(--bouton-ombre); }
 html[data-style="adulte"] .choix-liste { box-shadow: none; border: 1px solid var(--filet); }
+
+/* --- Mode adulte : chaque widget a un fond pastel de sa couleur, pour bien distinguer les blocs --- */
+html[data-style="adulte"] .widget {
+  background: color-mix(in srgb, var(--w-fond) 13%, #ffffff);
+  border-color: color-mix(in srgb, var(--w-fond) 32%, #ffffff);
+}
+/* Les petits éléments intérieurs passent en blanc translucide pour ressortir sur le pastel
+   (":where" garde une priorité faible : les pastilles d'alerte gardent leurs couleurs). */
+html[data-style="adulte"] .widget :where(.agenda-exemple, .case.case-emoji, .agenda-heure, .compteur, .corvee-demain,
+  .liste-date, .ajout input, .agenda-recharger, .humeur, .urgence-case, .echeance-quand, .trafic-recharger) {
+  background: rgba(255, 255, 255, 0.75);
+}
+html[data-style="adulte"] .widget .minuteur-bouton:not(.minuteur-principal) { background: rgba(255, 255, 255, 0.75); }
+html[data-style="adulte"] .widget .case:not(.case-emoji) { background: rgba(255, 255, 255, 0.8); }
+html[data-style="adulte"] .widget :where(.echeance, .agenda-evt + .agenda-jour) { border-color: color-mix(in srgb, var(--w-fond) 25%, #ffffff); }
+html[data-style="adulte"] .widget .ajout input,
+html[data-style="adulte"] .widget .case.case-emoji { background: rgba(255, 255, 255, 0.75); }
