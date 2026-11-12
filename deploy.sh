@@ -20,8 +20,8 @@
 set -euo pipefail
 
 # ---- Réglages ---------------------------------------------------------------
-SERVEUR="${NIDOO_SERVEUR:-latanieregeek@A_REMPLIR}"    # utilisateur@adresse du serveur
-DOSSIER="${NIDOO_DOSSIER:-/home/latanieregeek/nidoo}"  # dossier de Nidoo sur le serveur
+SERVEUR="${NIDOO_SERVEUR:-utilisateur@A_REMPLIR}"    # utilisateur@adresse du serveur
+DOSSIER="${NIDOO_DOSSIER:-}"  # dossier de Nidoo sur le serveur
 # -----------------------------------------------------------------------------
 
 cd "$(dirname "$0")"
@@ -43,6 +43,8 @@ if [ -f deploy.local ]; then
 fi
 SERVEUR="${NIDOO_SERVEUR:-$SERVEUR}"
 DOSSIER="${NIDOO_DOSSIER:-$DOSSIER}"
+# Par défaut : le dossier "nidoo" de l'utilisateur du serveur (ex. /home/moi/nidoo).
+[ -n "$DOSSIER" ] || DOSSIER="/home/${SERVEUR%%@*}/nidoo"
 
 # Avec un mot de passe : sshpass le donne à ssh (variable d'environnement, jamais en clair
 # dans la liste des processus). Sans mot de passe : ssh normal (clé SSH recommandée).

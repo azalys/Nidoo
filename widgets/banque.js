@@ -101,7 +101,7 @@
         texte: '🏦 Choisir le compte / relier une banque',
         action: (w) => instances.get(w.id)?.ouvrirComptes(),
       },
-      { cle: 'titre', libelle: 'Nom affiché', type: 'texte', exemple: 'Ex. Compte perso Gwen (sinon : le nom donné par la banque)' },
+      { cle: 'titre', libelle: 'Nom affiché', type: 'texte', exemple: 'Ex. Compte courant (sinon : le nom donné par la banque)' },
     ],
 
     afficher(zone, widget) {

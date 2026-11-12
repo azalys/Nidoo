@@ -13,8 +13,8 @@
 #
 set -euo pipefail
 
-SERVEUR="${NIDOO_SERVEUR:-latanieregeek@A_REMPLIR}"
-DOSSIER="${NIDOO_DOSSIER:-/home/latanieregeek/nidoo}"
+SERVEUR="${NIDOO_SERVEUR:-utilisateur@A_REMPLIR}"
+DOSSIER="${NIDOO_DOSSIER:-}"
 APPLICATION="d5076923-cca3-44c5-be0a-2bc867dbf073"   # identifiant de l'application Enable Banking (pas secret)
 
 cd "$(dirname "$0")"
@@ -41,6 +41,8 @@ if [ -f deploy.local ]; then
 fi
 SERVEUR="${NIDOO_SERVEUR:-$SERVEUR}"
 DOSSIER="${NIDOO_DOSSIER:-$DOSSIER}"
+# Par défaut : le dossier "nidoo" de l'utilisateur du serveur (ex. /home/moi/nidoo).
+[ -n "$DOSSIER" ] || DOSSIER="/home/${SERVEUR%%@*}/nidoo"
 if [[ "$SERVEUR" == *A_REMPLIR* ]]; then
   echo "❌ Indiquez l'adresse du serveur dans deploy.local (voir deploy.local.exemple)."
   exit 1

@@ -146,7 +146,7 @@ Ces fichiers ne vont jamais dans git (`.gitignore`) ni dans le site (`deploy.sh`
 ### Solde bancaire (Enable Banking)
 
 - Application créée sur enablebanking.com, « Redirect URL » :
-  `https://nidoo.latanieregeek.com/banque.php`. En mode gratuit (« Restricted »), seuls
+  `https://ADRESSE-DU-SITE/banque.php`. En mode gratuit (« Restricted »), seuls
   les comptes reliés dans le panneau Enable Banking (« Link accounts ») sont accessibles.
 - Dans Nidoo : Modifier → ⚙️ du widget → **Choisir le compte** → **Se connecter** (site de la banque) → choisir le compte.
   L'autorisation dure quelques mois (selon la banque) ; le widget prévient 14 jours avant.
