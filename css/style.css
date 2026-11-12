@@ -941,7 +941,8 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
 .interrupteur { display: flex; align-items: center; gap: 10px; font-weight: 600; cursor: pointer; margin-bottom: 12px; }
 .interrupteur input { width: 24px; height: 24px; accent-color: #3a86ff; }
 .heures-nuit { display: flex; gap: 12px; }
-.heures-nuit .champ { flex: 1; }
+.heures-nuit .champ { flex: 1; min-width: 0; }
+.heures-nuit input { display: block; width: 100%; min-width: 0; }
 .heures-nuit input:disabled { opacity: 0.5; }
 
 /* --- Mode nuit : noir complet, heure très sombre, rien d'autre --- */
@@ -1621,3 +1622,25 @@ html[data-style="adulte"] .widget .case:not(.case-emoji) { background: rgba(255,
 html[data-style="adulte"] .widget :where(.echeance, .agenda-evt + .agenda-jour) { border-color: color-mix(in srgb, var(--w-fond) 25%, #ffffff); }
 html[data-style="adulte"] .widget .ajout input,
 html[data-style="adulte"] .widget .case.case-emoji { background: rgba(255, 255, 255, 0.75); }
+
+/* --- Barre du haut : textes et icônes des boutons --- */
+.icone-bouton { display: none; }
+/* Sur ordinateur et tablette : "+ Ajouter", "⚙️ Appareil" ; "Modifier" / "Terminé" sans icône. */
+#bouton-ajouter .icone-bouton, #bouton-appareil .icone-bouton { display: inline; margin-right: 6px; }
+#bouton-ajouter .icone-bouton { font-size: 0; }
+#bouton-ajouter .icone-bouton::before { content: "+"; font-size: 1.1rem; }
+
+/* Sur téléphone : seulement les icônes, en boutons ronds. */
+@media (max-width: 600px) {
+  .barre { gap: 8px; }
+  .actions { gap: 8px; flex: none; }
+  .actions .bouton { width: 44px; height: 44px; padding: 0; display: grid; place-items: center; }
+  .actions .bouton .texte-bouton { display: none; }
+  .actions .bouton .icone-bouton { display: inline; margin: 0; font-size: 1.3rem; }
+  #bouton-ajouter .icone-bouton { font-size: 1.3rem; }
+  #bouton-ajouter .icone-bouton::before { content: none; }
+  .titre { font-size: 1.8rem; }
+  .edition .famille { display: none; }   /* en mode Modifier, place aux boutons */
+  .famille { font-size: 1rem; }
+}
+.actions .bouton[hidden] { display: none; }

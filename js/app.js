@@ -475,7 +475,9 @@
   function basculerEdition(actif) {
     modeEdition = actif;
     document.body.classList.toggle('edition', actif);
-    boutonModifier.textContent = actif ? 'Terminé' : 'Modifier';
+    boutonModifier.querySelector('.texte-bouton').textContent = actif ? 'Terminé' : 'Modifier';
+    boutonModifier.querySelector('.icone-bouton').textContent = actif ? '👍' : '✏️';
+    boutonModifier.setAttribute('aria-label', actif ? 'Terminé' : 'Modifier');
     boutonAjouter.hidden = !actif;
     boutonAppareil.hidden = !actif;
   }
