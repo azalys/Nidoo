@@ -221,6 +221,9 @@
    * Les colonnes se partagent la largeur, les lignes la hauteur.
    * Sur un petit écran (téléphone) : 2 colonnes et on fait défiler.
    */
+  /* Petit écran (téléphone) : 2 colonnes, on fait défiler, pas de déplacement des widgets. */
+  const estTelephone = () => document.documentElement.clientWidth <= 600;
+
   function mesurer() {
     const css = getComputedStyle(document.documentElement);
     const nombre = (nom) => parseFloat(css.getPropertyValue(nom)) || 0;
@@ -305,6 +308,7 @@
   /* Les cases vides, visibles en mode "Modifier" : on peut y déposer un widget. */
   function dessinerEmplacements() {
     grille.querySelectorAll('.emplacement').forEach((e) => e.remove());
+    if (estTelephone()) return; // pas de déplacement sur téléphone
     const lignes = Math.max(lignesEcran, Nidoo.placement.hauteur(placement));
     const fragment = document.createDocumentFragment();
     for (let y = 0; y < lignes; y++) {
@@ -792,7 +796,8 @@
   }
 
   grille.addEventListener('pointerdown', (e) => {
-    if (!modeEdition || e.button > 0 || e.target.closest('.bouton-widget')) return;
+    // Sur téléphone, on ne déplace pas les widgets (ils s'affichent simplement dans l'ordre).
+    if (!modeEdition || estTelephone() || e.button > 0 || e.target.closest('.bouton-widget')) return;
     const caseWidget = e.target.closest('.widget');
     if (!caseWidget) return;
     const rect = caseWidget.getBoundingClientRect();

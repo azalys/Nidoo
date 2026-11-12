@@ -216,3 +216,4 @@ La disposition est **propre à chaque appareil** (et à chaque sens : horizontal
 téléphone) : déplacer un widget sur le téléphone ne change rien sur la tablette. Seul le
 contenu des widgets est partagé entre appareils reliés. Un widget ajouté depuis un autre
 appareil va à la première place libre.
+Sur un téléphone, les widgets ne se déplacent pas : ils s'affichent simplement dans l'ordre.
