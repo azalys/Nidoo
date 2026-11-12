@@ -212,5 +212,7 @@ deuxième automatisation le matin pour la remettre.
 La grille a une taille fixe et remplit tout l'écran :
 8 colonnes × 4 lignes à l'horizontale, 4 × 8 à la verticale
 (réglables en haut de `css/style.css`). Sur un téléphone : 2 colonnes, on fait défiler.
-Les positions sont enregistrées par appareil. En passant à la verticale, les widgets
-qui ne tiennent plus vont à la première place libre.
+La disposition est **propre à chaque appareil** (et à chaque sens : horizontal, vertical,
+téléphone) : déplacer un widget sur le téléphone ne change rien sur la tablette. Seul le
+contenu des widgets est partagé entre appareils reliés. Un widget ajouté depuis un autre
+appareil va à la première place libre.

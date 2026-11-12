@@ -248,19 +248,49 @@
   }
 
   /*
+   * Les positions des widgets sont propres à CET appareil (jamais partagées : un téléphone
+   * ne dérange pas la tablette), et à chaque disposition (nombre de colonnes : 8 à
+   * l'horizontale, 4 à la verticale, 2 sur un téléphone). Rangées dans les réglages de
+   * l'appareil : { positions: { "8": { idDuWidget: [x, y] }, "4": {...} } }.
+   */
+  function lirePositions() {
+    return { ...((Nidoo.appareil.lire().positions || {})[colonnes] || {}) };
+  }
+
+  function ecrirePositions(positions) {
+    const existants = new Set(etat.widgets.map((w) => String(w.id)));
+    Object.keys(positions).forEach((id) => existants.has(id) || delete positions[id]);
+    const toutes = Nidoo.appareil.lire().positions || {};
+    toutes[colonnes] = positions;
+    Nidoo.appareil.modifier({ positions: toutes });
+  }
+
+  /*
+   * Les widgets affichés, avec leur position sur cet appareil. Ceux qui n'en ont pas encore
+   * (nouveaux, ou ajoutés depuis un autre appareil) iront à la première place libre, dans
+   * l'ordre de l'ancienne position partagée (x, y), puis de création.
+   */
+  function widgetsAvecPositions() {
+    const positions = lirePositions();
+    const rang = (w) => (Number.isInteger(w.y) ? w.y * 100 + (Number.isInteger(w.x) ? w.x : 99) : 1e9);
+    return widgetsAffiches()
+      .map((w, i) => ({ w, i }))
+      .sort((a, b) => rang(a.w) - rang(b.w) || a.i - b.i)
+      .map(({ w }) => {
+        const p = positions[w.id];
+        return { id: w.id, taille: w.taille, x: p ? p[0] : undefined, y: p ? p[1] : undefined };
+      });
+  }
+
+  /*
    * Calcule où va chaque widget et l'affiche.
    * `enregistrer` : garde ces positions (après une action de l'utilisateur).
    * Un simple changement de taille de fenêtre ne les enregistre pas.
    */
   function placer({ enregistrer = false, prioritaire } = {}) {
-    placement = Nidoo.placement.calculer(widgetsAffiches(), colonnes, prioritaire);
+    placement = Nidoo.placement.calculer(widgetsAvecPositions(), colonnes, prioritaire);
     if (enregistrer) {
-      widgetsAffiches().forEach((w) => {
-        const p = placement.get(w.id);
-        if (w.x !== p.x || w.y !== p.y) toucher(w);
-        w.x = p.x;
-        w.y = p.y;
-      });
+      gelerPositions();
       sauvegarder();
     }
     placement.forEach((p, id) => {
@@ -344,7 +374,7 @@
   /* Actions sur les widgets                                            */
   /* ------------------------------------------------------------------ */
 
-  /* Crée un widget. `options` (facultatif) : { taille, couleur, donnees, x, y }. */
+  /* Crée un widget. `options` (facultatif) : { taille, couleur, donnees }. */
   function creerWidget(type, options = {}) {
     const definition = Nidoo.catalogue[type];
     const derniere = etat.widgets[etat.widgets.length - 1];
@@ -360,10 +390,6 @@
       maj: Date.now(),
     };
     if (grilleActive() === 'adulte') w.grille = 'adulte';
-    if (Number.isInteger(options.x) && Number.isInteger(options.y)) {
-      w.x = options.x;
-      w.y = options.y;
-    }
     etat.widgets.push(w);
     return w;
   }
@@ -443,23 +469,17 @@
     gelerPositions();
     const p = placement.get(id);
     const { l, h } = Nidoo.placement.dimensions(w, colonnes);
-    Nidoo.placement.chevauchements(placement, p.x, p.y, l, h, id).forEach((autre) => {
-      delete trouverWidget(autre).x;
-      delete trouverWidget(autre).y;
-    });
+    const positions = lirePositions();
+    Nidoo.placement.chevauchements(placement, p.x, p.y, l, h, id).forEach((autre) => delete positions[autre]);
+    ecrirePositions(positions);
     placer({ enregistrer: true, prioritaire: id });
   }
 
-  /* Enregistre dans chaque widget la position où il est affiché maintenant. */
+  /* Enregistre (sur cet appareil) la position où chaque widget est affiché maintenant. */
   function gelerPositions() {
-    widgetsAffiches().forEach((w) => {
-      const p = placement.get(w.id);
-      if (p) {
-        if (w.x !== p.x || w.y !== p.y) toucher(w); // nouvelle position : à partager
-        w.x = p.x;
-        w.y = p.y;
-      }
-    });
+    const positions = lirePositions();
+    placement.forEach((p, id) => (positions[id] = [p.x, p.y]));
+    ecrirePositions(positions);
   }
 
   /* Redessine un seul widget (après un changement de taille ou de réglages). */
@@ -824,23 +844,16 @@
     const dessous = Nidoo.placement.chevauchements(placement, cible.x, cible.y, p.l, p.h, id);
     const seul = dessous.length === 1 && placement.get(dessous[0]);
 
+    const positions = lirePositions();
     if (seul && seul.l === p.l && seul.h === p.h) {
       // Même taille : on échange les places.
-      const autre = trouverWidget(dessous[0]);
-      autre.x = p.x;
-      autre.y = p.y;
-      toucher(autre);
+      positions[dessous[0]] = [p.x, p.y];
     } else {
       // Les widgets recouverts iront à la première place libre.
-      dessous.forEach((autreId) => {
-        delete trouverWidget(autreId).x;
-        delete trouverWidget(autreId).y;
-      });
+      dessous.forEach((autreId) => delete positions[autreId]);
     }
-    const w = trouverWidget(id);
-    w.x = cible.x;
-    w.y = cible.y;
-    toucher(w); // le déplacement doit être partagé avec les autres appareils
+    positions[id] = [cible.x, cible.y]; // propre à cet appareil : pas partagé
+    ecrirePositions(positions);
     placer({ enregistrer: true, prioritaire: id });
   }
 
