@@ -165,6 +165,7 @@
     const zone = caseWidget.querySelector('.contenu');
     if (definition) {
       const nettoyage = definition.afficher(zone, {
+        id: w.id,
         taille: w.taille,
         // "get" : on lit toujours les données les plus récentes.
         get donnees() {
@@ -326,6 +327,7 @@
     const cible = grilleActive();
     etat.widgets
       .filter((w) => (w.grille || 'enfant') === source)
+      .filter((w) => !Nidoo.catalogue[w.type] || pourCetteGrille(Nidoo.catalogue[w.type], cible))
       .forEach((w) => {
         const copie = JSON.parse(JSON.stringify(w));
         copie.id = nouvelIdentifiant();
@@ -510,25 +512,103 @@
   /* Fenêtre "Ajouter un widget"                                        */
   /* ------------------------------------------------------------------ */
 
+  /*
+   * Un widget peut être réservé à une grille (definition.grilles = ['adulte'])
+   * ou être "premium" (definition.premium = true) : il n'apparaît alors qu'une fois
+   * débloqué avec le mot de passe (vérifié par api.php, voir le README).
+   */
+  const estPremiumDebloque = () => !!Nidoo.appareil.lire().premium;
+  const pourCetteGrille = (definition, grille) => !definition.grilles || definition.grilles.includes(grille);
+
   function remplirGalerie() {
     listeWidgets.innerHTML = '';
-    Object.values(Nidoo.catalogue).forEach((definition, i) => {
-      const bouton = document.createElement('button');
-      bouton.className = 'choix-widget';
-      bouton.innerHTML = '<span class="icone">' + definition.icone + '</span><span>' + definition.nom + '</span>';
-      const c = Nidoo.COULEURS[nomsCouleurs[i % nomsCouleurs.length]];
-      bouton.style.setProperty('--w-fond', c.fond);
-      bouton.style.setProperty('--w-ombre', c.ombre);
-      bouton.style.setProperty('--w-texte', c.texte);
-      bouton.addEventListener('click', () => {
-        ajouterWidget(definition.type);
-        galerie.close();
+    const debloque = estPremiumDebloque();
+    const definitions = Object.values(Nidoo.catalogue).filter((d) => pourCetteGrille(d, grilleActive()));
+    definitions
+      .filter((d) => !d.premium || debloque)
+      .forEach((definition, i) => {
+        const bouton = document.createElement('button');
+        bouton.className = 'choix-widget';
+        bouton.innerHTML = '<span class="icone">' + definition.icone + '</span><span>' + definition.nom + '</span>';
+        const c = Nidoo.COULEURS[nomsCouleurs[i % nomsCouleurs.length]];
+        bouton.style.setProperty('--w-fond', c.fond);
+        bouton.style.setProperty('--w-ombre', c.ombre);
+        bouton.style.setProperty('--w-texte', c.texte);
+        bouton.addEventListener('click', () => {
+          ajouterWidget(definition.type);
+          galerie.close();
+        });
+        listeWidgets.appendChild(bouton);
       });
+    if (!debloque && definitions.some((d) => d.premium)) {
+      const bouton = document.createElement('button');
+      bouton.className = 'choix-widget choix-premium';
+      bouton.innerHTML = '<span class="icone">🔒</span><span>Widgets premium</span>';
+      bouton.addEventListener('click', debloquerPremium);
       listeWidgets.appendChild(bouton);
+    }
+  }
+
+  /* Demande le mot de passe des widgets premium (vérifié par le serveur). */
+  function debloquerPremium() {
+    const contenu = Nidoo.ouvrirPopin(
+      '🔒 Widgets premium',
+      `<form class="premium-form">
+         <p class="aide">Réservés à notre famille. Une fois débloqués, ils le sont aussi sur les appareils reliés.</p>
+         <input type="password" inputmode="numeric" autocomplete="off" placeholder="Mot de passe" aria-label="Mot de passe">
+         <button class="bouton bouton-principal" type="submit">Débloquer</button>
+         <p class="erreur"></p>
+       </form>`
+    );
+    const formulaire = contenu.querySelector('form');
+    const champ = formulaire.querySelector('input');
+    const message = formulaire.querySelector('.erreur');
+    champ.focus();
+    formulaire.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      message.textContent = '';
+      try {
+        const reponse = await fetch('api.php?action=premium', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ famille: Nidoo.appareil.lire().famille || null, mot_de_passe: champ.value }),
+          cache: 'no-store',
+        });
+        const json = await reponse.json().catch(() => ({ erreur: 'api.php ne répond pas (Nidoo doit être servi par PHP).' }));
+        if (!json.ok) throw new Error(json.erreur || 'Erreur du serveur.');
+        Nidoo.appareil.modifier({ famille: json.famille, premium: true });
+        document.getElementById('popin').close();
+        remplirGalerie();
+      } catch (erreur) {
+        message.textContent = Nidoo.messageErreur(erreur);
+      }
     });
   }
 
-  boutonAjouter.addEventListener('click', () => galerie.showModal());
+  /* Un autre appareil de la famille a peut-être débloqué les widgets premium : on demande au serveur. */
+  async function verifierPremium() {
+    const famille = Nidoo.appareil.lire().famille;
+    if (!famille) {
+      if (estPremiumDebloque()) Nidoo.appareil.modifier({ premium: false });
+      return;
+    }
+    try {
+      const reponse = await fetch('api.php?action=premium', { headers: { 'X-Nidoo-Famille': famille }, cache: 'no-store' });
+      const json = await reponse.json();
+      if (json.ok && json.premium !== estPremiumDebloque()) {
+        Nidoo.appareil.modifier({ premium: json.premium });
+        remplirGalerie();
+      }
+    } catch (e) {
+      // Pas de serveur : on garde ce qu'on sait.
+    }
+  }
+
+  boutonAjouter.addEventListener('click', () => {
+    remplirGalerie();
+    galerie.showModal();
+    verifierPremium();
+  });
   document.getElementById('fermer-galerie').addEventListener('click', () => galerie.close());
   // Toucher en dehors de la fenêtre la ferme aussi.
   galerie.addEventListener('click', (e) => {

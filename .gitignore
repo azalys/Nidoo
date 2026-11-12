@@ -1,2 +1,7 @@
 deploy.local
 donnees/
+
+# Clés et mots de passe : uniquement sur le serveur, jamais dans git (le dépôt est public)
+*.pem
+premium.txt
+enablebanking/

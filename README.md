@@ -54,6 +54,7 @@ que le serveur l'a reçue (fichier `version.txt`).
 | ⛽ Carburants | 1×1 | la station la moins chère autour de votre adresse (données de l'État, gratuit, sans clé) |
 | 📋 Échéances | 1×2, 2×2 | contrôle technique, assurance… : alerte avant la date, « C'est fait » fait avancer les échéances qui reviennent |
 | 🚗 Trafic | 1×1, 1×2 | temps de trajet avec le trafic, retard dû aux bouchons, heure d'arrivée ; la carte colorée en touchant le widget ; ↻ pour actualiser (TomTom : clé gratuite à régler dans ⚙️) |
+| 🏦 Solde bancaire | 1×1, 1×2 | **premium, côté parents seulement** : nom du compte, solde masqué (👁 l'affiche 30 s), « au 12/11/26 à 12:06 » ; toucher = choisir le compte ou relier une banque ([Enable Banking](https://enablebanking.com), gratuit pour ses propres comptes, voir plus bas) |
 | 🕒 Horloge, 📝 Note | petit, moyen, grand | — |
 
 ### Brancher un agenda Google
@@ -96,7 +97,8 @@ js/version.js      version affichée dans ⚙️ Appareil, rechargement automati
 js/placement.js    calcul de la position des widgets (sans chevauchement)
 js/app.js          la grille, le mode Modifier, le glisser-déposer, les réglages
 widgets/           un fichier par widget
-api.php            l'API côté serveur (lecture des agendas iCal)
+api.php            l'API côté serveur (agendas iCal, partage, widgets premium, banque)
+banque.php         page de retour après la connexion à la banque
 ```
 
 ## Créer un nouveau widget
@@ -112,6 +114,46 @@ api.php            l'API côté serveur (lecture des agendas iCal)
 Le widget apparaît alors dans la fenêtre « + Ajouter ».
 Pour lui donner des réglages (bouton ⚙️), voir `reglages` dans `js/widgets.js`
 et l'exemple de `widgets/routine.js`.
+
+## Widgets premium (🔒)
+
+Certains widgets (🏦 Solde bancaire) ne marchent que pour notre famille. Ils sont cachés
+dans « + Ajouter » derrière **🔒 Widgets premium**, qui demande un mot de passe.
+Le mot de passe n'est **pas** dans le code (le dépôt est public) : il est dans un fichier
+du serveur, et c'est `api.php` qui le vérifie (10 essais ratés au plus par 10 minutes).
+Une fois débloqués, ils le sont pour toute la famille (appareils reliés compris).
+
+Sur le serveur, à côté du dossier du site :
+
+```
+nidoo-donnees/
+  premium.txt                 le mot de passe (une ligne)
+  enablebanking/
+    d5076923-….pem            la clé privée de l'application Enable Banking,
+                              nommée avec l'identifiant de l'application
+```
+
+Pour les créer (depuis le Mac, adapter l'adresse du serveur et le nom du fichier téléchargé) :
+
+```
+ssh utilisateur@serveur 'mkdir -p ~/nidoo-donnees/enablebanking && chmod 700 ~/nidoo-donnees ~/nidoo-donnees/enablebanking'
+ssh utilisateur@serveur 'printf "%s\n" "MOT-DE-PASSE" > ~/nidoo-donnees/premium.txt && chmod 600 ~/nidoo-donnees/premium.txt'
+scp ~/Downloads/LA-CLE.pem utilisateur@serveur:nidoo-donnees/enablebanking/ID-APPLICATION.pem
+```
+
+Ces fichiers ne vont jamais dans git (`.gitignore`) ni dans le site (`deploy.sh` les ignore).
+
+### Solde bancaire (Enable Banking)
+
+- Application créée sur enablebanking.com, « Redirect URL » :
+  `https://nidoo.latanieregeek.com/banque.php`. En mode gratuit (« Restricted »), seuls
+  les comptes reliés dans le panneau Enable Banking (« Link accounts ») sont accessibles.
+- Dans Nidoo : toucher le widget → **Se connecter** (site de la banque) → choisir le compte.
+  L'autorisation dure quelques mois (selon la banque) ; le widget prévient 14 jours avant.
+- Le serveur relit la banque au plus toutes les 6 heures (les banques limitent les
+  lectures automatiques à 4 par jour) ; toucher 👁 demande une lecture plus fraîche.
+- Pour une autre famille avec sa propre application : déposer sa clé dans le même dossier ;
+  il faudra alors adapter `applicationBanque()` dans `api.php` (choix de la clé par famille).
 
 ## Mode enfant / mode adulte
 

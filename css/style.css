@@ -1667,3 +1667,81 @@ html[data-style="adulte"] .widget .case.case-emoji { background: rgba(255, 255, 
 @media (max-width: 600px) {
   #bouton-ajouter .icone-bouton, #bouton-appareil .icone-bouton { margin: 0; }
 }
+
+/* --- Widgets premium : bouton 🔒 dans la galerie, fenêtre du mot de passe --- */
+.choix-premium { --w-fond: #e9e4f5; --w-ombre: #c3b8de; --w-texte: #3d3359; }
+.premium-form { display: flex; flex-direction: column; gap: 10px; }
+.premium-form input { font: inherit; font-size: 1.3rem; padding: 10px 14px; border-radius: 12px; border: 2px solid #ddd; text-align: center; letter-spacing: 0.3em; }
+
+/* --- Solde bancaire (comme le widget de l'application de la banque) --- */
+.banque {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 9cqh 7cqw;
+  cursor: pointer;
+}
+.banque-haut { display: flex; align-items: flex-start; justify-content: space-between; gap: 3cqw; }
+.banque-nom {
+  font-size: max(10px, min(10cqh, 7cqw));
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+.banque-oeil {
+  flex: none;
+  width: max(30px, min(22cqh, 15cqw));
+  aspect-ratio: 1;
+  border: none;
+  border-radius: 50%;
+  background: var(--voile);
+  color: inherit;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  cursor: pointer;
+}
+.banque-oeil svg { width: 60%; height: 60%; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.banque-montant {
+  font-size: min(26cqh, 14cqw);
+  font-weight: 700;
+  line-height: 1;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.banque-cache, .banque-attente { opacity: 0.55; letter-spacing: 0.05em; }
+.banque-date { font-size: max(10px, min(9cqh, 6.5cqw)); font-weight: 600; opacity: 0.8; line-height: 1.2; }
+.banque-vide { align-items: center; justify-content: center; gap: 6cqh; text-align: center; }
+.banque-icone { font-size: min(30cqh, 30cqw); line-height: 1; }
+
+/* La fenêtre "Compte affiché" */
+.banque-message { font-weight: 600; }
+.banque-comptes, .banque-types { display: flex; flex-direction: column; gap: 8px; margin-bottom: 12px; }
+.banque-compte, .banque-type {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  text-align: left;
+  font: inherit;
+  padding: 10px 14px;
+  border-radius: 12px;
+  border: 2px solid #e2e2e2;
+  background: #fff;
+  color: inherit;
+  cursor: pointer;
+}
+.banque-compte span, .banque-type span { font-size: 0.85rem; opacity: 0.7; }
+.banque-compte.choisi, .banque-type.choisi { border-color: #2e7d32; background: #f1f8f1; }
+.banque-connexion { display: flex; gap: 8px; flex-wrap: wrap; }
+.banque-liste { flex: 1; min-width: 0; font: inherit; padding: 8px 10px; border-radius: 12px; border: 2px solid #ddd; background: #fff; }
+
+html[data-style="adulte"] .banque-montant {
+  font-family: var(--police-titre);
+  font-weight: 600;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+html[data-style="adulte"] .banque-nom { font-weight: 600; letter-spacing: 0.12em; }

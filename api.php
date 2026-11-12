@@ -12,6 +12,17 @@
  *   GET  api.php?action=lire             l'état partagé (en-tête X-Nidoo-Famille : la clé)
  *   POST api.php?action=ecrire           enregistre l'état partagé (si personne ne l'a changé entre-temps)
  *
+ * Widgets premium (réservés à la famille qui connaît le mot de passe) :
+ *   POST api.php?action=premium          débloque avec le mot de passe (crée la famille si besoin)
+ *   GET  api.php?action=premium          cette famille a-t-elle débloqué les widgets premium ?
+ *
+ * Solde bancaire (widget widgets/banque.js, via Enable Banking ; en-tête X-Nidoo-Famille obligatoire) :
+ *   GET  api.php?action=banque_banques   les banques françaises disponibles
+ *   POST api.php?action=banque_connexion adresse de la banque où se connecter (puis retour sur banque.php)
+ *   GET  api.php?action=banque_retour    (appelé par banque.php) enregistre les comptes autorisés
+ *   GET  api.php?action=banque_comptes   les comptes reliés à la famille
+ *   GET  api.php?action=banque_solde&compte=…[&present=1]   le solde d'un compte
+ *
  * Pour ajouter une action : ajouter un "case" dans le switch tout en bas.
  */
 
@@ -36,6 +47,24 @@ const CODE_VALIDITE = 600;          // un code de partage est valable 10 minutes
 const CODE_LETTRES = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // sans 0/O ni 1/I/L (faciles à confondre)
 const ESSAIS_MAX = 10;              // essais de code ratés autorisés par adresse et par 10 minutes
 const TAILLE_MAX_ETAT = 1000000;    // 1 Mo maximum pour l'état partagé
+
+// Widgets premium : le mot de passe est dans le fichier premium.txt du dossier des données
+// (déposé à la main sur le serveur, jamais dans git : le dépôt est public).
+const PREMIUM_FICHIER = 'premium.txt';
+
+// Solde bancaire (Enable Banking, offre gratuite « comptes reliés »).
+// La clé privée est déposée à la main sur le serveur (jamais dans git), dans le dossier
+// "enablebanking" du dossier des données, et nommée avec l'identifiant de l'application :
+//   nidoo-donnees/enablebanking/d5076923-cca3-44c5-be0a-2bc867dbf073.pem
+// (voir le README).
+const BANQUE_DOSSIER_CLES = 'enablebanking';
+const BANQUE_API = 'https://api.enablebanking.com';
+const BANQUE_PAYS = 'FR';
+const BANQUE_RELIRE = 6 * 3600;        // relecture automatique du solde : 4 fois par jour au plus
+                                       // (les banques limitent les lectures « sans personne devant l'écran »)
+const BANQUE_RELIRE_PRESENT = 120;     // quand quelqu'un touche 👁 : au plus toutes les 2 minutes
+const BANQUE_REESSAYER = 900;          // après un échec, on réessaie au plus tôt 15 minutes plus tard
+const BANQUE_ACCES_MAX = 180 * 86400;  // durée maximale d'une autorisation (la banque peut imposer moins)
 
 date_default_timezone_set(FUSEAU);
 header('Content-Type: application/json; charset=utf-8');
@@ -483,6 +512,189 @@ function verifierEssais(bool $rate = false): void
     }
 }
 
+/* Le mot de passe des widgets premium est-il le bon ? (fichier premium.txt sur le serveur) */
+function bonMotDePasse(string $essai): bool
+{
+    $chemin = dossierDonnees() . '/' . PREMIUM_FICHIER;
+    if (!is_file($chemin)) {
+        erreur("Les widgets premium ne sont pas réglés sur ce serveur (fichier " . PREMIUM_FICHIER
+            . " à créer dans le dossier des données, voir le README).", 500);
+    }
+    $attendu = trim((string)file_get_contents($chemin));
+    if ($attendu === '') {
+        return false;
+    }
+    // Le fichier peut contenir le mot de passe, ou son empreinte faite avec password_hash().
+    return str_starts_with($attendu, '$2') ? password_verify($essai, $attendu) : hash_equals($attendu, $essai);
+}
+
+/* La clé de la famille, si elle a débloqué les widgets premium (sinon : erreur). */
+function famillePremium(): string
+{
+    $cle = cleFamille();
+    if (!in_array(hash('sha256', $cle), lireJson('premium.json'), true)) {
+        erreur('Widget premium : débloquez-le d\'abord (Ajouter → 🔒 Widgets premium).', 403);
+    }
+    return $cle;
+}
+
+// ---------------------------------------------------------------------
+// Solde bancaire (Enable Banking)
+// ---------------------------------------------------------------------
+
+function base64url(string $texte): string
+{
+    return rtrim(strtr(base64_encode($texte), '+/', '-_'), '=');
+}
+
+/*
+ * L'application Enable Banking à utiliser : [identifiant, chemin de la clé].
+ * Pour l'instant une seule (la première clé du dossier). Pour d'autres familles avec leur
+ * propre application, il faudra choisir ici la clé selon la famille.
+ */
+function applicationBanque(): array
+{
+    $cles = glob(dossierDonnees() . '/' . BANQUE_DOSSIER_CLES . '/*.pem') ?: [];
+    sort($cles);
+    foreach ($cles as $chemin) {
+        $id = basename($chemin, '.pem');
+        if (preg_match('/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/', $id)) {
+            return [$id, $chemin];
+        }
+    }
+    erreur("La clé Enable Banking n'est pas encore sur le serveur (fichier IDENTIFIANT-APPLICATION.pem "
+        . "à déposer dans le dossier " . BANQUE_DOSSIER_CLES . " des données, voir le README).", 500);
+}
+
+/* Le jeton signé avec la clé privée, demandé par Enable Banking à chaque appel (valable 1 heure). */
+function jetonBanque(): string
+{
+    [$application, $chemin] = applicationBanque();
+    $cle = openssl_pkey_get_private((string)file_get_contents($chemin));
+    if (!$cle) {
+        erreur('La clé Enable Banking est illisible (ce doit être le fichier .pem téléchargé à la création de l\'application).', 500);
+    }
+    $maintenant = time();
+    $entete = base64url(json_encode(['typ' => 'JWT', 'alg' => 'RS256', 'kid' => $application]));
+    $contenu = base64url(json_encode([
+        'iss' => 'enablebanking.com',
+        'aud' => 'api.enablebanking.com',
+        'iat' => $maintenant,
+        'exp' => $maintenant + 3600,
+    ]));
+    if (!openssl_sign($entete . '.' . $contenu, $signature, $cle, OPENSSL_ALGO_SHA256)) {
+        erreur('Impossible de signer la demande pour Enable Banking.', 500);
+    }
+    return $entete . '.' . $contenu . '.' . base64url($signature);
+}
+
+/* Un appel à l'API Enable Banking. Renvoie ['statut' => 200, 'json' => [...]]. */
+function appelBanque(string $methode, string $chemin, ?array $corps = null, array $entetes = []): array
+{
+    $lignes = ['Authorization: Bearer ' . jetonBanque(), 'Content-Type: application/json', 'Accept: application/json'];
+    foreach ($entetes as $nom => $valeur) {
+        $lignes[] = $nom . ': ' . str_replace(["\r", "\n"], '', (string)$valeur);
+    }
+    $contexte = stream_context_create(['http' => [
+        'method' => $methode,
+        'header' => implode("\r\n", $lignes),
+        'content' => $corps === null ? '' : json_encode($corps),
+        'timeout' => 25,
+        'ignore_errors' => true, // pour lire le message d'erreur renvoyé
+    ]]);
+    $texte = @file_get_contents(BANQUE_API . $chemin, false, $contexte);
+    $statut = 0;
+    foreach ($http_response_header ?? [] as $ligne) {
+        if (preg_match('#^HTTP/\S+\s+(\d{3})#', $ligne, $m)) {
+            $statut = (int)$m[1];
+        }
+    }
+    $json = json_decode((string)$texte, true);
+    return ['statut' => $statut, 'json' => is_array($json) ? $json : []];
+}
+
+/* Message lisible pour un appel raté. */
+function messageBanque(array $reponse): string
+{
+    if ($reponse['statut'] === 0) {
+        return 'Enable Banking ne répond pas.';
+    }
+    $j = $reponse['json'];
+    $detail = $j['message'] ?? $j['error'] ?? null;
+    if (isset($j['detail']) && is_string($j['detail'])) {
+        $detail = trim(($detail ? $detail . ' : ' : '') . $j['detail']);
+    }
+    return 'Erreur de la banque (' . $reponse['statut'] . ($detail ? ' : ' . $detail : '') . ').';
+}
+
+/* Les infos du navigateur de la personne devant l'écran (la banque sait qu'elle est là). */
+function entetesPresence(): array
+{
+    return [
+        'Psu-Ip-Address' => $_SERVER['REMOTE_ADDR'] ?? '',
+        'Psu-User-Agent' => substr($_SERVER['HTTP_USER_AGENT'] ?? 'Nidoo', 0, 300),
+    ];
+}
+
+/* Le fichier des comptes d'une famille (nom tiré de la clé, qui n'apparaît pas). */
+function fichierBanque(string $empreinte): string
+{
+    return 'banque-' . $empreinte . '.json';
+}
+
+/* Les banques françaises disponibles (relues une fois par jour). */
+function banquesDisponibles(): array
+{
+    $copie = lireJson('banque-liste.json');
+    if (($copie['lu'] ?? 0) > time() - 86400 && !empty($copie['banques'])) {
+        return $copie['banques'];
+    }
+    $r = appelBanque('GET', '/aspsps?country=' . BANQUE_PAYS);
+    if ($r['statut'] !== 200) {
+        if (!empty($copie['banques'])) {
+            return $copie['banques'];
+        }
+        erreur(messageBanque($r), 502);
+    }
+    $banques = [];
+    foreach ($r['json']['aspsps'] ?? [] as $a) {
+        $types = $a['psu_types'] ?? ['personal'];
+        if (!in_array('personal', $types, true)) {
+            continue;
+        }
+        $banques[] = [
+            'nom' => $a['name'],
+            'pays' => $a['country'] ?? BANQUE_PAYS,
+            'duree' => (int)($a['maximum_consent_validity'] ?? 0), // en secondes (0 : inconnu)
+        ];
+    }
+    usort($banques, fn($a, $b) => strcasecmp($a['nom'], $b['nom']));
+    ecrireJson('banque-liste.json', ['lu' => time(), 'banques' => $banques]);
+    return $banques;
+}
+
+/* Parmi les soldes renvoyés par la banque, celui à afficher. */
+function choisirSolde(array $soldes, string $prefere = ''): ?array
+{
+    $ordre = array_merge($prefere ? [$prefere] : [], ['ITBD', 'CLBD', 'XPCD', 'ITAV', 'CLAV', 'OPBD']);
+    foreach ($ordre as $type) {
+        foreach ($soldes as $s) {
+            if (($s['type'] ?? '') === $type) {
+                return $s;
+            }
+        }
+    }
+    return $soldes[0] ?? null;
+}
+
+/* Retour dans Nidoo après la banque (avec un message pour le widget). */
+function retourNidoo(string $resultat): void
+{
+    header('Content-Type: text/html; charset=utf-8');
+    header('Location: ./?banque=' . rawurlencode($resultat));
+    exit;
+}
+
 // ---------------------------------------------------------------------
 // Actions
 // ---------------------------------------------------------------------
@@ -575,6 +787,197 @@ switch ($action) {
         }
         ecrireFamille($cle, $version + 1, $corps->etat);
         repondre(['ok' => true, 'version' => $version + 1]);
+
+    // Widgets premium : débloquer (POST) ou savoir si c'est débloqué (GET).
+    case 'premium':
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+            $cle = cleFamille();
+            repondre(['ok' => true, 'premium' => in_array(hash('sha256', $cle), lireJson('premium.json'), true)]);
+        }
+        $verrou = verrouiller();
+        verifierEssais();
+        $corps = corpsJson();
+        if (!bonMotDePasse((string)($corps['mot_de_passe'] ?? ''))) {
+            verifierEssais(true);
+            erreur('Mot de passe incorrect.', 403);
+        }
+        $cle = $corps['famille'] ?? '';
+        if (!preg_match('/^[a-f0-9]{32}$/', $cle) || !is_file(dossierDonnees() . '/' . fichierFamille($cle))) {
+            $cle = bin2hex(random_bytes(16));
+            ecrireFamille($cle, 0, null);
+        }
+        $premium = lireJson('premium.json');
+        if (!in_array(hash('sha256', $cle), $premium, true)) {
+            $premium[] = hash('sha256', $cle);
+            ecrireJson('premium.json', $premium);
+        }
+        repondre(['ok' => true, 'famille' => $cle]);
+
+    // ---- Solde bancaire ----------------------------------------------
+
+    // Les banques disponibles (pour choisir où se connecter).
+    case 'banque_banques':
+        famillePremium();
+        repondre(['ok' => true, 'banques' => array_map(fn($b) => $b['nom'], banquesDisponibles())]);
+
+    // Prépare la connexion à une banque : renvoie l'adresse où l'envoyer.
+    case 'banque_connexion':
+        $cle = famillePremium();
+        $nom = (string)(corpsJson()['banque'] ?? '');
+        $banque = null;
+        foreach (banquesDisponibles() as $b) {
+            if ($b['nom'] === $nom) {
+                $banque = $b;
+            }
+        }
+        if (!$banque) {
+            erreur('Banque inconnue : ' . $nom);
+        }
+        $application = appelBanque('GET', '/application');
+        $retour = $application['json']['redirect_urls'][0] ?? null;
+        if ($application['statut'] !== 200 || !$retour) {
+            erreur(messageBanque($application), 502);
+        }
+        $duree = $banque['duree'] > 0 ? min($banque['duree'], BANQUE_ACCES_MAX) : 90 * 86400;
+        $fin = time() + $duree - 3600;
+        $jeton = bin2hex(random_bytes(16));
+        $r = appelBanque('POST', '/auth', [
+            'access' => ['valid_until' => gmdate('Y-m-d\TH:i:s\Z', $fin)],
+            'aspsp' => ['name' => $banque['nom'], 'country' => $banque['pays']],
+            'state' => $jeton,
+            'redirect_url' => $retour,
+            'psu_type' => 'personal',
+        ], entetesPresence());
+        if ($r['statut'] !== 200 || empty($r['json']['url'])) {
+            erreur(messageBanque($r), 502);
+        }
+        $verrou = verrouiller();
+        $etats = array_filter(lireJson('banque-etats.json'), fn($e) => $e['expire'] > time());
+        $etats[$jeton] = [
+            'famille' => hash('sha256', $cle),
+            'banque' => $banque['nom'],
+            'fin' => $fin,
+            'expire' => time() + 1800, // 30 minutes pour se connecter à la banque
+        ];
+        ecrireJson('banque-etats.json', $etats);
+        repondre(['ok' => true, 'url' => $r['json']['url']]);
+
+    // Retour de la banque (via banque.php) : on enregistre les comptes autorisés.
+    case 'banque_retour':
+        $jeton = (string)($_GET['state'] ?? '');
+        $verrou = verrouiller();
+        $etats = array_filter(lireJson('banque-etats.json'), fn($e) => $e['expire'] > time());
+        $etat = $etats[$jeton] ?? null;
+        unset($etats[$jeton]);
+        ecrireJson('banque-etats.json', $etats);
+        flock($verrou, LOCK_UN);
+        if (!$etat) {
+            retourNidoo('Le lien a expiré. Recommencez depuis le widget.');
+        }
+        if (isset($_GET['error']) || empty($_GET['code'])) {
+            retourNidoo('Connexion annulée par la banque' . (isset($_GET['error_description']) ? ' : ' . $_GET['error_description'] : '.'));
+        }
+        $r = appelBanque('POST', '/sessions', ['code' => (string)$_GET['code']], entetesPresence());
+        if ($r['statut'] !== 200) {
+            retourNidoo(messageBanque($r));
+        }
+        $fin = $etat['fin'];
+        if (!empty($r['json']['access']['valid_until'])) {
+            $fin = strtotime($r['json']['access']['valid_until']) ?: $fin;
+        }
+        $verrou = verrouiller();
+        $fichier = fichierBanque($etat['famille']);
+        $donnees = lireJson($fichier);
+        $comptes = $donnees['comptes'] ?? [];
+        $nombre = 0;
+        foreach ($r['json']['accounts'] ?? [] as $a) {
+            if (empty($a['uid'])) {
+                continue;
+            }
+            // L'identifiant "uid" change à chaque connexion ; "identification_hash" reste le même :
+            // c'est lui que le widget retient, pour survivre aux reconnexions.
+            $id = $a['identification_hash'] ?? $a['uid'];
+            $numero = $a['account_id']['iban'] ?? ($a['account_id']['other']['identification'] ?? '');
+            $comptes[$id] = [
+                'uid' => $a['uid'],
+                'nom' => trim((string)($a['product'] ?? '')) ?: trim((string)($a['details'] ?? '')) ?: trim((string)($a['name'] ?? '')) ?: 'Compte',
+                'titulaire' => trim((string)($a['name'] ?? '')),
+                'numero' => $numero ? substr(preg_replace('/\s+/', '', $numero), -4) : '',
+                'devise' => $a['currency'] ?? 'EUR',
+                'banque' => $etat['banque'],
+                'fin' => $fin,
+            ];
+            $nombre++;
+        }
+        $donnees['comptes'] = $comptes;
+        ecrireJson($fichier, $donnees);
+        retourNidoo($nombre ? 'ok' : 'La banque n\'a autorisé aucun compte.');
+
+    // Les comptes reliés à la famille.
+    case 'banque_comptes':
+        $donnees = lireJson(fichierBanque(hash('sha256', famillePremium())));
+        $liste = [];
+        foreach ($donnees['comptes'] ?? [] as $id => $c) {
+            $liste[] = ['id' => $id] + array_intersect_key($c, array_flip(['nom', 'titulaire', 'numero', 'devise', 'banque', 'fin']));
+        }
+        repondre(['ok' => true, 'comptes' => $liste]);
+
+    // Le solde d'un compte (gardé en mémoire : la banque n'est relue que de temps en temps).
+    case 'banque_solde':
+        $fichier = fichierBanque(hash('sha256', famillePremium()));
+        $id = (string)($_GET['compte'] ?? '');
+        $present = ($_GET['present'] ?? '') === '1';
+        $donnees = lireJson($fichier);
+        $compte = $donnees['comptes'][$id] ?? null;
+        if (!$compte) {
+            erreur('Ce compte n\'est plus relié : reconnectez la banque.', 404);
+        }
+        $memoire = $donnees['soldes'][$id] ?? null;
+        // Délai avant de relire la banque : court si quelqu'un a touché 👁, sinon 6 heures
+        // (15 minutes après un échec).
+        if ($present) {
+            $delai = BANQUE_RELIRE_PRESENT;
+        } else {
+            $delai = isset($memoire['echec']) ? BANQUE_REESSAYER : BANQUE_RELIRE;
+        }
+        $derniere = max($memoire['lu'] ?? 0, $memoire['essai'] ?? 0);
+        $relire = !$memoire || time() - $derniere >= $delai;
+        $probleme = $memoire['echec'] ?? null;
+        if ($relire && $compte['fin'] > time()) {
+            $r = appelBanque('GET', '/accounts/' . rawurlencode($compte['uid']) . '/balances', null,
+                $present ? entetesPresence() : []);
+            $verrou = verrouiller();
+            $donnees = lireJson($fichier);
+            $memoire = $donnees['soldes'][$id] ?? [];
+            if ($r['statut'] === 200) {
+                $soldes = [];
+                foreach ($r['json']['balances'] ?? [] as $b) {
+                    $soldes[] = [
+                        'type' => $b['balance_type'] ?? '',
+                        'nom' => $b['name'] ?? '',
+                        'montant' => (float)($b['balance_amount']['amount'] ?? 0),
+                        'devise' => $b['balance_amount']['currency'] ?? $compte['devise'],
+                    ];
+                }
+                $memoire = ['lu' => time(), 'soldes' => $soldes];
+                $probleme = null;
+            } else {
+                $memoire['echec'] = messageBanque($r);
+                $memoire['essai'] = time();
+                $probleme = $memoire['echec'];
+            }
+            $donnees['soldes'][$id] = $memoire;
+            ecrireJson($fichier, $donnees);
+        }
+        $choisi = choisirSolde($memoire['soldes'] ?? [], (string)($_GET['type'] ?? ''));
+        repondre([
+            'ok' => true,
+            'solde' => $choisi,
+            'soldes' => $memoire['soldes'] ?? [],
+            'lu' => $memoire['lu'] ?? null,
+            'fin' => $compte['fin'],
+            'probleme' => $probleme,
+        ]);
 
     default:
         erreur('Action inconnue : ' . $action);

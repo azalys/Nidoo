@@ -120,6 +120,9 @@ exclusions=(
   --exclude 'deploy.sh'
   --exclude 'deploy.local'
   --exclude 'deploy.local.exemple'
+  --exclude '*.pem'        # clés privées (ex. Enable Banking) : jamais dans le site public
+  --exclude 'premium.txt'
+  --exclude 'enablebanking/'
 )
 rsync --archive "${exclusions[@]}" ./ "$copie/"
 
