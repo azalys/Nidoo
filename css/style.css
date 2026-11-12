@@ -1745,3 +1745,5 @@ html[data-style="adulte"] .banque-montant {
   font-variant-numeric: lining-nums tabular-nums;
 }
 html[data-style="adulte"] .banque-nom { font-weight: 600; letter-spacing: 0.12em; }
+/* "Choisir un compte" marche aussi en mode Modifier (juste après avoir ajouté le widget). */
+.edition .contenu .banque-choisir { pointer-events: auto; }
