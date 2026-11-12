@@ -133,12 +133,12 @@ nidoo-donnees/
                               nommée avec l'identifiant de l'application
 ```
 
-Pour les créer (depuis le Mac, adapter l'adresse du serveur et le nom du fichier téléchargé) :
+Pour les déposer, depuis le Mac, dans le dossier du projet (mêmes réglages que `deploy.sh`,
+fichier `deploy.local`) :
 
 ```
-ssh utilisateur@serveur 'mkdir -p ~/nidoo-donnees/enablebanking && chmod 700 ~/nidoo-donnees ~/nidoo-donnees/enablebanking'
-ssh utilisateur@serveur 'printf "%s\n" "MOT-DE-PASSE" > ~/nidoo-donnees/premium.txt && chmod 600 ~/nidoo-donnees/premium.txt'
-scp ~/Downloads/LA-CLE.pem utilisateur@serveur:nidoo-donnees/enablebanking/ID-APPLICATION.pem
+./premium.sh --cle ~/Downloads/le-fichier-telecharge.pem   # la clé Enable Banking
+./premium.sh --mot-de-passe                                 # le mot de passe (tapé au clavier, caché)
 ```
 
 Ces fichiers ne vont jamais dans git (`.gitignore`) ni dans le site (`deploy.sh` les ignore).

@@ -118,6 +118,7 @@ exclusions=(
   --exclude '.gitignore'
   --exclude '.DS_Store'
   --exclude 'deploy.sh'
+  --exclude 'premium.sh'
   --exclude 'deploy.local'
   --exclude 'deploy.local.exemple'
   --exclude '*.pem'        # clés privées (ex. Enable Banking) : jamais dans le site public
