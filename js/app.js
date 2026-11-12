@@ -150,9 +150,11 @@
     // Boutons visibles uniquement en mode "Modifier" (voir css/style.css).
     caseWidget.innerHTML = `
       <div class="contenu"></div>
-      <button class="bouton-widget bouton-supprimer" aria-label="Supprimer">×</button>
-      <button class="bouton-widget bouton-couleur" aria-label="Changer la couleur">🎨</button>
-      <button class="bouton-widget bouton-reglages" aria-label="Réglages du widget">⚙️</button>`;
+      <button class="bouton-widget bouton-supprimer" aria-label="Supprimer">
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/></svg>
+      </button>
+      <button class="bouton-widget bouton-couleur" aria-label="Changer la couleur"><span class="emoji">🎨</span></button>
+      <button class="bouton-widget bouton-reglages" aria-label="Réglages du widget"><span class="emoji">⚙️</span></button>`;
 
     // On cache les boutons inutiles pour ce widget.
     // ⚙️ seulement s'il y a quelque chose à régler (des réglages, ou plusieurs tailles possibles).
