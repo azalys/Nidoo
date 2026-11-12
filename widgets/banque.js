@@ -2,8 +2,8 @@
  * Widget "Solde bancaire" (premium, côté parents uniquement) : comme le widget de
  * l'application de la banque : nom du compte, solde, "au 12/11/26 à 12:06".
  *
- * - Le solde est masqué par défaut ; 👁 l'affiche 30 secondes (et le relit).
- * - Toucher le widget : choisir le compte affiché, ou relier une banque.
+ * - Le solde est masqué par défaut ; toucher le widget (ou 👁) l'affiche 30 secondes (et le relit).
+ * - Choisir le compte affiché, ou relier une banque : en mode Modifier, ⚙️ → « Choisir le compte ».
  * - Les données passent par api.php (actions banque_…) et Enable Banking :
  *   le navigateur ne voit jamais la clé privée ni les accès bancaires.
  * - Le serveur relit la banque au plus toutes les 6 heures (limite des banques quand
@@ -15,6 +15,7 @@
   const ACTUALISER_MS = 30 * 60 * 1000;    // demande au serveur toutes les 30 min (il garde le solde en mémoire)
   const PREVENIR_JOURS = 14;               // prévenir 14 jours avant la fin de l'autorisation bancaire
   const ATTENTE = 'nidoo.banque.attente';  // widget qui a lancé la connexion (pour y revenir)
+  const instances = new Map();              // id du widget → { ouvrirComptes } (pour le bouton de ⚙️)
 
   // Noms des soldes renvoyés par les banques (codes standard).
   const TYPES = {
@@ -93,6 +94,13 @@
     tailleParDefaut: 'moyen',
     donneesParDefaut: { titre: '', compte: '', nomCompte: '', type: '' },
     reglages: [
+      {
+        cle: 'compte',
+        libelle: 'Compte affiché',
+        type: 'bouton',
+        texte: '🏦 Choisir le compte / relier une banque',
+        action: (w) => instances.get(w.id)?.ouvrirComptes(),
+      },
       { cle: 'titre', libelle: 'Nom affiché', type: 'texte', exemple: 'Ex. Compte perso Gwen (sinon : le nom donné par la banque)' },
     ],
 
@@ -107,9 +115,11 @@
       function dessiner() {
         const c = d();
         if (!c.compte) {
+          // Le bouton n'apparaît qu'en mode Modifier (voir css/style.css).
           zone.innerHTML = `<div class="banque banque-vide">
               <div class="banque-icone">🏦</div>
               <button class="bouton banque-choisir" type="button">Choisir un compte</button>
+              <div class="banque-indication">Modifier → ⚙️ pour choisir le compte</div>
             </div>`;
           return;
         }
@@ -122,7 +132,7 @@
         const maintenant = Date.now() / 1000;
         let bas = '';
         if (info && info.fin && info.fin < maintenant) {
-          bas = '⚠️ Accès expiré : touchez pour reconnecter';
+          bas = '⚠️ Accès expiré : Modifier → ⚙️ pour reconnecter';
         } else if (!solde && erreur) {
           bas = '⚠️ ' + erreur;
         } else if (info && info.lu) {
@@ -269,14 +279,13 @@
         }
       }
 
+      // Toucher le widget (ou 👁) : afficher / masquer le solde.
+      // "Choisir un compte" (widget pas encore réglé, mode Modifier) : la fenêtre des comptes.
       zone.addEventListener('click', (e) => {
-        if (e.target.closest('.banque-oeil')) {
-          e.stopPropagation();
-          basculer();
-          return;
-        }
-        ouvrirComptes();
+        if (e.target.closest('.banque-choisir')) return ouvrirComptes();
+        if (d().compte) basculer();
       });
+      instances.set(widget.id, { ouvrirComptes });
 
       // De retour de la banque : on rouvre la fenêtre de ce widget.
       if (retour && retour.widget === widget.id) {
@@ -290,6 +299,7 @@
       const intervalle = setInterval(() => charger(), ACTUALISER_MS);
       return () => {
         arrete = true;
+        if (instances.get(widget.id)?.ouvrirComptes === ouvrirComptes) instances.delete(widget.id);
         clearInterval(intervalle);
         clearTimeout(minuterie);
       };

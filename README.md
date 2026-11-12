@@ -54,7 +54,7 @@ que le serveur l'a reçue (fichier `version.txt`).
 | ⛽ Carburants | 1×1 | la station la moins chère autour de votre adresse (données de l'État, gratuit, sans clé) |
 | 📋 Échéances | 1×2, 2×2 | contrôle technique, assurance… : alerte avant la date, « C'est fait » fait avancer les échéances qui reviennent |
 | 🚗 Trafic | 1×1, 1×2 | temps de trajet avec le trafic, retard dû aux bouchons, heure d'arrivée ; la carte colorée en touchant le widget ; ↻ pour actualiser (TomTom : clé gratuite à régler dans ⚙️) |
-| 🏦 Solde bancaire | 1×1, 1×2 | **premium, côté parents seulement** : nom du compte, solde masqué (👁 l'affiche 30 s), « au 12/11/26 à 12:06 » ; toucher = choisir le compte ou relier une banque ([Enable Banking](https://enablebanking.com), gratuit pour ses propres comptes, voir plus bas) |
+| 🏦 Solde bancaire | 1×1, 1×2 | **premium, côté parents seulement** : nom du compte, solde masqué (toucher le widget l'affiche 30 s), « au 12/11/26 à 12:06 » ; choisir le compte ou relier une banque : Modifier → ⚙️ ([Enable Banking](https://enablebanking.com), gratuit pour ses propres comptes, voir plus bas) |
 | 🕒 Horloge, 📝 Note | petit, moyen, grand | — |
 
 ### Brancher un agenda Google
@@ -148,7 +148,7 @@ Ces fichiers ne vont jamais dans git (`.gitignore`) ni dans le site (`deploy.sh`
 - Application créée sur enablebanking.com, « Redirect URL » :
   `https://nidoo.latanieregeek.com/banque.php`. En mode gratuit (« Restricted »), seuls
   les comptes reliés dans le panneau Enable Banking (« Link accounts ») sont accessibles.
-- Dans Nidoo : toucher le widget → **Se connecter** (site de la banque) → choisir le compte.
+- Dans Nidoo : Modifier → ⚙️ du widget → **Choisir le compte** → **Se connecter** (site de la banque) → choisir le compte.
   L'autorisation dure quelques mois (selon la banque) ; le widget prévient 14 jours avant.
 - Le serveur relit la banque au plus toutes les 6 heures (les banques limitent les
   lectures automatiques à 4 par jour) ; toucher 👁 demande une lecture plus fraîche.

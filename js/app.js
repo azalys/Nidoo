@@ -678,13 +678,23 @@
     champsDuWidget(definition).forEach((r) => {
       const valeur = r.cle === TAILLE ? w.taille : donneesDe(w)[r.cle];
       // (Pour les jours de la semaine, plusieurs cases : le bloc ne peut pas être un <label>.)
-      const bloc = document.createElement(r.type === 'jours' ? 'div' : 'label');
+      const bloc = document.createElement(r.type === 'jours' || r.type === 'bouton' ? 'div' : 'label');
       bloc.className = 'champ';
       bloc.innerHTML = '<span class="libelle"></span>';
       bloc.querySelector('.libelle').textContent = r.libelle;
 
       let champ;
-      if (r.type === 'jours') {
+      if (r.type === 'bouton') {
+        // Un bouton qui ouvre une fenêtre propre au widget : r.texte, r.action({ id }).
+        champ = document.createElement('button');
+        champ.type = 'button';
+        champ.className = 'bouton';
+        champ.textContent = r.texte || r.libelle;
+        champ.addEventListener('click', () => {
+          fenetreReglages.close();
+          r.action({ id: w.id });
+        });
+      } else if (r.type === 'jours') {
         // Jours de la semaine à cocher : la valeur est une liste de numéros (1 = lundi … 7 = dimanche).
         champ = document.createElement('div');
         champ.className = 'jours';
@@ -715,7 +725,7 @@
         champ.type = { url: 'url', date: 'date', heure: 'time' }[r.type] || 'text';
         champ.value = valeur || '';
       }
-      if (r.type !== 'jours') champ.name = r.cle;
+      if (r.type !== 'jours' && r.type !== 'bouton') champ.name = r.cle;
       if (r.exemple) champ.placeholder = r.exemple;
       bloc.appendChild(champ);
 
@@ -735,6 +745,7 @@
     const definition = Nidoo.catalogue[w.type];
     const nouvelles = { ...donneesDe(w) };
     (definition.reglages || []).forEach((r) => {
+      if (r.type === 'bouton') return;
       if (r.type === 'jours') {
         nouvelles[r.cle] = [...formReglages.querySelectorAll(`[name="${r.cle}"]:checked`)].map((c) => Number(c.value));
         return;
