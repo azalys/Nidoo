@@ -1751,3 +1751,13 @@ html[data-style="adulte"] .banque-nom { font-weight: 600; letter-spacing: 0.12em
 .edition .banque-choisir { display: inline-block; }
 .edition .banque-indication { display: none; }
 .banque-indication { font-size: max(10px, min(8cqh, 7cqw)); font-weight: 600; opacity: 0.75; }
+
+/* --- Emploi du temps (mêmes lignes que la Routine, sans cases à cocher) --- */
+.edt-cours .case.case-emoji { border-width: 0; background: rgb(var(--voile) / calc(0.35 * var(--voile-force))); }
+.edt-heure {
+  flex: none;
+  min-width: 3.2em;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.8;
+}
+.edt-matiere { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
