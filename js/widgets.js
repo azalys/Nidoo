@@ -12,6 +12,8 @@ Nidoo.TAILLES = {
   petit: { colonnes: 1, lignes: 1, nom: '1×1 (une case)' },
   moyen: { colonnes: 2, lignes: 1, nom: '1×2 (une ligne, deux colonnes)' },
   grand: { colonnes: 2, lignes: 2, nom: '2×2 (carré de 4 cases)' },
+  haut3: { colonnes: 2, lignes: 3, nom: '3×2 (trois lignes de haut, deux colonnes)' },
+  haut4: { colonnes: 2, lignes: 4, nom: '4×2 (toute la hauteur, deux colonnes)' },
 };
 
 /*

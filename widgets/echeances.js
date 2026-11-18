@@ -68,7 +68,7 @@
     type: 'echeances',
     nom: 'Échéances',
     icone: '📋',
-    tailles: ['moyen', 'grand'],
+    tailles: ['moyen', 'grand', 'haut3', 'haut4'],
     tailleParDefaut: 'grand',
     donneesParDefaut: { elements: [] },
 

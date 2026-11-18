@@ -71,7 +71,7 @@
     type: 'liste',
     nom: 'Liste',
     icone: '📝',
-    tailles: ['moyen', 'grand'], // 1×2 ou 2×2
+    tailles: ['moyen', 'grand', 'haut3', 'haut4'], // 1×2, 2×2, 3×2 ou 4×2 (toute la hauteur)
     tailleParDefaut: 'grand',
     donneesParDefaut: { titre: 'À faire', emoji: '📝', personnes: [], elements: [] },
     reglages: [

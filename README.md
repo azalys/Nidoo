@@ -41,7 +41,7 @@ que le serveur l'a reçue (fichier `version.txt`).
 |---|---|---|
 | 🌤️ Météo | petit : aujourd'hui · moyen : aujourd'hui + demain ; toucher un jour = graphique de 7 h à 21 h (température, risque de pluie, temps heure par heure) | [Open-Meteo](https://open-meteo.com), gratuit, sans clé |
 | ⚡ Tempo EDF | petit : couleur du moment · moyen : aujourd'hui + demain | [api-couleur-tempo.fr](https://www.api-couleur-tempo.fr), gratuit, sans clé |
-| 📝 Liste | 1×2, 2×2 | titre et emoji réglables (🛒 Courses, 📝 À faire, 🧳 Valise…), remplace l'ancien widget Courses ; cocher retire l'élément ; toucher le texte pour dire qui et pour quand (date en rouge si dépassée) ; la poignée à droite pour réorganiser (glisser vers le haut ou le bas) |
+| 📝 Liste | 1×2, 2×2, 3×2, 4×2 | titre et emoji réglables (🛒 Courses, 📝 À faire, 🧳 Valise…), remplace l'ancien widget Courses ; cocher retire l'élément ; toucher le texte pour dire qui et pour quand (date en rouge si dépassée) ; la poignée à droite pour réorganiser (glisser vers le haut ou le bas) |
 | ✅ Routine | grand | matin avant midi, soir après midi ; étapes réglables avec ⚙️ ; un emoji par étape (deviné, ou mis en début de ligne) |
 | 📅 Agenda | grand | adresse iCal de l'agenda, lue par `api.php` ; exemples tant qu'elle n'est pas réglée |
 | 🎒 Emploi du temps | 1×2, 2×2 | les cours d'aujourd'hui avant midi, de demain à partir de midi (un jour sans cours : le prochain jour qui en a) ; cours de chaque jour réglables avec ⚙️, un par ligne, l'heure au début si on veut (« 8h30 Maths ») ; emoji deviné par matière ; semaines A et B : une date d'une semaine A dans ⚙️, puis « A: » ou « B: » devant les cours d'une seule semaine (« A: 14h Piscine ») |
@@ -53,7 +53,7 @@ que le serveur l'a reçue (fichier `version.txt`).
 | 🆘 Urgences | 1×1 | 15, 18, 17, 112 en gros ; le toucher affiche aussi les parents et l'adresse (⚙️) |
 | 🌼 Pollen et air | 1×1 | qualité de l'air et pollen aujourd'hui/demain (Open-Meteo, gratuit, sans clé) |
 | ⛽ Carburants | 1×1 | la station la moins chère autour de votre adresse (données de l'État, gratuit, sans clé) |
-| 📋 Échéances | 1×2, 2×2 | contrôle technique, assurance… : alerte avant la date, « C'est fait » fait avancer les échéances qui reviennent |
+| 📋 Échéances | 1×2, 2×2, 3×2, 4×2 | contrôle technique, assurance… : alerte avant la date, « C'est fait » fait avancer les échéances qui reviennent |
 | 🚗 Trafic | 1×1, 1×2 | temps de trajet avec le trafic, retard dû aux bouchons, heure d'arrivée ; la carte colorée en touchant le widget ; ↻ pour actualiser (TomTom : clé gratuite à régler dans ⚙️) |
 | 🏦 Solde bancaire | 1×1, 1×2 | **premium, côté parents seulement** : nom du compte, solde masqué (toucher le widget l'affiche 30 s), « au 12/11/26 à 12:06 » ; choisir le compte ou relier une banque : Modifier → ⚙️ ([Enable Banking](https://enablebanking.com), gratuit pour ses propres comptes, voir plus bas) |
 | 🕒 Horloge, 📝 Note | petit, moyen, grand | — |
@@ -75,7 +75,7 @@ Les sites d'agendas acceptés sont listés en haut de `api.php`.
     sur un widget de même taille, les deux échangent leur place ;
   - **×** pour le supprimer ;
   - **🎨** pour changer sa couleur ;
-  - **⚙️** pour ses réglages : taille (1×1, 1×2 ou 2×2 selon le widget), ville,
+  - **⚙️** pour ses réglages : taille (1×1, 1×2, 2×2, 3×2 ou 4×2 selon le widget), ville,
     étapes de la routine, adresse de l'agenda… ;
   - **+ Ajouter** pour ajouter un widget.
 - **Terminé** pour revenir à l'affichage normal.
