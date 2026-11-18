@@ -6,10 +6,11 @@
  *   - "+" en bas pour ajouter ;
  *   - toucher le texte d'un élément pour dire QUI doit le faire (son initiale s'affiche
  *     dans la case à cocher) et POUR QUAND
- *     (la liste des personnes se règle avec ⚙️). Une date dépassée passe en rouge.
+ *     (la liste des personnes se règle avec ⚙️). Une date dépassée passe en rouge ;
+ *   - la poignée ⠿ à droite : glisser l'élément vers le haut ou le bas pour réorganiser.
  *
  * Données : { titre, emoji, personnes: ['Alice', …],
- *             elements: [{ id, texte, qui, echeance: '2026-11-15', maj }, …],
+ *             elements: [{ id, texte, qui, echeance: '2026-11-15', ordre, maj }, …],
  *             retires: { id: date } }   ← éléments cochés/supprimés (pour le partage entre appareils)
  */
 (function () {
@@ -48,6 +49,21 @@
     const couleur = COULEURS_PERSONNES[i % COULEURS_PERSONNES.length];
     return `<span class="liste-qui" style="background:${couleur}" title="${Nidoo.echapper(qui)}">${Nidoo.echapper(qui.slice(0, 1).toUpperCase())}</span>`;
   }
+
+  /*
+   * Ordre d'affichage : le nombre "ordre" de chaque élément (posé quand on le déplace ou
+   * l'ajoute), sinon sa place dans la liste. Un déplacement ne change que l'élément déplacé
+   * (il prend un ordre entre ses deux voisins) : le partage entre appareils reste simple.
+   */
+  const rang = (e, i) => (typeof e.ordre === 'number' ? e.ordre : i);
+  const dansLOrdre = (elements) =>
+    elements.map((e, i) => ({ e, r: rang(e, i) })).sort((a, b) => a.r - b.r).map((x) => x.e);
+  const rangs = (elements) => new Map(elements.map((e, i) => [e.id, rang(e, i)]));
+
+  // La poignée ⠿ (six points, dessinés pour s'afficher pareil partout).
+  const POIGNEE = '<svg viewBox="0 0 10 16" width="10" height="16"><g fill="currentColor">'
+    + [3, 8, 13].map((y) => `<circle cx="2.5" cy="${y}" r="1.6"/><circle cx="7.5" cy="${y}" r="1.6"/>`).join('')
+    + '</g></svg>';
 
   const nouvelId = () => 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5);
 
@@ -99,9 +115,7 @@
           liste.innerHTML = '<li class="liste-vide">Rien à faire 🎉</li>';
           return;
         }
-        // Ceux qui ont une date d'abord (la plus proche en haut), puis les autres dans l'ordre d'ajout.
-        const tries = [...tous].sort((a, b) => (a.echeance || '9999') < (b.echeance || '9999') ? -1 : (a.echeance || '9999') > (b.echeance || '9999') ? 1 : 0);
-        liste.innerHTML = tries
+        liste.innerHTML = dansLOrdre(tous)
           .map((e) => `
             <li data-id="${e.id}">
               <button class="case${e.qui ? ' case-personne' : ''}" aria-label="Fait : ${Nidoo.echapper(e.texte)}${e.qui ? ' (' + Nidoo.echapper(e.qui) + ')' : ''}">${pastillePersonne(e.qui, d().personnes || [])}</button>
@@ -109,6 +123,7 @@
                 <button class="liste-texte" aria-label="Modifier ${Nidoo.echapper(e.texte)}">${Nidoo.echapper(e.texte)}</button>
                 ${e.echeance ? `<div class="liste-infos">${pastilleDate(e.echeance)}</div>` : ''}
               </div>
+              <span class="liste-poignee" title="Glisser pour déplacer" aria-hidden="true">${POIGNEE}</span>
             </li>`)
           .join('');
       }
@@ -182,17 +197,101 @@
         if (!texte) return;
         // Pas de doublon (sans tenir compte des majuscules).
         if (!elements().some((x) => x.texte.toLowerCase() === texte.toLowerCase())) {
-          enregistrer({ elements: [...elements(), { id: nouvelId(), texte, qui: '', echeance: '', maj: Date.now() }] });
+          const dernier = Math.max(-1, ...rangs(elements()).values());
+          enregistrer({
+            elements: [...elements(), { id: nouvelId(), texte, qui: '', echeance: '', ordre: dernier + 1, maj: Date.now() }],
+          });
           afficherListe();
           liste.scrollTop = liste.scrollHeight;
         }
         champ.value = '';
       });
 
+      /*
+       * Réorganiser : on attrape la poignée ⠿ et on glisse. L'élément suit le doigt, les autres
+       * se décalent ; près du haut ou du bas, la liste défile toute seule.
+       */
+      let glisse = null;
+      let defilement = null;
+
+      function suivre(y) {
+        const { li } = glisse;
+        const autres = [...liste.querySelectorAll('li[data-id]')].filter((x) => x !== li);
+        const avant = autres.find((x) => {
+          const r = x.getBoundingClientRect();
+          return y < r.top + r.height / 2;
+        });
+        if (avant) {
+          if (li.nextElementSibling !== avant) liste.insertBefore(li, avant);
+        } else if (liste.lastElementChild !== li) {
+          liste.appendChild(li);
+        }
+        li.style.transform = '';
+        const naturel = li.getBoundingClientRect().top;
+        li.style.transform = `translateY(${y - glisse.prise - naturel}px)`;
+      }
+
+      liste.addEventListener('pointerdown', (ev) => {
+        const poignee = ev.target.closest('.liste-poignee');
+        if (!poignee || glisse) return;
+        ev.preventDefault();
+        ev.stopPropagation(); // pas d'appui long "Modifier" sur la grille
+        const li = poignee.closest('li');
+        glisse = { li, id: li.dataset.id, prise: ev.clientY - li.getBoundingClientRect().top, y: ev.clientY };
+        li.classList.add('deplace');
+        // Défilement automatique près des bords.
+        defilement = setInterval(() => {
+          const r = liste.getBoundingClientRect();
+          const vitesse = glisse.y < r.top + 28 ? -6 : glisse.y > r.bottom - 28 ? 6 : 0;
+          if (vitesse) {
+            liste.scrollTop += vitesse;
+            suivre(glisse.y);
+          }
+        }, 16);
+      });
+
+      // Suivi sur toute la page : l'élément change de place dans la liste pendant qu'on le
+      // glisse, et le doigt peut sortir de la liste.
+      function bouger(ev) {
+        if (!glisse) return;
+        ev.preventDefault();
+        glisse.y = ev.clientY;
+        suivre(ev.clientY);
+      }
+
+      function lacher() {
+        if (!glisse) return;
+        clearInterval(defilement);
+        const { li, id } = glisse;
+        glisse = null;
+        li.classList.remove('deplace');
+        li.style.transform = '';
+        const ids = [...liste.querySelectorAll('li[data-id]')].map((x) => x.dataset.id);
+        const avant = dansLOrdre(elements()).map((x) => x.id);
+        if (ids.join() === avant.join()) return;
+        // Nouvel ordre de l'élément déplacé : entre ses deux nouveaux voisins.
+        const r = rangs(elements());
+        const k = ids.indexOf(id);
+        const precedent = k > 0 ? r.get(ids[k - 1]) : null;
+        const suivant = k < ids.length - 1 ? r.get(ids[k + 1]) : null;
+        const ordre = precedent === null ? suivant - 1 : suivant === null ? precedent + 1 : (precedent + suivant) / 2;
+        enregistrer({ elements: elements().map((x) => (x.id === id ? { ...x, ordre, maj: Date.now() } : x)) });
+        afficherListe();
+      }
+      window.addEventListener('pointermove', bouger, { passive: false });
+      window.addEventListener('pointerup', lacher);
+      window.addEventListener('pointercancel', lacher);
+
       afficherListe();
       // Les pastilles "Demain" / "Aujourd'hui" / "En retard" changent à minuit.
       const minuteur = setInterval(afficherListe, 30 * 60 * 1000);
-      return () => clearInterval(minuteur);
+      return () => {
+        clearInterval(minuteur);
+        clearInterval(defilement);
+        window.removeEventListener('pointermove', bouger);
+        window.removeEventListener('pointerup', lacher);
+        window.removeEventListener('pointercancel', lacher);
+      };
     },
 
     /*

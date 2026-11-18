@@ -455,25 +455,38 @@ body:not(.edition) .widget:active { transform: scale(0.97); }
 }
 
 /* Liste dans un widget (courses, routine, agenda) : la liste défile si elle est longue. */
-.liste-widget { height: 100%; display: flex; flex-direction: column; }
+/* La liste occupe exactement le cadre du widget (taille fixe : sur iPad, une hauteur
+   en pourcentage peut laisser la liste grandir au lieu de défiler). */
+.liste-widget { position: absolute; inset: 0; display: flex; flex-direction: column; }
 .liste-widget ul {
   flex: 1;
-  margin: 0 6px 10px 0;       /* laisse un peu d'air à droite de la barre de défilement */
-  padding: 0 8px 0 14px;
+  min-height: 0;
+  margin: 0 6px 10px 0;
+  padding: 0 14px 0 14px;     /* à droite : la place de la barre de défilement */
   list-style: none;
   overflow-y: auto;
-
-  /* Barre de défilement discrète : fine, un peu transparente, sans fond. */
-  scrollbar-width: thin;
-  scrollbar-color: color-mix(in srgb, var(--w-texte) 40%, transparent) transparent;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;              /* le doigt fait défiler la liste */
+  overscroll-behavior: contain;     /* arrivé au bout, la page ne part pas en rebond */
+  /* La barre du navigateur est masquée : js/defilement.js dessine la sienne, toujours visible. */
+  scrollbar-width: none;
 }
+.liste-widget ul::-webkit-scrollbar { display: none; }
 
-/* Même chose pour les navigateurs qui utilisent l'ancienne méthode (Safari plus ancien). */
-.liste-widget ul::-webkit-scrollbar { width: 6px; }
-.liste-widget ul::-webkit-scrollbar-track { background: transparent; }
-.liste-widget ul::-webkit-scrollbar-thumb {
-  background: color-mix(in srgb, var(--w-texte) 40%, transparent);
+/* Barre de défilement dessinée par js/defilement.js (visible dès que la liste dépasse). */
+.barre-defilement {
+  position: absolute;
+  right: 7px;
+  width: 5px;
   border-radius: 999px;
+  background: color-mix(in srgb, var(--w-texte) 14%, transparent);
+  pointer-events: none;
+}
+.barre-defilement[hidden] { display: none; }
+.barre-defilement-curseur {
+  width: 100%;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--w-texte) 55%, transparent);
 }
 .liste-vide { padding: 10px 4px; opacity: 0.85; font-weight: 600; }
 
@@ -1761,3 +1774,25 @@ html[data-style="adulte"] .banque-nom { font-weight: 600; letter-spacing: 0.12em
   opacity: 0.8;
 }
 .edt-matiere { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* Liste : poignée ⠿ pour réorganiser (glisser vers le haut ou le bas). */
+.liste-poignee {
+  flex: none;
+  align-self: stretch;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  margin-right: -6px;
+  opacity: 0.5;
+  cursor: grab;
+  touch-action: none;   /* le doigt déplace l'élément au lieu de faire défiler */
+}
+.cases li.deplace {
+  position: relative;
+  z-index: 2;
+  border-radius: 14px;
+  background: rgb(var(--voile) / calc(0.45 * var(--voile-force)));
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.15);
+  transition: none;
+}
+.cases li.deplace .liste-poignee { cursor: grabbing; opacity: 0.8; }
