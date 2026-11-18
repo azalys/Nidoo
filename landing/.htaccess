@@ -1,0 +1,18 @@
+# Page de présentation : les navigateurs gardent les images et les polices en mémoire
+# (moins de téléchargements, page plus rapide). La page HTML, elle, est toujours revérifiée.
+# Si le serveur refuse ces réglages (erreur 500 sur /landing/), supprimer simplement ce fichier.
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/webp "access plus 30 days"
+  ExpiresByType image/jpeg "access plus 30 days"
+  ExpiresByType font/woff2 "access plus 1 year"
+  ExpiresByType text/html "access plus 0 seconds"
+</IfModule>
+<IfModule mod_headers.c>
+  <FilesMatch "\.(webp|jpe?g)$">
+    Header set Cache-Control "public, max-age=2592000"
+  </FilesMatch>
+  <FilesMatch "\.woff2$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+</IfModule>

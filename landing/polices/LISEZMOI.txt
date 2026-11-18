@@ -1,0 +1,9 @@
+Polices de la page de présentation (servies depuis ce dossier, sans Google Fonts) :
+
+- Atkinson Hyperlegible, Braille Institute of America : SIL Open Font License 1.1
+  https://fonts.google.com/specimen/Atkinson+Hyperlegible/license
+- Bricolage Grotesque, Ateliertriay : SIL Open Font License 1.1
+  https://fonts.google.com/specimen/Bricolage+Grotesque/license
+
+Licence complète : https://openfontlicense.org/open-font-license-official-text/
+Fichiers récupérés tels quels depuis Google Fonts (jeu de caractères latin).

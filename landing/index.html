@@ -31,10 +31,10 @@
   <link rel="icon" type="image/png" sizes="96x96" href="../favicon/favicon-96x96.png">
   <link rel="apple-touch-icon" sizes="180x180" href="../favicon/apple-touch-icon.png">
 
-  <!-- Polices : Bricolage Grotesque (titres) et Atkinson Hyperlegible (texte, conçue pour être lisible par tous). -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&display=swap">
+  <!-- Polices : Bricolage Grotesque (titres) et Atkinson Hyperlegible (texte, conçue pour être lisible par tous),
+       hébergées ici (dossier polices/) : rien n'attend un autre site avant d'afficher la page. -->
+  <link rel="preload" href="polices/bricolage.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="polices/atkinson-400.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="preload" as="image" href="images/nidoo-enfant-1600.webp" imagesrcset="images/nidoo-enfant-800.webp 800w, images/nidoo-enfant-1600.webp 1600w" imagesizes="(min-width: 960px) 56vw, 92vw" type="image/webp">
 
   <!-- Pour les moteurs de recherche et les assistants : ce qu'est Nidoo, et les questions fréquentes. -->
@@ -103,6 +103,11 @@
   </script>
 
   <style>
+    @font-face { font-family: "Bricolage Grotesque"; font-style: normal; font-weight: 500 800; font-display: swap; src: url(polices/bricolage.woff2) format("woff2"); }
+    @font-face { font-family: "Atkinson Hyperlegible"; font-style: normal; font-weight: 400; font-display: swap; src: url(polices/atkinson-400.woff2) format("woff2"); }
+    @font-face { font-family: "Atkinson Hyperlegible"; font-style: italic; font-weight: 400; font-display: swap; src: url(polices/atkinson-400-italique.woff2) format("woff2"); }
+    @font-face { font-family: "Atkinson Hyperlegible"; font-style: normal; font-weight: 700; font-display: swap; src: url(polices/atkinson-700.woff2) format("woff2"); }
+
     /* ------------------------------------------------------------------
        Couleurs et tailles (clair, puis sombre si l'appareil est en mode sombre)
        Les contrastes texte / fond respectent le niveau AA du RGAA / WCAG.
@@ -207,7 +212,7 @@
     .bouton:hover .fleche { transform: translateX(3px); }
 
     /* ---- En-tête ---- */
-    .entete { padding-block: 22px; }
+    .entete { padding-block: 14px; }
     .entete .contenu { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
     .logo { display: flex; align-items: center; gap: 10px; font-family: var(--titre); font-size: 1.6rem; font-weight: 800; text-decoration: none; letter-spacing: -0.03em; }
     .logo-nid {
@@ -220,19 +225,20 @@
     @media (max-width: 860px) { .entete nav { display: none; } }
 
     /* ---- Ouverture ---- */
-    .ouverture { padding-top: clamp(24px, 5vw, 64px); }
-    .ouverture .contenu { display: grid; grid-template-columns: minmax(0, 0.95fr) minmax(0, 1.25fr); gap: clamp(32px, 5vw, 72px); align-items: center; }
+    .ouverture { padding-top: clamp(16px, 3vw, 40px); padding-bottom: clamp(48px, 7vw, 96px); }
+    .ouverture .chapeau { font-size: 1.12rem; }
+    .ouverture .contenu { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.3fr); gap: clamp(32px, 5vw, 72px); align-items: center; }
     @media (max-width: 960px) { .ouverture .contenu { grid-template-columns: 1fr; } }
-    .ouverture h1 { font-size: clamp(2.6rem, 6.4vw, 5rem); font-weight: 800; letter-spacing: -0.035em; }
+    .ouverture h1 { font-size: clamp(2.3rem, 3.7vw, 3.5rem); font-weight: 800; letter-spacing: -0.035em; }
     .ouverture h1 em { font-style: normal; color: var(--braise); }
-    .actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 32px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 26px; }
     .bandeau-gratuit {
-      margin-top: 26px; padding: 14px 18px; border-radius: 16px;
+      margin-top: 22px; padding: 12px 18px; border-radius: 16px; font-size: 1.02rem;
       background: var(--braise-fond); border-left: 5px solid var(--braise); color: var(--encre);
     }
     /* « 100 % » : la police des titres (celle du texte barre ses zéros). */
     .bandeau-gratuit strong, .fin strong, .pied p:first-child { font-family: var(--titre); }
-    .garanties { display: flex; flex-wrap: wrap; gap: 10px 22px; margin: 28px 0 0; padding: 0; list-style: none; color: var(--encre-douce); font-weight: 700; }
+    .garanties { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 16px 0 0; font-size: 1rem; padding: 0; list-style: none; color: var(--encre-douce); font-weight: 700; }
     .garanties li::before { content: "✓"; margin-right: 8px; color: var(--sapin); }
 
     /* La tablette */
@@ -244,8 +250,8 @@
       box-shadow: 0 2px 0 #2e2a3f inset, 0 30px 70px -24px rgba(29, 27, 46, 0.55);
     }
     .tablette img { border-radius: clamp(12px, 1.8vw, 22px); }
-    .ouverture .tablette { transform: rotate(1.2deg); }
-    @media (max-width: 960px) { .ouverture .tablette { transform: none; } }
+    /* Le bouton Enfant / Parents au-dessus de la tablette, en haut de page */
+    .ouverture .choix-mode { margin-bottom: 16px; }
     figcaption { margin-top: 14px; color: var(--encre-douce); font-size: 0.98rem; text-align: center; }
 
     /* ---- Pourquoi ---- */
@@ -258,7 +264,12 @@
 
     /* ---- Enfant / parents ---- */
     .deux-modes { background: var(--papier-2); }
-    .modes { margin-top: 44px; }
+    .deux-cotes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; margin-top: 40px; }
+    @media (max-width: 760px) { .deux-cotes { grid-template-columns: 1fr; } }
+    .cote { padding: 30px; border-radius: var(--rayon); background: var(--carte); border: 1px solid var(--trait); }
+    .cote ul { margin: 14px 0 0; padding-left: 1.2em; color: var(--encre-douce); }
+    .cote li { margin-bottom: 6px; }
+    .voir-ecrans { margin-top: 18px; font-weight: 700; }
     .choix-mode { display: inline-flex; padding: 6px; gap: 4px; border-radius: 999px; background: var(--carte); border: 1px solid var(--trait); margin: 0 0 22px; }
     .choix-mode legend { padding: 0; }
     .choix-mode input { position: absolute; opacity: 0; width: 1px; height: 1px; }
@@ -270,18 +281,13 @@
     .choix-mode input:focus-visible + label { outline: 3px solid var(--focus); outline-offset: 2px; }
     /* Le bouton coché choisit l'écran affiché (sans JavaScript).
        Navigateurs trop anciens pour ":has" : les deux écrans l'un sous l'autre, sans les boutons. */
-    .ecran-mode { display: grid; }
     .ecran-parents { display: none; }
     .modes:has(#mode-parents:checked) .ecran-enfant { display: none; }
-    .modes:has(#mode-parents:checked) .ecran-parents { display: grid; }
+    .modes:has(#mode-parents:checked) .ecran-parents { display: block; }
     @supports not selector(:has(*)) {
       .choix-mode { display: none; }
-      .ecran-parents { display: grid; margin-top: 48px; }
+      .ecran-parents { display: block; margin-top: 24px; }
     }
-    .ecran-mode { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: clamp(24px, 4vw, 56px); align-items: center; }
-    @media (max-width: 960px) { .ecran-mode { grid-template-columns: 1fr; } }
-    .ecran-mode ul { margin: 18px 0 0; padding-left: 1.2em; }
-    .ecran-mode li { margin-bottom: 8px; }
     .encadre {
       margin-top: 44px; padding: clamp(24px, 3vw, 36px);
       border-radius: var(--rayon); background: var(--sapin-fond); color: var(--encre);
@@ -293,10 +299,12 @@
     /* ---- Widgets ---- */
     .familles { display: grid; gap: 56px; margin-top: 48px; }
     .famille-widgets h3 { font-size: 1.15rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--encre-douce); margin-bottom: 18px; }
-    .widgets { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; margin: 0; padding: 0; list-style: none; }
+    .widgets { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; margin: 0; padding: 0; list-style: none; }
+    @media (max-width: 960px) { .widgets { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+    @media (max-width: 620px) { .widgets { grid-template-columns: 1fr; } }
     .widget {
       display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; align-content: start;
-      padding: 22px; border-radius: var(--rayon); background: var(--carte); border: 1px solid var(--trait);
+      padding: 26px; border-radius: var(--rayon); background: var(--carte); border: 1px solid var(--trait);
       transition: transform 0.15s ease, box-shadow 0.15s ease;
     }
     .widget:hover { transform: translateY(-3px); box-shadow: var(--ombre); }
@@ -362,7 +370,7 @@
 
     @media print {
       .entete nav, .actions, .choix-mode { display: none; }
-      .ecran-mode { display: grid !important; }
+      .ecran-mode { display: block !important; }
       body { background: #fff; color: #000; }
     }
   </style>
@@ -397,8 +405,8 @@
           <h1 id="titre-principal">Toute la maison sur <em>un seul écran</em>, enfin simple.</h1>
           <p class="chapeau">
             Nidoo transforme une tablette posée dans la cuisine ou fixée au mur en tableau de bord de la famille :
-            l'agenda de chacun, les courses, le menu de la semaine, la routine du soir des enfants, la météo,
-            les poubelles à sortir… Chaque famille choisit ses widgets et les range où elle veut, comme les applications d'un iPad.
+            agendas, courses, menu de la semaine, routine des enfants, météo, poubelles à sortir…
+            Chacun choisit ses widgets et les range où il veut, comme les applications d'un iPad.
           </p>
           <div class="actions">
             <a class="bouton bouton-plein" href="https://nidoo.latanieregeek.com/">Ouvrir Nidoo <span class="fleche" aria-hidden="true">→</span></a>
@@ -412,14 +420,32 @@
             <li>Rien à installer</li>
           </ul>
         </div>
-        <figure class="tablette">
-          <picture>
-            <source type="image/webp" srcset="images/nidoo-enfant-800.webp 800w, images/nidoo-enfant-1600.webp 1600w" sizes="(min-width: 960px) 56vw, 92vw">
-            <img src="images/nidoo-enfant-1600.jpg" srcset="images/nidoo-enfant-800.jpg 800w, images/nidoo-enfant-1600.jpg 1600w" sizes="(min-width: 960px) 56vw, 92vw"
-                 width="1600" height="1118" fetchpriority="high"
-                 alt="Nidoo en mode enfant sur une tablette, fond bleu nuit : météo d'aujourd'hui et de demain, agenda familial (dentiste, danse, judo), grande horloge, emploi du temps du lendemain, urgences, compte à rebours jusqu'à Noël, minuteur, liste « À faire », couleur Tempo, corvée du jour, poubelle à sortir, liste de courses et routine du soir.">
-          </picture>
-        </figure>
+        <!-- Le bouton coché choisit l'écran affiché (sans JavaScript). -->
+        <div class="modes">
+          <fieldset class="choix-mode">
+            <legend class="visuellement-cache">Voir le côté</legend>
+            <input type="radio" name="mode" id="mode-enfant" checked>
+            <label for="mode-enfant"><span aria-hidden="true">🧒</span> Côté enfant</label>
+            <input type="radio" name="mode" id="mode-parents">
+            <label for="mode-parents"><span aria-hidden="true">🧑</span> Côté parents</label>
+          </fieldset>
+          <figure class="tablette ecran-mode ecran-enfant">
+            <picture>
+              <source type="image/webp" srcset="images/nidoo-enfant-800.webp 800w, images/nidoo-enfant-1600.webp 1600w" sizes="(min-width: 960px) 56vw, 92vw">
+              <img src="images/nidoo-enfant-1600.jpg" srcset="images/nidoo-enfant-800.jpg 800w, images/nidoo-enfant-1600.jpg 1600w" sizes="(min-width: 960px) 56vw, 92vw"
+                   width="1600" height="1118" fetchpriority="high"
+                   alt="Nidoo côté enfant sur une tablette, fond bleu nuit : météo d'aujourd'hui et de demain, agenda familial (dentiste, danse, judo), grande horloge, emploi du temps du lendemain en semaine B, urgences, compte à rebours jusqu'à Noël, minuteur, liste « À faire », couleur Tempo, corvée du jour, poubelle à sortir, liste de courses et routine du soir.">
+            </picture>
+          </figure>
+          <figure class="tablette ecran-mode ecran-parents">
+            <picture>
+              <source type="image/webp" srcset="images/nidoo-parents-800.webp 800w, images/nidoo-parents-1600.webp 1600w" sizes="(min-width: 960px) 56vw, 92vw">
+              <img src="images/nidoo-parents-1600.jpg" srcset="images/nidoo-parents-800.jpg 800w, images/nidoo-parents-1600.jpg 1600w" sizes="(min-width: 960px) 56vw, 92vw"
+                   width="1600" height="1118" fetchpriority="low" decoding="async"
+                   alt="Nidoo côté parents : fond blanc, typographie fine et widgets aux tons pastel : agendas de Julie, de Marc et de la famille, couleur Tempo, horloge, météo, liste « À faire », liste de courses partagée, humeurs des enfants, échéances, anniversaires et menu de la semaine.">
+            </picture>
+          </figure>
+        </div>
       </div>
     </section>
 
@@ -459,56 +485,27 @@
           Chaque côté a <strong>sa propre grille de widgets</strong> : les enfants voient leur routine et leurs étoiles, les parents leurs échéances et leurs rendez-vous.
         </p>
 
-        <div class="modes">
-          <fieldset class="choix-mode">
-            <legend class="visuellement-cache">Afficher le côté</legend>
-            <input type="radio" name="mode" id="mode-enfant" checked>
-            <label for="mode-enfant"><span aria-hidden="true">🧒</span> Enfant</label>
-            <input type="radio" name="mode" id="mode-parents">
-            <label for="mode-parents"><span aria-hidden="true">🧑</span> Parents</label>
-          </fieldset>
-          <!-- Les deux écrans : celui du bouton coché s'affiche (sans JavaScript). -->
-          <div class="ecrans">
-            <div class="ecran-mode ecran-enfant">
-              <figure class="tablette">
-                <picture>
-                  <source type="image/webp" srcset="images/nidoo-enfant-800.webp 800w, images/nidoo-enfant-1600.webp 1600w" sizes="(min-width: 960px) 60vw, 92vw">
-                  <img src="images/nidoo-enfant-1600.jpg" srcset="images/nidoo-enfant-800.jpg 800w, images/nidoo-enfant-1600.jpg 1600w" sizes="(min-width: 960px) 60vw, 92vw"
-                       width="1600" height="1118" loading="lazy" decoding="async"
-                       alt="Le côté enfant de Nidoo : des widgets aux couleurs vives sur fond bleu nuit, avec la routine du soir à cocher, la corvée du jour (Léa), la poubelle à sortir ce soir et l'emploi du temps de demain en semaine B.">
-                </picture>
-              </figure>
-              <div>
-                <h3>Côté enfant : coloré et ludique</h3>
-                <ul>
-                  <li>Police ronde, gros chiffres, couleurs vives.</li>
-                  <li>La routine du matin avant midi, celle du soir après.</li>
-                  <li>L'emploi du temps du jour, puis celui du lendemain dès midi.</li>
-                  <li>Un fond étoilé quand la tablette est en mode sombre.</li>
-                </ul>
-              </div>
-            </div>
-            <div class="ecran-mode ecran-parents">
-              <figure class="tablette">
-                <picture>
-                  <source type="image/webp" srcset="images/nidoo-parents-800.webp 800w, images/nidoo-parents-1600.webp 1600w" sizes="(min-width: 960px) 60vw, 92vw">
-                  <img src="images/nidoo-parents-1600.jpg" srcset="images/nidoo-parents-800.jpg 800w, images/nidoo-parents-1600.jpg 1600w" sizes="(min-width: 960px) 60vw, 92vw"
-                       width="1600" height="1118" loading="lazy" decoding="async"
-                       alt="Le côté parents de Nidoo : fond blanc, typographie fine et widgets aux tons pastel : agendas de Julie, de Marc et de la famille, couleur Tempo, horloge, météo, liste « À faire », liste de courses, humeurs des enfants, échéances, anniversaires et menu de la semaine.">
-                </picture>
-              </figure>
-              <div>
-                <h3>Côté parents : sobre et élégant</h3>
-                <ul>
-                  <li>Fond blanc, typographie fine, tons pastel.</li>
-                  <li>Un agenda par parent, plus celui de la famille.</li>
-                  <li>Les échéances (contrôle technique, passeports…), les anniversaires, le menu.</li>
-                  <li>Le choix du côté est propre à chaque appareil.</li>
-                </ul>
-              </div>
-            </div>
+        <div class="deux-cotes">
+          <div class="cote">
+            <h3><span aria-hidden="true">🧒</span> Côté enfant : coloré et ludique</h3>
+            <ul>
+              <li>Police ronde, gros chiffres, couleurs vives.</li>
+              <li>La routine du matin avant midi, celle du soir après.</li>
+              <li>L'emploi du temps du jour, puis celui du lendemain dès midi.</li>
+              <li>Un fond étoilé quand la tablette est en mode sombre.</li>
+            </ul>
+          </div>
+          <div class="cote">
+            <h3><span aria-hidden="true">🧑</span> Côté parents : sobre et élégant</h3>
+            <ul>
+              <li>Fond blanc, typographie fine, tons pastel.</li>
+              <li>Un agenda par parent, plus celui de la famille.</li>
+              <li>Les échéances (contrôle technique, passeports…), les anniversaires, le menu.</li>
+              <li>Le côté affiché se choisit sur chaque appareil.</li>
+            </ul>
           </div>
         </div>
+        <p class="voir-ecrans"><a href="#titre-principal">Voir les deux écrans en haut de page</a></p>
 
         <div class="encadre">
           <div class="pastille" aria-hidden="true">🔗</div>
@@ -543,6 +540,7 @@
               <li class="widget i-soleil"><span class="icone" aria-hidden="true">🎒</span><h4>Emploi du temps</h4><p>Les cours du jour le matin, ceux du lendemain dès midi pour préparer le cartable. Gère les semaines A et B.</p><p class="tailles">1×2, 2×2</p></li>
               <li class="widget i-soleil"><span class="icone" aria-hidden="true">✅</span><h4>Routine</h4><p>La routine du matin, puis celle du soir, avec un emoji par étape à cocher. Tout se décoche à midi et chaque nouveau jour.</p><p class="tailles">2×2</p></li>
               <li class="widget i-pomme"><span class="icone" aria-hidden="true">⏰</span><h4>Minuteur</h4><p>Un minuteur de cuisine : + et − pour les minutes et les secondes, une sonnerie bien audible, et l'écran ne se met pas en veille pendant le décompte.</p><p class="tailles">1×1 à 2×2</p></li>
+              <li class="widget i-orange"><span class="icone" aria-hidden="true">🍽️</span><h4>Menu de la semaine</h4><p>Nidoo compose une semaine équilibrée parmi 150 recettes simples prêtes en 15 minutes, pensées pour les enfants. Recette au toucher, ↻ pour en changer, aliments à éviter, nombre de personnes, et les ingrédients envoyés en un geste dans la liste de courses.</p><p class="tailles">1×2 à 4×2</p></li>
               <li class="widget i-soleil"><span class="icone" aria-hidden="true">🕒</span><h4>Horloge</h4><p>L'heure en très grand, avec la date du jour.</p><p class="tailles">1×1 à 2×2</p></li>
             </ul>
           </div>
@@ -553,13 +551,6 @@
               <li class="widget i-ciel"><span class="icone" aria-hidden="true">📝</span><h4>Liste</h4><p>Courses, choses à faire, valise… On coche, ça disparaît. On peut dire qui s'en occupe et pour quand, et réorganiser en glissant. Partageable entre les deux côtés.</p><p class="tailles">1×2 à 4×2</p></li>
               <li class="widget i-orange"><span class="icone" aria-hidden="true">📋</span><h4>Échéances</h4><p>Contrôle technique, assurance, passeports, vaccins : une alerte avant la date, et « C'est fait » reporte celles qui reviennent.</p><p class="tailles">1×2 à 4×2</p></li>
               <li class="widget i-soleil"><span class="icone" aria-hidden="true">🗒️</span><h4>Note</h4><p>Un bloc-notes tout simple pour le mot du jour ou le code du portail.</p><p class="tailles">1×1 à 2×2</p></li>
-            </ul>
-          </div>
-
-          <div class="famille-widgets">
-            <h3>Les repas</h3>
-            <ul class="widgets">
-              <li class="widget i-orange"><span class="icone" aria-hidden="true">🍽️</span><h4>Menu de la semaine</h4><p>Nidoo compose une semaine équilibrée parmi 150 recettes simples prêtes en 15 minutes, pensées pour les enfants. Recette au toucher, ↻ pour en changer, aliments à éviter, nombre de personnes, et les ingrédients envoyés en un geste dans la liste de courses.</p><p class="tailles">1×2 à 4×2</p></li>
             </ul>
           </div>
 
