@@ -27,9 +27,8 @@
   <meta name="twitter:description" content="Agenda, courses, menus, routines des enfants, météo… Gratuit, sans compte, sans publicité.">
   <meta name="twitter:image" content="https://nidoo.latanieregeek.com/landing/images/nidoo-partage.jpg">
 
-  <link rel="icon" type="image/svg+xml" href="../favicon/favicon.svg">
-  <link rel="icon" type="image/png" sizes="96x96" href="../favicon/favicon-96x96.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="../favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="48x48" href="images/nidoo-icone-48.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="images/nidoo-icone-180.png">
 
   <!-- Polices : Bricolage Grotesque (titres) et Atkinson Hyperlegible (texte, conçue pour être lisible par tous),
        hébergées ici (dossier polices/) : rien n'attend un autre site avant d'afficher la page. -->
@@ -46,6 +45,7 @@
         "@type": "WebApplication",
         "@id": "https://nidoo.latanieregeek.com/#app",
         "name": "Nidoo",
+        "image": "https://nidoo.latanieregeek.com/landing/images/nidoo-logo-512.jpg",
         "url": "https://nidoo.latanieregeek.com/",
         "description": "Écran familial pour tablette : une grille de widgets (agenda, listes, menus de la semaine, routines, emploi du temps, météo, poubelles, minuteur…) avec un mode enfant coloré et un mode parents sobre. Gratuit, sans compte, sans publicité.",
         "applicationCategory": "LifestyleApplication",
@@ -130,6 +130,7 @@
       --titre: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
       --texte: "Atkinson Hyperlegible", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
       --largeur: 1180px;
+      --point: #e4d9c6;
     }
     @media (prefers-color-scheme: dark) {
       :root {
@@ -146,6 +147,7 @@
         --nuit: #c8c1ff;
         --focus: #8fb0ff;
         --ombre: 0 1px 2px rgba(0, 0, 0, 0.3), 0 16px 40px -16px rgba(0, 0, 0, 0.7);
+        --point: #2c2756;
       }
     }
 
@@ -155,9 +157,15 @@
       html { scroll-behavior: auto; }
       *, *::before, *::after { animation: none !important; transition: none !important; }
     }
+    /* Fond à petits points, comme une page de bullet journal (et comme l'application). */
+    body, .deux-modes {
+      background-image: radial-gradient(var(--point) 1.6px, transparent 2px);
+      background-size: 26px 26px;
+      background-position: 13px 13px;
+    }
     body {
       margin: 0;
-      background: var(--papier);
+      background-color: var(--papier);
       color: var(--encre);
       font-family: var(--texte);
       font-size: 1.125rem;
@@ -214,11 +222,8 @@
     /* ---- En-tête ---- */
     .entete { padding-block: 14px; }
     .entete .contenu { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
-    .logo { display: flex; align-items: center; gap: 10px; font-family: var(--titre); font-size: 1.6rem; font-weight: 800; text-decoration: none; letter-spacing: -0.03em; }
-    .logo-nid {
-      width: 38px; height: 38px; display: grid; place-items: center;
-      border-radius: 12px; background: var(--braise); color: #fff; font-size: 1.3rem; font-weight: 800;
-    }
+    .logo { display: block; flex: none; border-radius: 16px; }
+    .logo img { width: 56px; height: 56px; border-radius: 16px; box-shadow: 0 6px 16px -6px rgba(29, 27, 46, 0.45); }
     .entete nav ul { display: flex; gap: 26px; margin: 0; padding: 0; list-style: none; }
     .entete nav a { font-weight: 700; text-decoration: none; }
     .entete nav a:hover { text-decoration: underline; }
@@ -263,7 +268,7 @@
     .point p { color: var(--encre-douce); }
 
     /* ---- Enfant / parents ---- */
-    .deux-modes { background: var(--papier-2); }
+    .deux-modes { background-color: var(--papier-2); }
     .deux-cotes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 22px; margin-top: 40px; }
     @media (max-width: 760px) { .deux-cotes { grid-template-columns: 1fr; } }
     .cote { padding: 30px; border-radius: var(--rayon); background: var(--carte); border: 1px solid var(--trait); }
@@ -331,12 +336,17 @@
       content: counter(etape); display: grid; place-items: center; width: 44px; height: 44px; margin-bottom: 16px;
       border-radius: 50%; background: var(--braise); color: #fff; font-family: var(--titre); font-weight: 800; font-size: 1.2rem;
     }
-    @media (prefers-color-scheme: dark) { .etapes li::before, .logo-nid { color: #16142a; } }
+    @media (prefers-color-scheme: dark) { .etapes li::before { color: #16142a; } }
     .etapes h3 { margin-bottom: 8px; font-size: 1.2rem; }
     .etapes p { color: var(--encre-douce); font-size: 1rem; }
 
     /* ---- Atouts (synchro, nuit, confidentialité) ---- */
-    .atouts { background: var(--nuit); color: #fbf7f0; }
+    .atouts {
+      background-color: var(--nuit); color: #fbf7f0;
+      background-image: radial-gradient(rgba(255, 255, 255, 0.09) 1.6px, transparent 2px);
+      background-size: 26px 26px;
+      background-position: 13px 13px;
+    }
     @media (prefers-color-scheme: dark) { .atouts { background: #0e0c1e; } }
     .atouts .sur-titre { color: #ffb48a; }
     .atouts .chapeau { color: #ddd8f2; }
@@ -380,9 +390,11 @@
 
   <header class="entete">
     <div class="contenu">
-      <a class="logo" href="./" aria-label="Nidoo, haut de la présentation">
-        <span class="logo-nid" aria-hidden="true">N</span>
-        <span>Nidoo</span>
+      <a class="logo" href="./">
+        <picture>
+          <source type="image/webp" srcset="images/nidoo-logo-112.webp 1x, images/nidoo-logo-224.webp 2x">
+          <img src="images/nidoo-logo-112.png" srcset="images/nidoo-logo-112.png 1x, images/nidoo-logo-224.png 2x" width="56" height="56" alt="Nidoo">
+        </picture>
       </a>
       <nav aria-label="Sections de la page">
         <ul>
