@@ -1796,3 +1796,11 @@ html[data-style="adulte"] .banque-nom { font-weight: 600; letter-spacing: 0.12em
   transition: none;
 }
 .cases li.deplace .liste-poignee { cursor: grabbing; opacity: 0.8; }
+.edt-semaine {
+  flex: none;
+  margin-left: auto;
+  padding: 0 7px;
+  border-radius: 999px;
+  font-size: 0.8em;
+  background: rgb(var(--voile) / calc(0.35 * var(--voile-force)));
+}

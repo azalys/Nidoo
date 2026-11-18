@@ -44,7 +44,7 @@ que le serveur l'a reçue (fichier `version.txt`).
 | 📝 Liste | 1×2, 2×2 | titre et emoji réglables (🛒 Courses, 📝 À faire, 🧳 Valise…), remplace l'ancien widget Courses ; cocher retire l'élément ; toucher le texte pour dire qui et pour quand (date en rouge si dépassée) ; la poignée à droite pour réorganiser (glisser vers le haut ou le bas) |
 | ✅ Routine | grand | matin avant midi, soir après midi ; étapes réglables avec ⚙️ ; un emoji par étape (deviné, ou mis en début de ligne) |
 | 📅 Agenda | grand | adresse iCal de l'agenda, lue par `api.php` ; exemples tant qu'elle n'est pas réglée |
-| 🎒 Emploi du temps | 1×2, 2×2 | les cours d'aujourd'hui avant midi, de demain à partir de midi (un jour sans cours : le prochain jour qui en a) ; cours de chaque jour réglables avec ⚙️, un par ligne, l'heure au début si on veut (« 8h30 Maths ») ; emoji deviné par matière |
+| 🎒 Emploi du temps | 1×2, 2×2 | les cours d'aujourd'hui avant midi, de demain à partir de midi (un jour sans cours : le prochain jour qui en a) ; cours de chaque jour réglables avec ⚙️, un par ligne, l'heure au début si on veut (« 8h30 Maths ») ; emoji deviné par matière ; semaines A et B : une date d'une semaine A dans ⚙️, puis « A: » ou « B: » devant les cours d'une seule semaine (« A: 14h Piscine ») |
 | ⏰ Minuteur | 1×1, 1×2, 2×2 | minuteur de cuisine : + / − pour les minutes et les secondes, ▶/⏸, ↺ ; sonne à la fin ; empêche la mise en veille tant qu'il tourne (page en https uniquement) |
 | 🧹 Corvées | petit | qui s'en occupe aujourd'hui (et demain) ; rotation jours pairs/impairs, chaque jour ou chaque semaine (⚙️) |
 | ⏳ Compte à rebours | 1×1 | « Vacances dans 12 jours » ; date, emoji, une fois ou chaque année, jours ou dodos (⚙️) |

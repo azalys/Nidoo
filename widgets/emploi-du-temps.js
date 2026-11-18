@@ -8,6 +8,10 @@
  *
  * Réglages (⚙️) : pour qui, et les cours de chaque jour, un par ligne,
  * avec l'heure au début si on veut : « 8h30 Maths », « 14h Piscine ».
+ *
+ * Semaines A et B (facultatif) : dans ⚙️, une date d'une semaine A ; les semaines
+ * alternent ensuite A, B, A, B… Dans les cours, « A: » ou « B: » devant ceux qui n'ont
+ * lieu qu'une semaine sur deux (ex. « A: 14h Piscine ») ; les autres ont lieu chaque semaine.
  */
 (function () {
   // Clés des réglages, dans l'ordre de getDay() : 0 = dimanche.
@@ -46,16 +50,26 @@
     [['cantine', 'repas', 'dejeuner', 'self'], '🍽️'],
     [['sortie', 'visite', 'voyage'], '🚌'],
   ];
-  const EMOJI_DEBUT = /^(\p{Extended_Pictographic}(?:️|‍\p{Extended_Pictographic}|\p{Emoji_Modifier})*|\p{Regional_Indicator}{2})\s*/u;
+  const EMOJI_DEBUT = /^(\p{Extended_Pictographic}(?:\uFE0F|\u200D\p{Extended_Pictographic}|\p{Emoji_Modifier})*|\p{Regional_Indicator}{2})\s*/u;
   // "8h30", "8 h", "08:30", "14h" au début de la ligne (suivi ou non de "-" ou ":")
   const HEURE_DEBUT = /^(\d{1,2})\s*[h:]\s*(\d{2})?\s*[-–:]?\s*/i;
 
-  // "8h30 Maths" → { heure: '8h30', emoji: '📐', texte: 'Maths' }
+  // « A: », « B - », « (A) », « Sem. A : » au début, ou « (A) » à la fin de la ligne.
+  const SEMAINE_DEBUT = /^(?:sem(?:aine|\.)?\s*)?\(?([AB])\)?\s*[:\-–]\s*|^\(([AB])\)\s*/i;
+  const SEMAINE_FIN = /\s*\(([AB])\)\s*$/i;
+
+  // "A: 8h30 Maths" → { semaine: 'A', heure: '8h30', emoji: '📐', texte: 'Maths' }
   function lireCours(ligne) {
     let reste = ligne.trim();
+    let semaine = '';
     let heure = '';
     let emoji = '';
-    let m = reste.match(EMOJI_DEBUT);
+    let m = reste.match(SEMAINE_DEBUT) || reste.match(SEMAINE_FIN);
+    if (m) {
+      semaine = (m[1] || m[2]).toUpperCase();
+      reste = reste.replace(m[0], ' ').trim();
+    }
+    m = reste.match(EMOJI_DEBUT);
     if (m) {
       emoji = m[1];
       reste = reste.slice(m[0].length);
@@ -73,12 +87,24 @@
       }
     }
     if (!emoji) {
-      const simple = reste.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+      const simple = reste.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
       const debutDeMot = (mot) => new RegExp('(^|[^a-z])' + mot.replace(/[-]/g, '\\-')).test(simple);
       const trouve = EMOJIS.find(([mots]) => mots.some(debutDeMot));
       emoji = trouve ? trouve[1] : '📘';
     }
-    return { heure, emoji, texte: reste || ligne.trim() };
+    return { semaine, heure, emoji, texte: reste || ligne.trim() };
+  }
+
+  /*
+   * Semaine A ou B d'un jour, d'après la date de référence (un jour d'une semaine A) :
+   * on compte les semaines (du lundi au dimanche) d'écart. '' si pas de semaines A/B.
+   */
+  function semaineDe(jour, reference) {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(reference || '')) return '';
+    const lundi = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate() - ((d.getDay() + 6) % 7));
+    const [a, mo, j] = reference.split('-').map(Number);
+    const ecart = Math.round((lundi(jour) - lundi(new Date(a, mo - 1, j))) / (7 * 86400000));
+    return ecart % 2 === 0 ? 'A' : 'B';
   }
 
   /*
@@ -88,10 +114,14 @@
   function jourAffiche(donnees) {
     const maintenant = new Date();
     const depart = maintenant.getHours() < 12 ? 0 : 1;
-    for (let ecart = depart; ecart < depart + 7; ecart++) {
+    for (let ecart = depart; ecart < depart + 14; ecart++) {
       const jour = new Date(maintenant.getFullYear(), maintenant.getMonth(), maintenant.getDate() + ecart);
-      const cours = donnees[JOURS[jour.getDay()]] || [];
-      if (cours.length) return { ecart, nom: JOURS[jour.getDay()], cours };
+      const semaine = semaineDe(jour, donnees.semaineA);
+      // Sans semaine A/B réglée, on garde tous les cours (ceux d'une seule semaine sont marqués).
+      const cours = (donnees[JOURS[jour.getDay()]] || [])
+        .map(lireCours)
+        .filter((c) => !semaine || !c.semaine || c.semaine === semaine);
+      if (cours.length) return { ecart, nom: JOURS[jour.getDay()], cours, semaine };
     }
     return null;
   }
@@ -113,6 +143,13 @@
     donneesParDefaut: { titre: '', lundi: [], mardi: [], mercredi: [], jeudi: [], vendredi: [], samedi: [] },
     reglages: [
       { cle: 'titre', libelle: 'Pour qui ? (facultatif)', type: 'texte', exemple: 'Ex. Léa' },
+      {
+        cle: 'semaineA',
+        libelle: 'Semaines A et B (facultatif) : un jour d\'une semaine A',
+        type: 'date',
+        aide: 'Les semaines alternent ensuite A, B, A, B… Dans les cours, mettez « A: » ou « B: » devant '
+          + 'ceux qui n\'ont lieu qu\'une semaine sur deux (ex. « A: 14h Piscine ») ; les autres ont lieu chaque semaine.',
+      },
       {
         cle: 'lundi',
         libelle: 'Lundi (un cours par ligne)',
@@ -138,13 +175,16 @@
           ? 'Emploi du temps'
           : jour.ecart === 0 ? 'Aujourd\'hui' : jour.ecart === 1 ? 'Demain' : majuscule(jour.nom);
         const titre = '🎒 ' + quand + (d.titre ? ' · ' + Nidoo.echapper(d.titre) : '');
-        const cours = jour ? jour.cours.map(lireCours) : [];
+        const cours = jour ? jour.cours : [];
+        // À droite du titre : le jour (si c'est demain) et la semaine A ou B.
+        const pastille = [jour && jour.ecart === 1 ? majuscule(jour.nom) : '', jour && jour.semaine ? 'Sem. ' + jour.semaine : '']
+          .filter(Boolean).join(' · ');
 
         zone.innerHTML = `
           <div class="liste-widget emploi-du-temps">
             <div class="widget-entete">
               <span>${titre}</span>
-              ${jour && jour.ecart === 1 ? `<span class="compteur">${Nidoo.echapper(majuscule(jour.nom))}</span>` : ''}
+              ${pastille ? `<span class="compteur">${Nidoo.echapper(pastille)}</span>` : ''}
             </div>
             <ul class="cases routine-etapes edt-cours" style="--etapes:${cours.length}">
               ${!jour ? '<li class="liste-vide">Ajoutez les cours de chaque jour avec ⚙️</li>' : ''}
@@ -153,6 +193,7 @@
                   <span class="case case-emoji" aria-hidden="true">${c.emoji}</span>
                   ${c.heure ? `<span class="edt-heure">${c.heure}</span>` : ''}
                   <span class="edt-matiere">${Nidoo.echapper(c.texte)}</span>
+                  ${c.semaine && !jour.semaine ? `<span class="edt-semaine" title="Seulement en semaine ${c.semaine} (réglez les semaines A/B dans ⚙️)">${c.semaine}</span>` : ''}
                 </li>`).join('')}
             </ul>
           </div>`;
