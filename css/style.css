@@ -1804,3 +1804,21 @@ html[data-style="adulte"] .banque-nom { font-weight: 600; letter-spacing: 0.12em
   font-size: 0.8em;
   background: rgb(var(--voile) / calc(0.35 * var(--voile-force)));
 }
+
+/* --- Agenda en 1×2 (une ligne de haut) : compact, un événement par ligne --- */
+.agenda-nom { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.agenda-nom small { font-size: 0.7em; opacity: 0.75; }
+.agenda-compact .widget-entete { padding: 7px 12px 2px 14px; font-size: 0.95rem; }
+.agenda-compact .agenda-recharger { width: 26px; height: 26px; }
+.agenda-compact .agenda-recharger svg { width: 14px; height: 14px; }
+.agenda-compact ul.agenda { margin-bottom: 6px; padding-left: 10px; }
+.agenda-compact .agenda li { padding: 2px 0; }
+.agenda-compact .agenda-evt {
+  align-items: center;
+  gap: 7px;
+  font-size: 0.92rem;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+.agenda-compact .agenda-heure { min-width: 0; padding: 1px 7px; font-size: 0.76rem; }
+.agenda-titre { min-width: 0; overflow: hidden; text-overflow: ellipsis; }

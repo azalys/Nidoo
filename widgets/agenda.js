@@ -42,7 +42,31 @@
     ];
   }
 
-  function listeHtml(evenements) {
+  // Le jour en court, pour l'affichage compact : "Auj.", "Dem.", "jeu. 20".
+  function jourCourt(cle) {
+    const nom = nomDuJour(cle);
+    if (nom === "Aujourd'hui") return 'Auj.';
+    if (nom === 'Demain') return 'Dem.';
+    return nom.slice(0, 3) + '. ' + nom.split(' ')[1];
+  }
+
+  /*
+   * Affichage compact (widget 1×2, une seule ligne de haut) : pas de séparation par jour,
+   * le jour est dans la pastille ("Auj. 17h30"), un événement par ligne.
+   */
+  function listeCompacteHtml(evenements) {
+    if (evenements.length === 0) return '<li class="liste-vide">Rien de prévu 😎</li>';
+    return evenements
+      .map((e) => {
+        const jour = jourCourt(e.debut.slice(0, 10));
+        const quand = e.journee ? jour : jour + ' ' + e.debut.slice(11, 16).replace(':', 'h').replace(/h00$/, 'h');
+        return `<li class="agenda-evt"><span class="agenda-heure">${quand}</span><span class="agenda-titre">${Nidoo.echapper(e.titre)}</span></li>`;
+      })
+      .join('');
+  }
+
+  function listeHtml(evenements, compact = false) {
+    if (compact) return listeCompacteHtml(evenements);
     if (evenements.length === 0) return '<li class="liste-vide">Rien de prévu 😎</li>';
     let html = '';
     let jourPrecedent = null;
@@ -62,7 +86,7 @@
     type: 'agenda',
     nom: 'Agenda',
     icone: '📅',
-    tailles: ['grand'],
+    tailles: ['moyen', 'grand', 'haut3', 'haut4'], // 1×2 : affichage compact
     tailleParDefaut: 'grand',
     donneesParDefaut: { titre: 'Agenda', url: '' },
     reglages: [
@@ -79,10 +103,11 @@
 
     afficher(zone, widget) {
       let arrete = false;
+      const compact = widget.taille === 'moyen';
       zone.innerHTML = `
-        <div class="liste-widget">
+        <div class="liste-widget${compact ? ' agenda-compact' : ''}">
           <div class="widget-entete">
-            <span>📅 ${Nidoo.echapper(widget.donnees.titre || 'Agenda')}</span>
+            <span class="agenda-nom">📅 ${Nidoo.echapper(widget.donnees.titre || 'Agenda')}${compact && !(widget.donnees.url || '').trim() ? ' <small>(exemple)</small>' : ''}</span>
             <button class="agenda-recharger" aria-label="Recharger l'agenda" title="Recharger l'agenda">
               <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.34-5.66M20 4v4.5h-4.5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
             </button>
@@ -95,7 +120,9 @@
       async function mettreAJour(forcer = false) {
         const url = (widget.donnees.url || '').trim();
         if (!url) {
-          liste.innerHTML = '<li class="agenda-exemple">Exemple · branchez l\'agenda avec ⚙️</li>' + listeHtml(exemples());
+          liste.innerHTML = compact
+            ? listeHtml(exemples(), true)
+            : '<li class="agenda-exemple">Exemple · branchez l\'agenda avec ⚙️</li>' + listeHtml(exemples());
           return;
         }
         try {
@@ -104,7 +131,7 @@
             throw new Error('api.php ne répond pas. Lancez Nidoo avec PHP.');
           });
           if (!json.ok) throw new Error(json.erreur);
-          if (!arrete) liste.innerHTML = listeHtml(json.evenements);
+          if (!arrete) liste.innerHTML = listeHtml(json.evenements, compact);
         } catch (erreur) {
           const message = erreur.message === 'Failed to fetch' ? 'api.php ne répond pas. Lancez Nidoo avec PHP.' : erreur.message;
           if (!arrete) liste.innerHTML = '<li class="liste-vide">📡 ' + Nidoo.echapper(message) + '</li>';
