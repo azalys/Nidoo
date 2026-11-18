@@ -1910,29 +1910,73 @@ html[data-style="adulte"] .banque-nom { font-weight: 600; letter-spacing: 0.12em
 .taille-moyen .recomp { padding: 2px 2px; }
 .taille-moyen .recomp-plus { width: 32px; height: 32px; font-size: 1.2rem; }
 
-/* --- Menu de la semaine --- */
-.menu { cursor: pointer; }
-.menu-repas { display: flex; flex-direction: column; gap: 1px; padding: 5px 2px; }
-.menu-quand { font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.8; }
-.menu-plat { display: flex; gap: 8px; font-size: 1.05rem; font-weight: 700; line-height: 1.25; }
-.menu-emoji { flex: none; }
-.taille-moyen .menu-repas { padding: 2px 2px; }
-.taille-moyen .menu-plat { font-size: 0.95rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; }
-.taille-moyen .menu-emoji { margin-right: 6px; }
-/* La fenêtre de la semaine */
-.menu-onglets { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-bottom: 6px; }
-.menu-semaine { text-align: left; }
-.menu-semaine-jour h3 { margin: 12px 0 4px; font-size: 1rem; }
-.menu-semaine-repas {
-  display: grid;
-  grid-template-columns: 3.2em 1fr auto;
-  gap: 8px;
-  align-items: center;
-  padding: 4px 0;
+/* --- Menu de la semaine : la semaine entière, on fait défiler --- */
+.menu-titre { white-space: nowrap; }
+.menu-semaines { display: flex; gap: 2px; flex: none; }
+.menu-nav {
+  padding: 3px 9px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  opacity: 0.7;
+  cursor: pointer;
 }
-.menu-semaine-repas .menu-plat { font-size: 0.98rem; }
-.menu-semaine-repas small { display: block; font-weight: 500; font-size: 0.78rem; opacity: 0.65; }
-.menu-semaine-repas .menu-plat { display: block; }
-.menu-semaine-repas .menu-emoji { margin-right: 6px; }
-.menu-changer { padding: 4px 9px; }
-.menu-tout-changer { margin-top: 8px; }
+.menu-nav.actif { background: rgb(var(--voile) / calc(0.35 * var(--voile-force))); opacity: 1; }
+.menu-jour {
+  margin-top: 8px;
+  padding: 2px 2px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  opacity: 0.75;
+}
+.menu-jour:first-child { margin-top: 0; }
+.menu-jour.aujourdhui { opacity: 1; }
+.menu-jour.aujourdhui::before { content: "● "; }
+.menu-repas {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 2px;
+  cursor: pointer;
+}
+.menu-repas.passe { opacity: 0.45; }
+.menu-quand { flex: none; width: 2.6em; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; opacity: 0.75; }
+.menu-plat { flex: 1; min-width: 0; font-size: 0.9rem; font-weight: 700; line-height: 1.25; }
+.menu-emoji { margin-right: 6px; }
+.menu-autre {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(var(--voile) / calc(0.28 * var(--voile-force)));
+  color: inherit;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.menu-autre:active { transform: rotate(90deg) scale(0.9); }
+.menu-fin { padding: 10px 0 4px; text-align: center; }
+.menu-tout-changer { padding: 6px 14px; font-size: 0.85rem; color: #2b2240; }
+.taille-moyen .menu-plat { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* La recette */
+.recette { text-align: left; }
+.recette-infos { margin: 0 0 6px; font-weight: 600; opacity: 0.75; }
+.recette h3 { margin: 12px 0 4px; font-size: 1rem; }
+.recette-ingredients, .recette-etapes { margin: 0; padding-left: 1.3em; line-height: 1.45; }
+.recette-etapes li { margin-bottom: 4px; }
+.recette-autre { margin-top: 12px; }
+
+/* Listes (à faire, courses…) : texte un peu plus petit pour voir plus d'éléments. */
+.liste-elements li { gap: 9px; padding: 2px 2px; font-size: 0.92rem; }
+.liste-elements .case { width: 25px; height: 25px; border-width: 2.5px; font-size: 0.9rem; }
+.liste-elements .liste-infos { margin-top: -1px; }
+.taille-moyen .liste-widget .liste-elements li { padding: 1px 2px; font-size: 0.88rem; }
+.taille-moyen .liste-widget .liste-elements .case { width: 22px; height: 22px; }

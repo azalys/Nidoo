@@ -96,7 +96,7 @@
       zone.innerHTML = `
         <div class="liste-widget">
           <div class="widget-entete"></div>
-          <ul class="cases"></ul>
+          <ul class="cases liste-elements"></ul>
           <form class="ajout">
             <input type="text" placeholder="Ajouter…" maxlength="80" enterkeyhint="done" aria-label="Nouvel élément">
             <button type="submit" aria-label="Ajouter">+</button>
