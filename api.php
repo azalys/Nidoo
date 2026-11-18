@@ -5,6 +5,7 @@
  *   api.php?action=ping                 vérifie que l'API fonctionne
  *   api.php?action=agenda&url=...       événements des 7 prochains jours d'un agenda iCal
  *                                       (&forcer=1 : relire tout de suite, sans la copie en cache)
+ *   api.php?action=anniversaires&url=…  les anniversaires (événements annuels « anniv… ») d'un agenda iCal
  *
  * Partage entre appareils (voir js/synchro.js) :
  *   POST api.php?action=code             donne un code de 4 caractères valable 10 min
@@ -696,6 +697,82 @@ function retourNidoo(string $resultat): void
 }
 
 // ---------------------------------------------------------------------
+// Anniversaires trouvés dans un agenda
+// ---------------------------------------------------------------------
+
+/* L'adresse d'agenda demandée, vérifiée (https et site autorisé), sinon erreur. */
+function urlAgendaAutorisee(string $url): string
+{
+    $url = preg_replace('#^webcal://#i', 'https://', trim($url));
+    $hote = strtolower(parse_url($url, PHP_URL_HOST) ?? '');
+    foreach (SITES_AGENDA as $site) {
+        if (preg_match('#^https://#i', $url) && ($hote === $site || str_ends_with($hote, '.' . $site))) {
+            return $url;
+        }
+    }
+    erreur("Adresse d'agenda non autorisée. Sites acceptés : " . implode(', ', SITES_AGENDA)
+        . ' (à modifier en haut de api.php).');
+}
+
+/*
+ * Les événements qui reviennent chaque année et dont le titre parle d'anniversaire
+ * ("Anniversaire de Mamie", "Anniv Lou 2017", "🎂 Paul", "Léa's birthday").
+ * Renvoie [{ titre, nom, mois, jour, annee }] (annee : année de naissance si elle est
+ * écrite dans le titre, sinon null).
+ */
+function anniversairesIcs(string $ics): array
+{
+    $resultat = [];
+    $vus = [];
+    foreach (lireEvenementsIcs($ics) as $e) {
+        $titre = propriete($e, 'SUMMARY');
+        $regle = propriete($e, 'RRULE');
+        $debut = propriete($e, 'DTSTART');
+        if (!$titre || !$debut || propriete($e, 'RECURRENCE-ID')) {
+            continue;
+        }
+        $titre = trim(texteIcs($titre[2]));
+        if (!preg_match('/anniv|birthday|\x{1F382}/iu', $titre)) {
+            continue;
+        }
+        if (!$regle || !preg_match('/FREQ=YEARLY/i', $regle[2])) {
+            continue; // seulement ce qui revient chaque année
+        }
+        [$date] = lireDate($debut[2], $debut[1]);
+        if (!$date) {
+            continue;
+        }
+        // Le nom : le titre sans "Anniversaire de", "Anniv", "birthday", 🎂, ni l'année.
+        $annee = preg_match('/\b(19\d\d|20\d\d)\b/', $titre, $m) ? (int)$m[1] : null;
+        $nom = preg_replace([
+            '/\x{1F382}|\x{1F389}|\x{1F381}/u',
+            '/\b(19\d\d|20\d\d)\b/',
+            "/\b(anniversaire|anniv)\b\.?\s*(de\s+|d['’]\s*|du\s+|des\s+)?/iu",
+            "/['’]s\s+birthday|\bbirthday\b(\s+of)?/iu",
+            '/[()\-–:!]+/u',
+        ], ' ', $titre);
+        $nom = trim(preg_replace('/\s+/u', ' ', $nom)) ?: $titre;
+        // "Anniversaire de mariage" : un nom commun, on garde le titre entier.
+        if (preg_match('/^\p{Ll}/u', $nom)) {
+            $nom = $titre;
+        }
+        $cle = mb_strtolower($nom) . '|' . $date->format('m-d');
+        if (isset($vus[$cle])) {
+            continue;
+        }
+        $vus[$cle] = true;
+        $resultat[] = [
+            'titre' => $titre,
+            'nom' => $nom,
+            'mois' => (int)$date->format('n'),
+            'jour' => (int)$date->format('j'),
+            'annee' => $annee,
+        ];
+    }
+    return $resultat;
+}
+
+// ---------------------------------------------------------------------
 // Actions
 // ---------------------------------------------------------------------
 
@@ -730,6 +807,14 @@ switch ($action) {
             'ok' => true,
             'evenements' => evenementsAgenda($ics, $aujourdhui, $aujourdhui->modify('+' . JOURS_AGENDA . ' days')),
         ]);
+
+    // Les anniversaires d'un agenda (événements annuels dont le titre parle d'anniversaire).
+    case 'anniversaires':
+        $ics = telecharger(urlAgendaAutorisee($_GET['url'] ?? ''));
+        if (strpos($ics, 'BEGIN:VCALENDAR') === false) {
+            erreur("Ce n'est pas un agenda iCal. Vérifiez l'adresse.", 502);
+        }
+        repondre(['ok' => true, 'anniversaires' => anniversairesIcs($ics)]);
 
     // Donne un code de partage (crée la famille si cet appareil n'en a pas encore).
     case 'code':
