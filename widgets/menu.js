@@ -273,13 +273,17 @@
             <div class="widget-entete">
               <span class="menu-titre">🍽️ Menu</span>
               <span class="menu-semaines">
+                <button class="menu-courses-icone" type="button" aria-label="Liste de courses de la semaine" title="Liste de courses">🛒</button>
                 <button class="menu-nav${semaine === 0 ? ' actif' : ''}" type="button" data-semaine="0">Semaine</button>
                 <button class="menu-nav${semaine === 1 ? ' actif' : ''}" type="button" data-semaine="1">Suivante</button>
               </span>
             </div>
             <ul class="menu-liste">
               ${menu.size === 0 ? '<li class="liste-vide">Tous les plats sont interdits : vérifiez ⚙️</li>' : jours.join('')}
-              ${menu.size ? '<li class="menu-fin"><button class="bouton menu-tout-changer" type="button">↻ Un autre menu pour la semaine</button></li>' : ''}
+              ${menu.size ? `<li class="menu-fin">
+                  <button class="menu-petit menu-courses" type="button">🛒 Courses</button>
+                  <button class="menu-petit menu-tout-changer" type="button" title="Un autre menu pour toute la semaine">↻ Tout changer</button>
+                </li>` : ''}
             </ul>
           </div>`;
 
@@ -310,6 +314,72 @@
         return plat;
       }
 
+      /*
+       * La liste de courses de la semaine affichée : tous les ingrédients (un ingrédient
+       * présent dans plusieurs recettes est regroupé, "×2"), à cocher, puis ajoutés à la
+       * liste nommée « Courses » (ou « Course »).
+       */
+      function ouvrirCourses() {
+        const compte = new Map();
+        [...menu.values()].forEach((plat) =>
+          plat.ingredients.forEach((i) => {
+            const cle = i.trim().toLowerCase();
+            const deja = compte.get(cle);
+            compte.set(cle, { texte: deja ? deja.texte : i.trim(), nombre: deja ? deja.nombre + 1 : 1 });
+          })
+        );
+        // Tri par aliment (sans la quantité du début) : « 400 g de pâtes » → « pâtes ».
+        const sansQuantite = (t) => simplifier(t).trim()
+          .replace(/^(\d+ )*(\d+|un|une|quelques|1 2)( (g|kg|cl|l|ml|c a s|c a c|boites?|grandes?|petites?|tranches?|pots?|paquets?|cubes?|boules?|pains?|gousses?|morceaux?|feuilles?))* ?(de |d |des )?/, '');
+        const ingredients = [...compte.values()].sort((a, b) => sansQuantite(a.texte).localeCompare(sansQuantite(b.texte)));
+        const textes = ingredients.map((i) => i.texte + (i.nombre > 1 ? ' (×' + i.nombre + ')' : ''));
+
+        const nomListe = (t) => simplifier(t).trim();
+        const listes = (Nidoo.grilleApp ? Nidoo.grilleApp.listes() : [])
+          .filter((l) => ['courses', 'course', 'liste de courses', 'liste des courses'].includes(nomListe(l.titre)));
+
+        const contenu = Nidoo.ouvrirPopin(
+          '🛒 Courses ' + (semaine === 0 ? 'de la semaine' : 'de la semaine prochaine'),
+          `<div class="courses">
+             <div class="courses-tout">
+               <button class="bouton" type="button" data-tout="1">Tout cocher</button>
+               <button class="bouton" type="button" data-tout="0">Tout décocher</button>
+             </div>
+             <ul class="courses-liste">
+               ${textes.map((t, i) => `<li><label><input type="checkbox" value="${i}"><span>${Nidoo.echapper(t)}</span></label></li>`).join('')}
+             </ul>
+             ${listes.length
+               ? `${listes.length > 1
+                   ? `<label class="champ"><span>Dans la liste</span><select class="courses-cible">${listes.map((l) =>
+                       `<option value="${Nidoo.echapper(l.id)}">${Nidoo.echapper((l.emoji ? l.emoji + ' ' : '') + l.titre)}</option>`).join('')}</select></label>`
+                   : ''}
+                  <button class="bouton bouton-principal courses-ajouter" type="button">Ajouter à la liste des courses</button>
+                  <p class="courses-message"></p>`
+               : `<p class="courses-message courses-aucune">Vous n'avez aucune liste nommée « courses » actuellement : créez une liste « Courses » afin d'y ajouter des ingrédients.</p>`}
+           </div>`
+        );
+        contenu.querySelectorAll('[data-tout]').forEach((b) =>
+          b.addEventListener('click', () => contenu.querySelectorAll('.courses-liste input').forEach((c) => (c.checked = b.dataset.tout === '1')))
+        );
+        const bouton = contenu.querySelector('.courses-ajouter');
+        if (!bouton) return;
+        bouton.addEventListener('click', () => {
+          const message = contenu.querySelector('.courses-message');
+          const coches = [...contenu.querySelectorAll('.courses-liste input:checked')].map((c) => textes[Number(c.value)]);
+          if (!coches.length) {
+            message.textContent = 'Cochez d\'abord les ingrédients à ajouter.';
+            return;
+          }
+          const cible = contenu.querySelector('.courses-cible');
+          const liste = cible ? listes.find((l) => l.id === cible.value) : listes[0];
+          const ajoutes = Nidoo.grilleApp.ajouterALaListe(liste.id, coches);
+          const deja = coches.length - ajoutes;
+          message.textContent = '✅ ' + ajoutes + ' ingrédient' + (ajoutes > 1 ? 's' : '') + ' ajouté' + (ajoutes > 1 ? 's' : '')
+            + ' à « ' + liste.titre + ' »' + (deja ? ' (' + deja + ' déjà dans la liste)' : '') + '.';
+          contenu.querySelectorAll('.courses-liste input:checked').forEach((c) => (c.checked = false));
+        });
+      }
+
       function ouvrirRecette(creneau) {
         const plat = menu.get(creneau);
         if (!plat) return;
@@ -338,6 +408,7 @@
           semaine = Number(nav.dataset.semaine);
           return dessiner();
         }
+        if (e.target.closest('.menu-courses, .menu-courses-icone')) return ouvrirCourses();
         if (e.target.closest('.menu-tout-changer')) {
           const lundi = cleJour(plusJours(lundiDe(new Date()), 7 * semaine));
           const changes = Object.fromEntries(

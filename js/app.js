@@ -1013,6 +1013,36 @@
     },
     minuteurEnCours: () => etat.widgets.some((w) => w.type === 'minuteur' && w.donnees && w.donnees.fin != null),
 
+    // Les listes des widgets Liste (des deux grilles) : [{ id, titre, emoji }]
+    listes: () =>
+      Object.entries(etat.listes || {})
+        .filter(([id]) => etat.widgets.some((w) => w.type === 'liste' && w.donnees && w.donnees.liste === id))
+        .map(([id, l]) => ({ id, titre: l.titre || '', emoji: l.emoji || '' })),
+
+    // Ajoute des éléments à une liste (sans doublon) et redessine ses widgets. Renvoie le nombre ajouté.
+    ajouterALaListe(id, textes) {
+      const liste = etat.listes[id];
+      if (!liste) return 0;
+      const elements = [...(liste.elements || [])];
+      const deja = new Set(elements.map((e) => e.texte.trim().toLowerCase()));
+      let ordre = Math.max(-1, ...elements.map((e, i) => (typeof e.ordre === 'number' ? e.ordre : i)));
+      let ajoutes = 0;
+      textes.forEach((texte) => {
+        const t = texte.trim();
+        if (!t || deja.has(t.toLowerCase())) return;
+        deja.add(t.toLowerCase());
+        elements.push({ id: 'e' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), texte: t, qui: '', echeance: '', ordre: ++ordre, maj: Date.now() });
+        ajoutes++;
+      });
+      if (!ajoutes) return 0;
+      etat.listes[id] = { ...liste, elements, maj: Date.now() };
+      sauvegarder();
+      widgetsAffiches()
+        .filter((w) => w.type === 'liste' && w.donnees && w.donnees.liste === id)
+        .forEach((w) => grille.querySelector('.widget[data-id="' + w.id + '"]') && redessinerEnGardantSaisie(w.id));
+      return ajoutes;
+    },
+
     // Partage entre appareils : une copie de l'état, et deux façons de le changer.
     etat: () => JSON.parse(JSON.stringify({ widgets: etat.widgets, supprimes: etat.supprimes, famille: etat.famille || null, listes: etat.listes })),
     appliquer: appliquerEtat,
