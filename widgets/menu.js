@@ -27,6 +27,51 @@
     etapes: etapes.split(/\s*\|\s*/),
   }));
 
+  /* ---- Quantités selon le nombre de personnes ----------------------------- */
+
+  // Les recettes sont écrites pour 4 portions. Réglage "personnes" : 3, 2,5… (un enfant ≈ une demi-portion).
+  const PORTIONS_RECETTES = 4;
+  const nombrePersonnes = (d) => {
+    const n = parseFloat(String(d.personnes || '').replace(',', '.'));
+    return n > 0 && n <= 20 ? n : PORTIONS_RECETTES;
+  };
+  const enTexte = (n) => String(Math.round(n * 10) / 10).replace('.', ',');
+
+  /*
+   * Une ligne d'ingrédient pour `personnes` portions :
+   * « 350 g de pâtes » → « 260 g de pâtes » (pour 3), « 8 œufs » → « 6 œufs »,
+   * « 1/2 concombre » reste « 1/2 concombre ». Sans nombre (« parmesan ») : inchangée.
+   */
+  function ajuster(ingredient, personnes) {
+    const m = ingredient.match(/^(\d+(?:[.,]\d+)?|\d+\/\d+)\s+(.*)$/);
+    if (!m || personnes === PORTIONS_RECETTES) return ingredient;
+    const [haut, bas] = m[1].split('/');
+    const valeur = bas ? Number(haut) / Number(bas) : parseFloat(m[1].replace(',', '.'));
+    let n = (valeur * personnes) / PORTIONS_RECETTES;
+    let reste = m[2];
+    const unite = reste.match(/^(kg|g|l|cl|ml)\s/);
+    if (unite) {
+      let u = unite[1];
+      reste = reste.slice(u.length);
+      if (u === 'kg' && n < 1) (n *= 1000), (u = 'g');
+      if (u === 'l' && n < 1) (n *= 100), (u = 'cl');
+      if (u === 'g') n = n < 100 ? Math.max(5, Math.round(n / 5) * 5) : Math.round(n / 10) * 10;
+      else if (u === 'cl') n = Math.max(5, Math.round(n / 5) * 5);
+      else n = Math.round(n * 10) / 10;
+      return enTexte(n) + ' ' + u + reste;
+    }
+    if (/^c\. à [sc]\./.test(reste)) return enTexte(Math.max(0.5, Math.round(n * 2) / 2)) + ' ' + reste;
+    if (n < 0.75) return '1/2 ' + reste;
+    const entier = Math.max(1, Math.round(n));
+    // Accord : « 1 boîtes de thon » → « 1 boîte », « 2 grand paquet de chips » → « 2 grands paquets ».
+    const [nom, ...suite] = reste.split(/(?=\s(?:de|d'|à|au|aux)\s|\s(?:de|d')\S|\s\()/);
+    let mots = nom.split(' ');
+    if (entier === 1 && valeur > 1) mots = mots.map((m) => m.replace(/s$/, ''));
+    if (entier > 1 && valeur <= 1) mots = mots.map((m) => (/[sx]$/.test(m) ? m : m + 's'));
+    return entier + ' ' + mots.join(' ') + suite.join('');
+  }
+  const ingredientsPour = (plat, d) => plat.ingredients.map((i) => ajuster(i, nombrePersonnes(d)));
+
   // Part de chaque type de plat dans la semaine (repères habituels pour une famille).
   const PARTS = { poisson: 0.25, volaille: 0.18, legumineuses: 0.13, oeufs: 0.12, vege: 0.12, viande: 0.12, porc: 0.08 };
 
@@ -202,7 +247,7 @@
     icone: '🍽️',
     tailles: ['moyen', 'grand', 'haut3', 'haut4'],
     tailleParDefaut: 'haut3',
-    donneesParDefaut: { repas: 'soir-weekend', interdits: [], graines: {}, changes: {} },
+    donneesParDefaut: { repas: 'soir-weekend', personnes: '4', interdits: [], graines: {}, changes: {} },
     reglages: [
       {
         cle: 'repas',
@@ -213,6 +258,14 @@
           { valeur: 'soir', libelle: 'Le soir seulement' },
           { valeur: 'tous', libelle: 'Midi et soir, tous les jours' },
         ],
+      },
+      {
+        cle: 'personnes',
+        libelle: 'Nombre de personnes',
+        type: 'texte',
+        exemple: 'Ex. 3',
+        aide: 'En portions : un enfant mange à peu près une demi-portion (2 adultes + 2 enfants ≈ 3). '
+          + 'Les quantités des recettes et de la liste de courses sont ajustées.',
       },
       {
         cle: 'interdits',
@@ -320,19 +373,25 @@
        * liste nommée « Courses » (ou « Course »).
        */
       function ouvrirCourses() {
+        // Un même ingrédient dans plusieurs recettes : les quantités s'additionnent
+        // (« 300 g de poulet » + « 300 g de poulet » → « 600 g de poulet (2 recettes) »).
         const compte = new Map();
         [...menu.values()].forEach((plat) =>
-          plat.ingredients.forEach((i) => {
-            const cle = i.trim().toLowerCase();
+          ingredientsPour(plat, d()).forEach((i) => {
+            const m = i.trim().match(/^(\d+(?:,\d+)?)\s+(.*)$/);
+            const quantite = m ? parseFloat(m[1].replace(',', '.')) : null;
+            const reste = m ? m[2] : i.trim();
+            const cle = (m ? '#' : '') + reste.toLowerCase();
             const deja = compte.get(cle);
-            compte.set(cle, { texte: deja ? deja.texte : i.trim(), nombre: deja ? deja.nombre + 1 : 1 });
+            compte.set(cle, { reste, quantite: deja ? (deja.quantite || 0) + (quantite || 0) : quantite, nombre: deja ? deja.nombre + 1 : 1 });
           })
         );
+        compte.forEach((c) => (c.texte = (c.quantite !== null ? enTexte(c.quantite) + ' ' : '') + c.reste));
         // Tri par aliment (sans la quantité du début) : « 400 g de pâtes » → « pâtes ».
         const sansQuantite = (t) => simplifier(t).trim()
           .replace(/^(\d+ )*(\d+|un|une|quelques|1 2)( (g|kg|cl|l|ml|c a s|c a c|boites?|grandes?|petites?|tranches?|pots?|paquets?|cubes?|boules?|pains?|gousses?|morceaux?|feuilles?))* ?(de |d |des )?/, '');
         const ingredients = [...compte.values()].sort((a, b) => sansQuantite(a.texte).localeCompare(sansQuantite(b.texte)));
-        const textes = ingredients.map((i) => i.texte + (i.nombre > 1 ? ' (×' + i.nombre + ')' : ''));
+        const textes = ingredients.map((i) => i.texte + (i.nombre > 1 ? ' (' + i.nombre + ' recettes)' : ''));
 
         const nomListe = (t) => simplifier(t).trim();
         const listes = (Nidoo.grilleApp ? Nidoo.grilleApp.listes() : [])
@@ -389,9 +448,9 @@
           plat.emoji + ' ' + plat.nom,
           `<div class="recette">
              <p class="recette-infos">${majuscule(NOMS_JOURS[date.getDay()])} ${date.getDate()} · ${repas === 'midi' ? 'midi' : 'soir'}
-               · ⏱️ ${plat.minutes} min · pour 4</p>
+               · ⏱️ ${plat.minutes} min · pour ${enTexte(nombrePersonnes(d()))} personne${nombrePersonnes(d()) > 1 ? 's' : ''}</p>
              <h3>Ingrédients</h3>
-             <ul class="recette-ingredients">${plat.ingredients.map((i) => `<li>${Nidoo.echapper(i)}</li>`).join('')}</ul>
+             <ul class="recette-ingredients">${ingredientsPour(plat, d()).map((i) => `<li>${Nidoo.echapper(i)}</li>`).join('')}</ul>
              <h3>Préparation</h3>
              <ol class="recette-etapes">${plat.etapes.map((e) => `<li>${Nidoo.echapper(e)}</li>`).join('')}</ol>
              <button class="bouton recette-autre" type="button">↻ Une autre recette</button>
@@ -432,5 +491,5 @@
 
   // Pour les tests et pour bricoler (console du navigateur) :
   //   Nidoo.menu.semaine(new Date(), { repas: 'tous', interdits: ['porc'] })
-  Nidoo.menu = { PLATS, interdit, semaine: (date, d) => menuFinal(lundiDe(date), d) };
+  Nidoo.menu = { PLATS, interdit, ajuster, semaine: (date, d) => menuFinal(lundiDe(date), d) };
 })();
