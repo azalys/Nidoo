@@ -1,0 +1,8 @@
+# Nidoo : tout le site peut être exploré (moteurs de recherche et assistants IA).
+# api.php et banque.php ne servent qu'à l'application.
+User-agent: *
+Allow: /
+Disallow: /api.php
+Disallow: /banque.php
+
+Sitemap: https://nidoo.latanieregeek.com/sitemap.xml

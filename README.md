@@ -86,6 +86,13 @@ Les sites d'agendas acceptés sont listés en haut de `api.php`.
 Les données sont enregistrées dans le navigateur (`localStorage`) :
 elles restent sur cet appareil uniquement.
 
+## Page de présentation
+
+`landing/index.html` (en ligne sur https://nidoo.latanieregeek.com/landing/) : la page à partager
+(réseaux sociaux, moteurs de recherche, assistants IA). HTML et CSS seulement, sans JavaScript.
+Les captures de `landing/images/` montrent une famille fictive (aucune donnée réelle).
+À la racine : `robots.txt`, `sitemap.xml` et `llms.txt` (résumé de Nidoo pour les assistants IA).
+
 ## Organisation des fichiers
 
 ```

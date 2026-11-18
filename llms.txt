@@ -1,0 +1,45 @@
+# Nidoo
+
+> Nidoo est un écran familial gratuit pour tablette (iPad, Android) : une grille de widgets que chaque famille compose elle-même, avec un côté enfant coloré et un côté parents sobre. Fonctionne dans le navigateur, sans compte, sans publicité. 100 % gratuit pour l'instant ; certains widgets pourraient devenir payants plus tard.
+
+- Présentation complète : https://nidoo.latanieregeek.com/landing/
+- Application : https://nidoo.latanieregeek.com/
+
+## Ce que fait Nidoo
+
+- Grille de widgets qu'on ajoute, déplace et redimensionne (de 1×1 à 4×2), comme les applications d'un iPad.
+- Deux côtés avec chacun sa grille : enfant (couleurs vives, police ronde) et parents (fond blanc, typographie fine). Une Liste ou des Échéances peuvent être partagées entre les deux côtés si on le souhaite.
+- Synchronisation entre appareils avec un code de 4 caractères valable 10 minutes (tablette du salon et téléphones des parents).
+- Mode nuit (écran noir avec l'heure), affichage simplifié sur téléphone.
+- Données enregistrées dans le navigateur ; sur le serveur de Nidoo seulement si on relie des appareils (accessibles avec la clé secrète de la famille).
+
+## Les 21 widgets
+
+- Agenda : rendez-vous des 7 prochains jours depuis Google Agenda, iCloud ou Outlook (adresse iCal).
+- Emploi du temps : cours du jour le matin, du lendemain à partir de midi ; semaines A et B.
+- Routine : routine du matin puis du soir, étapes à cocher avec emojis.
+- Minuteur : minuteur de cuisine, sonnerie, empêche la mise en veille.
+- Horloge : l'heure et la date en grand.
+- Liste : courses, choses à faire ; qui et pour quand ; réorganisation par glisser.
+- Échéances : contrôle technique, assurance, passeports, avec alerte avant la date.
+- Note : bloc-notes.
+- Menu de la semaine : menus équilibrés composés parmi 150 recettes de 15 minutes pour les enfants, recettes, aliments à éviter, nombre de personnes, ajout des ingrédients à la liste de courses.
+- Récompenses : tableau à gommettes (étoiles jusqu'à une récompense).
+- Humeurs : l'humeur du jour de chaque enfant.
+- Corvées : qui s'en occupe aujourd'hui et demain.
+- Compte à rebours : jours (ou dodos) avant un événement.
+- Poubelles : quelle poubelle sortir ce soir.
+- Tempo EDF : couleur du jour et du lendemain, heures creuses.
+- Anniversaires : prochains anniversaires et âge, depuis les agendas ou saisis.
+- Urgences : 15, 18, 17, 112, numéros des parents et adresse.
+- Météo : aujourd'hui et demain, détail heure par heure (Open-Meteo).
+- Pollen et air : qualité de l'air et pollen.
+- Trafic : temps de trajet avec bouchons (clé TomTom gratuite).
+- Carburants : station la moins chère autour de chez soi (prix publiés par l'État).
+
+## Démarrer
+
+1. Ouvrir https://nidoo.latanieregeek.com/ sur la tablette.
+2. « Modifier », puis « + Ajouter » pour ajouter des widgets ; ⚙️ pour les régler.
+3. iPad : Partager > « Sur l'écran d'accueil » ; Android : menu > « Ajouter à l'écran d'accueil ».
+4. Pour relier un autre appareil : « Modifier » > ⚙️ « Appareil » > « Afficher un code ».
