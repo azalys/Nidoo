@@ -66,7 +66,7 @@
                   ? `<span class="recomp-etoiles" style="--n:${objectif}" aria-label="${n} étoiles sur ${objectif}">${
                       Array.from({ length: objectif }, (_, i) =>
                         `<span class="recomp-etoile${i < n ? ' pleine' : ''}${anime === e.nom && i === n - 1 ? ' nouvelle' : ''}">★</span>`).join('')}</span>`
-                  : `<span class="recomp-barre"><span style="width:${(100 * n) / objectif}%"></span></span><span class="recomp-nombre">${n} / ${objectif}</span>`;
+                  : `<span class="recomp-progres"><span class="recomp-barre"><span style="width:${(100 * n) / objectif}%"></span></span><span class="recomp-nombre">${n} / ${objectif}</span></span>`;
                 return `<li class="recomp">
                     <span class="recomp-nom" title="${Nidoo.echapper(recompense)}">${nom}</span>
                     <button class="recomp-moins" data-nom="${nom}" type="button" aria-label="Retirer une étoile à ${nom}" ${n === 0 ? 'disabled' : ''}>−</button>

@@ -2059,3 +2059,35 @@ html[data-style="adulte"] .humeur-point { stroke: var(--texte); }
 }
 .recompenses .widget-entete > span:first-child { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .recompenses .widget-entete .compteur { flex: none; white-space: nowrap; }
+
+/* Récompenses : le prénom au-dessus, puis « − ★★★★★ + » sur toute la largeur
+   (2 prénoms tiennent dans un 1×2). */
+.recomp-liste { display: flex; flex-direction: column; gap: 4px; }
+.recomp:not(.recomp-gagne) {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  grid-template-areas: "nom nom nom" "moins etoiles plus";
+  align-items: center;
+  column-gap: 6px;
+  row-gap: 2px;
+  padding: 2px 2px;
+}
+.recomp:not(.recomp-gagne) .recomp-nom { grid-area: nom; max-width: none; font-size: 0.9rem; opacity: 0.9; }
+.recomp-moins { grid-area: moins; }
+.recomp:not(.recomp-gagne) .recomp-etoiles { grid-area: etoiles; }
+.recomp-progres { grid-area: etoiles; display: flex; align-items: center; gap: 8px; min-width: 0; }
+.recomp-plus { grid-area: plus; }
+.recomp-plus { width: 44px; height: 44px; font-size: 1.6rem; }
+.recomp-moins { width: 44px; height: 44px; font-size: 1.4rem; opacity: 0.9; }
+.recomp-etoile { font-size: min(2rem, calc(100cqw / var(--n, 10) * 0.95)); }
+/* En 1×2 (une seule ligne de haut) : tout se resserre pour que 2 prénoms tiennent. */
+.taille-moyen .recompenses .widget-entete { padding: 6px 14px 0; font-size: 1rem; }
+.taille-moyen .recomp-liste { gap: 0; padding-bottom: 0; margin-bottom: 4px; }
+.taille-moyen .recomp:not(.recomp-gagne) { padding: 0 2px; row-gap: 0; }
+.taille-moyen .recomp:not(.recomp-gagne) .recomp-nom { font-size: 0.8rem; line-height: 1.1; }
+.taille-moyen .recomp-plus, .taille-moyen .recomp-moins { width: 34px; height: 34px; font-size: 1.25rem; }
+.taille-moyen .recomp-gagne { padding: 4px 8px; margin: 2px 0; }
+.taille-moyen .recomp-gagne { flex-wrap: nowrap; gap: 8px; }
+.taille-moyen .recomp-gagne .recomp-nom { font-size: 0.85rem; }
+.taille-moyen .recomp-bravo { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.85rem; }
+.taille-moyen .recomp-donne { flex: none; padding: 4px 10px; font-size: 0.8rem; }
