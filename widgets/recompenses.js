@@ -63,14 +63,14 @@
                 }
                 // Jusqu'à 10 : une étoile par case ; au-delà : une barre et « 7 / 15 ».
                 const progression = objectif <= 10
-                  ? `<span class="recomp-etoiles" aria-label="${n} étoiles sur ${objectif}">${
+                  ? `<span class="recomp-etoiles" style="--n:${objectif}" aria-label="${n} étoiles sur ${objectif}">${
                       Array.from({ length: objectif }, (_, i) =>
                         `<span class="recomp-etoile${i < n ? ' pleine' : ''}${anime === e.nom && i === n - 1 ? ' nouvelle' : ''}">★</span>`).join('')}</span>`
                   : `<span class="recomp-barre"><span style="width:${(100 * n) / objectif}%"></span></span><span class="recomp-nombre">${n} / ${objectif}</span>`;
                 return `<li class="recomp">
                     <span class="recomp-nom" title="${Nidoo.echapper(recompense)}">${nom}</span>
-                    ${progression}
                     <button class="recomp-moins" data-nom="${nom}" type="button" aria-label="Retirer une étoile à ${nom}" ${n === 0 ? 'disabled' : ''}>−</button>
+                    ${progression}
                     <button class="recomp-plus" data-nom="${nom}" type="button" aria-label="Donner une étoile à ${nom}">+</button>
                   </li>`;
               }).join('')}
