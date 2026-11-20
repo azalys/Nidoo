@@ -1918,7 +1918,14 @@ html[data-style="adulte"] .recomp-etoile.pleine svg { fill: #e09b00; }
   background: rgb(var(--voile) / calc(0.4 * var(--voile-force)));
 }
 .recomp-bravo { flex: 1; min-width: 0; line-height: 1.25; }
-.recomp-donne { flex: 1 0 100%; padding: 6px 12px; font-size: 0.95rem; color: #2b2240; }
+.recomp-donne { flex: 1 0 100%; padding: 6px 12px; font-size: 0.95rem; }
+/* Toujours blanc avec un texte foncé (le mode sombre donne aux boutons un fond foncé). */
+.recomp-donne, html[data-style="adulte"] .recomp-donne {
+  background: #fff;
+  color: #2b2240;
+  border: 0;
+  box-shadow: 0 3px 0 rgba(0, 0, 0, 0.18);
+}
 .recomp-gagne .recomp-nom { max-width: none; }
 .taille-moyen .recomp { padding: 2px 2px; }
 .taille-moyen .recomp-plus { width: 30px; height: 30px; font-size: 1.15rem; }
@@ -2100,3 +2107,42 @@ html[data-style="adulte"] .humeur-point { stroke: var(--texte); }
 .taille-moyen .recomp-gagne .recomp-nom { font-size: 0.85rem; }
 .taille-moyen .recomp-bravo { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 0.85rem; }
 .taille-moyen .recomp-donne { flex: none; padding: 4px 10px; font-size: 0.8rem; }
+
+/* Récompense gagnée : même forme que les autres lignes. Le prénom au-dessus, puis
+   « 🎉 la récompense » et « C'est donné ✓ » à la place des étoiles. */
+.recomp.recomp-gagne {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas: "nom nom" "bravo donne";
+  align-items: center;
+  column-gap: 8px;
+  row-gap: 2px;
+  margin: 0;
+  padding: 2px 2px;
+  background: none;
+}
+.recomp.recomp-gagne .recomp-nom { grid-area: nom; max-width: none; font-size: 0.9rem; opacity: 0.9; }
+.recomp.recomp-gagne .recomp-bravo {
+  grid-area: bravo;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 1.05rem;
+  line-height: 44px;   /* même hauteur que la ligne d'étoiles */
+}
+.recomp.recomp-gagne .recomp-donne { grid-area: donne; flex: none; padding: 8px 14px; font-size: 0.9rem; }
+.taille-moyen .recomp.recomp-gagne { padding: 0 2px; row-gap: 0; }
+.taille-moyen .recomp.recomp-gagne .recomp-nom { font-size: 0.8rem; line-height: 1.1; }
+.taille-moyen .recomp.recomp-gagne .recomp-bravo { font-size: 0.9rem; line-height: 34px; }
+.taille-moyen .recomp.recomp-gagne .recomp-donne { padding: 5px 10px; font-size: 0.8rem; }
+/* Hors 1×2 : une récompense longue peut tenir sur 2 lignes au lieu d'être coupée. */
+.recomp.recomp-gagne:not(.taille-moyen *) .recomp-bravo {
+  white-space: normal;
+  line-height: 1.2;
+  min-height: 44px;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  align-content: center;
+}

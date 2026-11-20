@@ -3,7 +3,7 @@
  *
  * Chaque enfant a sa ligne d'étoiles. « + » lui en donne une (rangement, devoirs…),
  * « − » en retire une (en cas d'erreur). Arrivé à l'objectif, il a gagné : on lui donne
- * sa récompense, on touche « C'est donné ✓ » et ses étoiles repartent à zéro.
+ * sa récompense, on touche « Donné ✓ » et ses étoiles repartent à zéro.
  *
  * Réglages (⚙️) : les enfants (un par ligne, avec sa récompense si on veut :
  * « Léa : 🍦 Sortie glace »), le nombre d'étoiles à gagner, la récompense par défaut.
@@ -60,8 +60,8 @@
                 if (n >= objectif) {
                   return `<li class="recomp recomp-gagne">
                       <span class="recomp-nom">${nom}</span>
-                      <span class="recomp-bravo">🎉 Gagné : ${Nidoo.echapper(recompense)}</span>
-                      <button class="bouton recomp-donne" data-nom="${nom}" type="button">C'est donné ✓</button>
+                      <span class="recomp-bravo"><span class="visuellement-cache">a gagné : </span>🎉 ${Nidoo.echapper(recompense)}</span>
+                      <button class="bouton recomp-donne" data-nom="${nom}" type="button" aria-label="${nom} : récompense donnée, repartir à zéro">Donné ✓</button>
                     </li>`;
                 }
                 // Jusqu'à 10 : une étoile par case ; au-delà : une barre et « 7 / 15 ».
