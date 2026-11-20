@@ -18,6 +18,9 @@
     return { nom: nom.trim(), recompense: reste.join(' : ').trim() };
   }
 
+  // Une étoile dessinée (pleine, sans contour) : elle prend toute la place de sa case.
+  const ETOILE = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 1.6l3.1 6.5 7.1.9-5.2 4.9 1.3 7.1L12 17.6 5.7 21l1.3-7.1L1.8 9l7.1-.9z" stroke-linejoin="round"/></svg>';
+
   const objectifDe = (d) => Math.min(50, Math.max(1, parseInt(d.objectif, 10) || 10));
 
   Nidoo.declarerWidget({
@@ -63,9 +66,9 @@
                 }
                 // Jusqu'à 10 : une étoile par case ; au-delà : une barre et « 7 / 15 ».
                 const progression = objectif <= 10
-                  ? `<span class="recomp-etoiles" style="--n:${objectif}" aria-label="${n} étoiles sur ${objectif}">${
+                  ? `<span class="recomp-etoiles" style="--n:${objectif};--c:${objectif > 6 ? Math.ceil(objectif / 2) : objectif}" aria-label="${n} étoiles sur ${objectif}">${
                       Array.from({ length: objectif }, (_, i) =>
-                        `<span class="recomp-etoile${i < n ? ' pleine' : ''}${anime === e.nom && i === n - 1 ? ' nouvelle' : ''}">★</span>`).join('')}</span>`
+                        `<span class="recomp-etoile${i < n ? ' pleine' : ''}${anime === e.nom && i === n - 1 ? ' nouvelle' : ''}">${ETOILE}</span>`).join('')}</span>`
                   : `<span class="recomp-progres"><span class="recomp-barre"><span style="width:${(100 * n) / objectif}%"></span></span><span class="recomp-nombre">${n} / ${objectif}</span></span>`;
                 return `<li class="recomp">
                     <span class="recomp-nom" title="${Nidoo.echapper(recompense)}">${nom}</span>

@@ -1867,9 +1867,19 @@ html[data-style="adulte"] .banque-nom { font-weight: 600; letter-spacing: 0.12em
 /* Les étoiles se partagent la place entre − et + : leur taille dépend de la largeur
    disponible et de leur nombre (--n), pour ne jamais passer sous les boutons. */
 .recomp-etoiles { flex: 1; min-width: 0; container-type: inline-size; display: flex; line-height: 1; }
-.recomp-etoile { flex: 1 1 0; min-width: 0; text-align: center; font-size: min(1.7rem, calc(100cqw / var(--n, 10) * 0.82)); }
-.recomp-etoile { opacity: 0.22; }
-.recomp-etoile.pleine { opacity: 1; color: #ffc300; -webkit-text-stroke: 1px rgba(0, 0, 0, 0.35); }
+/* Étoiles dessinées : chacune occupe sa part de la largeur (jusqu'à 44 px), sans contour. */
+/* Plus de 6 étoiles : deux rangées (ex. 5 + 5), pour des étoiles deux fois plus grandes.
+   En 1×2 (une ligne de haut), une seule rangée. */
+.recomp-etoiles { display: grid; grid-template-columns: repeat(var(--c, 10), minmax(0, 1fr)); gap: 3px 2px; align-items: center; }
+.taille-moyen .recomp-etoiles { grid-template-columns: repeat(var(--n, 10), minmax(0, 1fr)); }
+.recomp-etoile { min-width: 0; display: flex; justify-content: center; }
+.recomp-etoile svg { width: 100%; max-width: 38px; height: auto; display: block; fill: currentColor; opacity: 0.25; }
+.recomp-etoile.pleine svg { fill: #ffc300; opacity: 1; }
+/* Sur un widget jaune ou orange, l'étoile dorée ne se verrait pas : elle prend la couleur du texte. */
+.widget[data-couleur="soleil"] .recomp-etoile.pleine svg,
+.widget[data-couleur="orange"] .recomp-etoile.pleine svg { fill: var(--w-texte); }
+html[data-style="adulte"] .recomp-etoile.pleine svg { fill: #e09b00; }
+.taille-moyen .recomp-etoile svg { max-width: 30px; }
 .recomp-etoile.nouvelle { animation: etoile-gagnee 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
 @keyframes etoile-gagnee { from { transform: scale(2.2) rotate(-30deg); } to { transform: none; } }
 .recomp-barre {
@@ -2079,7 +2089,6 @@ html[data-style="adulte"] .humeur-point { stroke: var(--texte); }
 .recomp-plus { grid-area: plus; }
 .recomp-plus { width: 44px; height: 44px; font-size: 1.6rem; }
 .recomp-moins { width: 44px; height: 44px; font-size: 1.4rem; opacity: 0.9; }
-.recomp-etoile { font-size: min(2rem, calc(100cqw / var(--n, 10) * 0.95)); }
 /* En 1×2 (une seule ligne de haut) : tout se resserre pour que 2 prénoms tiennent. */
 .taille-moyen .recompenses .widget-entete { padding: 6px 14px 0; font-size: 1rem; }
 .taille-moyen .recomp-liste { gap: 0; padding-bottom: 0; margin-bottom: 4px; }

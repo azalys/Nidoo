@@ -67,6 +67,7 @@
     caseWidget.style.setProperty('--w-fond', c.fond);
     caseWidget.style.setProperty('--w-ombre', c.ombre);
     caseWidget.style.setProperty('--w-texte', c.texte);
+    caseWidget.dataset.couleur = couleur; // pour les styles qui dépendent de la couleur (ex. étoiles sur fond jaune)
   }
 
   // Les widgets enregistrés avant l'arrivée des couleurs en reçoivent une.
