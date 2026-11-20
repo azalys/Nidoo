@@ -4,6 +4,8 @@
 
 - Présentation complète : https://nidoo.latanieregeek.com/landing/
 - Application : https://nidoo.latanieregeek.com/
+- Documentation (chaque widget et ses réglages) : https://nidoo.latanieregeek.com/doc/
+- Aide (questions fréquentes, contact) : https://nidoo.latanieregeek.com/help/
 
 ## Ce que fait Nidoo
 

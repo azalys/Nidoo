@@ -91,6 +91,9 @@ elles restent sur cet appareil uniquement.
 `landing/index.html` (en ligne sur https://nidoo.latanieregeek.com/landing/) : la page à partager
 (réseaux sociaux, moteurs de recherche, assistants IA). HTML et CSS (seul script : Google Tag Manager, aussi présent dans l'application).
 Les captures de `landing/images/` montrent une famille fictive (aucune donnée réelle).
+`doc/index.html` (https://nidoo.latanieregeek.com/doc/) : la documentation de chaque widget et de ses réglages ;
+`help/index.html` (https://nidoo.latanieregeek.com/help/) : les questions fréquentes et le contact.
+À mettre à jour quand un widget change.
 À la racine : `robots.txt`, `sitemap.xml` et `llms.txt` (résumé de Nidoo pour les assistants IA).
 
 ## Organisation des fichiers

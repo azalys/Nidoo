@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Google Tag Manager -->
+  <script async src="https://www.googletagmanager.com/gtm.js?id=GTM-T9W3R7LS"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  </script>
+  <title>Aide Nidoo : questions fréquentes</title>
+  <meta name="description" content="Les réponses aux questions fréquentes sur Nidoo, l'écran familial pour tablette : installation, widgets, synchronisation entre appareils, données. Et un contact si vous ne trouvez pas votre réponse.">
+  <link rel="canonical" href="https://nidoo.latanieregeek.com/help/">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#fbf7f0" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#16142a" media="(prefers-color-scheme: dark)">
+  <meta name="color-scheme" content="light dark">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:site_name" content="Nidoo">
+  <meta property="og:title" content="Aide Nidoo : questions fréquentes">
+  <meta property="og:description" content="Installation, widgets, synchronisation, données : les réponses aux questions fréquentes sur Nidoo.">
+  <meta property="og:url" content="https://nidoo.latanieregeek.com/help/">
+  <meta property="og:image" content="https://nidoo.latanieregeek.com/landing/images/nidoo-partage.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/png" sizes="48x48" href="../landing/images/nidoo-icone-48.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../landing/images/nidoo-icone-180.png">
+  <link rel="preload" href="../landing/polices/bricolage.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="../landing/polices/atkinson-400.woff2" as="font" type="font/woff2" crossorigin>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "inLanguage": "fr",
+    "url": "https://nidoo.latanieregeek.com/help/",
+    "mainEntity": [
+      { "@type": "Question", "name": "Faut-il créer un compte pour utiliser Nidoo ?", "acceptedAnswer": { "@type": "Answer", "text": "Non. On ouvre nidoo.latanieregeek.com dans le navigateur et on commence, sans e-mail ni mot de passe." } },
+      { "@type": "Question", "name": "Nidoo est-il gratuit ?", "acceptedAnswer": { "@type": "Answer", "text": "Oui : pour l'instant, tout est 100 % gratuit et sans publicité. Certains widgets pourraient devenir payants plus tard. Seul le widget Trafic demande une clé TomTom, elle aussi gratuite." } },
+      { "@type": "Question", "name": "Comment installer Nidoo comme une application sur iPad ou Android ?", "acceptedAnswer": { "@type": "Answer", "text": "Sur iPad ou iPhone : dans Safari, bouton Partager, puis Sur l'écran d'accueil. Sur Android : dans Chrome, menu, puis Ajouter à l'écran d'accueil. Nidoo s'ouvre alors en plein écran." } },
+      { "@type": "Question", "name": "Comment relier la tablette et les téléphones ?", "acceptedAnswer": { "@type": "Answer", "text": "Sur un appareil : Modifier, puis Appareil, puis Afficher un code (4 caractères, valable 10 minutes). Sur l'autre appareil : Modifier, Appareil, taper le code, puis Relier." } },
+      { "@type": "Question", "name": "Comment afficher mon agenda Google dans Nidoo ?", "acceptedAnswer": { "@type": "Answer", "text": "Dans Google Agenda sur ordinateur : Paramètres, l'agenda, Intégrer l'agenda, puis copier l'Adresse secrète au format iCal et la coller dans les réglages du widget Agenda." } },
+      { "@type": "Question", "name": "Où sont gardées mes données ?", "acceptedAnswer": { "@type": "Answer", "text": "Dans le navigateur de l'appareil. Si vous reliez plusieurs appareils, la grille est aussi enregistrée sur le serveur de Nidoo, dans un fichier accessible uniquement avec la clé secrète de votre famille." } }
+    ]
+  }
+  </script>
+
+  <style>
+    @font-face { font-family: "Bricolage Grotesque"; font-style: normal; font-weight: 500 800; font-display: swap; src: url(../landing/polices/bricolage.woff2) format("woff2"); }
+    @font-face { font-family: "Atkinson Hyperlegible"; font-style: normal; font-weight: 400; font-display: swap; src: url(../landing/polices/atkinson-400.woff2) format("woff2"); }
+    @font-face { font-family: "Atkinson Hyperlegible"; font-style: normal; font-weight: 700; font-display: swap; src: url(../landing/polices/atkinson-700.woff2) format("woff2"); }
+
+    /* Mêmes couleurs que la page de présentation (landing). */
+    :root {
+      --papier: #fbf7f0; --papier-2: #f3ece0; --carte: #ffffff; --encre: #1d1b2e; --encre-douce: #4a4660;
+      --trait: #e3dacb; --braise: #b4400e; --braise-fond: #fde7d9; --sapin: #1e5b3a; --sapin-fond: #dff1e5;
+      --focus: #2457d6; --point: #e4d9c6; --rayon: 22px;
+      --titre: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+      --texte: "Atkinson Hyperlegible", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --papier: #16142a; --papier-2: #1e1b36; --carte: #232042; --encre: #f4f1ea; --encre-douce: #c9c4da;
+        --trait: #36315d; --braise: #ff9a62; --braise-fond: #3a2330; --sapin: #7fd6a0; --sapin-fond: #1d3a32;
+        --focus: #8fb0ff; --point: #2c2756;
+      }
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } *, *::before, *::after { transition: none !important; } }
+    body {
+      margin: 0; color: var(--encre); font-family: var(--texte); font-size: 1.125rem; line-height: 1.6;
+      background-color: var(--papier);
+      background-image: radial-gradient(var(--point) 1.6px, transparent 2px);
+      background-size: 26px 26px; background-position: 13px 13px;
+    }
+    a { color: inherit; text-underline-offset: 0.18em; }
+    :focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; border-radius: 6px; }
+    h1, h2 { font-family: var(--titre); line-height: 1.1; letter-spacing: -0.02em; margin: 0; }
+    .contenu { width: min(900px, 100% - 32px); margin-inline: auto; }
+    .evitement { position: absolute; left: 16px; top: -100px; z-index: 10; padding: 12px 18px; border-radius: 12px; background: var(--encre); color: var(--papier); font-weight: 700; text-decoration: none; }
+    .evitement:focus { top: 16px; }
+
+    .entete { padding-block: 14px; }
+    .entete .contenu { width: min(1180px, 100% - 32px); display: flex; align-items: center; gap: 16px; }
+    .entete .logo img { height: 52px; width: auto; display: block; }
+    .entete nav { margin-left: auto; display: flex; align-items: center; gap: 22px; }
+    .entete nav a { font-weight: 700; text-decoration: none; }
+    .entete nav a:hover { text-decoration: underline; }
+    .bouton {
+      display: inline-flex; align-items: center; justify-content: center; gap: 10px; min-height: 48px; padding: 10px 22px;
+      border-radius: 999px; background: var(--encre); color: var(--papier) !important; text-decoration: none !important;
+      font-family: var(--titre); font-weight: 700;
+    }
+    @media (max-width: 640px) { .entete nav .secondaire { display: none; } }
+
+    .ouverture { padding: clamp(32px, 6vw, 72px) 0 24px; }
+    .sur-titre { display: inline-block; margin-bottom: 12px; font-family: var(--titre); font-size: 0.95rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--braise); }
+    h1 { font-size: clamp(2.3rem, 5vw, 3.4rem); font-weight: 800; }
+    .chapeau { margin: 14px 0 0; color: var(--encre-douce); font-size: 1.2rem; max-width: 60ch; }
+    .themes { display: flex; flex-wrap: wrap; gap: 10px; margin: 26px 0 0; padding: 0; list-style: none; }
+    .themes a { display: inline-block; padding: 8px 16px; border-radius: 999px; background: var(--carte); border: 1px solid var(--trait); font-weight: 700; text-decoration: none; }
+    .themes a:hover { border-color: var(--encre); }
+
+    .theme { margin-top: 48px; scroll-margin-top: 16px; }
+    .theme h2 { font-size: clamp(1.6rem, 3vw, 2rem); font-weight: 800; margin-bottom: 8px; }
+    .questions { background: var(--carte); border: 1px solid var(--trait); border-radius: var(--rayon); padding: 4px 24px; }
+    .questions details + details { border-top: 1px solid var(--trait); }
+    .questions summary {
+      display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 18px 0; cursor: pointer; list-style: none;
+      font-family: var(--titre); font-size: 1.15rem; font-weight: 700;
+    }
+    .questions summary::-webkit-details-marker { display: none; }
+    .questions summary::after { content: "+"; flex: none; font-size: 1.7rem; font-weight: 500; line-height: 1; color: var(--braise); transition: transform 0.2s ease; }
+    .questions details[open] summary::after { transform: rotate(45deg); }
+    .reponse { padding: 0 0 20px; color: var(--encre-douce); }
+    .reponse p { margin: 0 0 10px; }
+    .reponse ol, .reponse ul { margin: 0 0 10px; padding-left: 1.3em; }
+    .reponse strong { color: var(--encre); }
+    .reponse a { font-weight: 700; color: var(--encre); }
+
+    .contact {
+      margin: 64px 0 24px; padding: clamp(28px, 4vw, 44px); border-radius: var(--rayon); text-align: center;
+      background: var(--sapin-fond);
+    }
+    .contact h2 { font-size: clamp(1.6rem, 3vw, 2.1rem); font-weight: 800; }
+    .contact p { margin: 12px auto 22px; max-width: 52ch; color: var(--encre); }
+    .contact .adresse { display: block; margin-top: 14px; font-size: 0.95rem; color: var(--encre-douce); }
+    .pied { margin-top: 48px; padding-block: 32px; border-top: 1px solid var(--trait); color: var(--encre-douce); font-size: 1rem; }
+    .pied .contenu { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
+  </style>
+</head>
+<body>
+  <a class="evitement" href="#principal">Aller au contenu</a>
+  <header class="entete">
+    <div class="contenu">
+      <a class="logo" href="../landing/">
+        <picture>
+          <source type="image/webp" srcset="../landing/images/nidoo-texte-52.webp 1x, ../landing/images/nidoo-texte-104.webp 2x">
+          <img src="../landing/images/nidoo-texte-52.png" srcset="../landing/images/nidoo-texte-52.png 1x, ../landing/images/nidoo-texte-104.png 2x" width="92" height="52" alt="Nidoo">
+        </picture>
+      </a>
+      <nav aria-label="Liens du site">
+        <a class="secondaire" href="../landing/">Présentation</a>
+        <a class="secondaire" href="../doc/">Documentation</a>
+        <a class="bouton" href="https://nidoo.latanieregeek.com/">Ouvrir Nidoo</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="principal" class="contenu">
+    <section class="ouverture" aria-labelledby="titre">
+      <span class="sur-titre">Aide</span>
+      <h1 id="titre">Comment peut-on vous aider ?</h1>
+      <p class="chapeau">Les réponses aux questions les plus fréquentes. Pour le détail de chaque widget et de ses réglages, voyez la <a href="../doc/">documentation</a>.</p>
+      <ul class="themes" aria-label="Thèmes">
+        <li><a href="#demarrer">Démarrer</a></li>
+        <li><a href="#grille">La grille</a></li>
+        <li><a href="#appareils">Plusieurs appareils</a></li>
+        <li><a href="#widgets">Les widgets</a></li>
+        <li><a href="#donnees">Données</a></li>
+        <li><a href="#contact">Nous écrire</a></li>
+      </ul>
+    </section>
+
+    <section class="theme" id="demarrer" aria-labelledby="t-demarrer">
+      <h2 id="t-demarrer">Démarrer</h2>
+      <div class="questions">
+        <details>
+          <summary>Qu'est-ce que Nidoo ?</summary>
+          <div class="reponse"><p>Un écran familial pour tablette : une grille de widgets (agenda, listes de courses, menu de la semaine, routines des enfants, météo, poubelles…) que chaque famille compose elle-même, avec un côté enfant coloré et un côté parents sobre. <a href="../landing/">Découvrir Nidoo</a>.</p></div>
+        </details>
+        <details>
+          <summary>Faut-il créer un compte ?</summary>
+          <div class="reponse"><p>Non. On ouvre <a href="https://nidoo.latanieregeek.com/">nidoo.latanieregeek.com</a> dans le navigateur et on commence, sans e-mail ni mot de passe.</p></div>
+        </details>
+        <details>
+          <summary>Nidoo est-il gratuit ?</summary>
+          <div class="reponse"><p>Oui : pour l'instant, <strong>tout est 100 % gratuit</strong> et sans publicité. Certains widgets pourraient devenir payants plus tard, c'est donc le bon moment pour en profiter. Seul le widget Trafic demande une clé TomTom, elle aussi gratuite.</p></div>
+        </details>
+        <details>
+          <summary>Sur quels appareils fonctionne Nidoo ?</summary>
+          <div class="reponse"><p>Sur tout appareil avec un navigateur récent : iPad, tablette Android, ordinateur, téléphone. Il est pensé pour une tablette posée dans la cuisine ou fixée au mur ; sur un téléphone, les widgets s'affichent l'un sous l'autre.</p></div>
+        </details>
+        <details>
+          <summary>Comment l'installer comme une application ?</summary>
+          <div class="reponse">
+            <ul>
+              <li><strong>iPad / iPhone</strong> : dans Safari, bouton Partager, puis <strong>Sur l'écran d'accueil</strong>.</li>
+              <li><strong>Android</strong> : dans Chrome, menu ⋮, puis <strong>Ajouter à l'écran d'accueil</strong>.</li>
+            </ul>
+            <p>Nidoo s'ouvre alors en plein écran, comme une application.</p>
+          </div>
+        </details>
+        <details>
+          <summary>Comment avoir la dernière version ?</summary>
+          <div class="reponse"><p>Il n'y a rien à faire : après une mise à jour, Nidoo se recharge de lui-même dans les 10 minutes. La version installée est indiquée en bas de <strong>⚙️ Appareil</strong> (mode Modifier).</p></div>
+        </details>
+      </div>
+    </section>
+
+    <section class="theme" id="grille" aria-labelledby="t-grille">
+      <h2 id="t-grille">La grille</h2>
+      <div class="questions">
+        <details>
+          <summary>Comment ajouter, déplacer ou supprimer un widget ?</summary>
+          <div class="reponse">
+            <p>Touchez <strong>Modifier</strong> (ou faites un appui long sur la grille) : les widgets tremblent.</p>
+            <ul>
+              <li><strong>+ Ajouter</strong> en haut pour en ajouter un ;</li>
+              <li>glissez un widget pour le déplacer ;</li>
+              <li><strong>×</strong> pour le supprimer, <strong>🎨</strong> pour changer sa couleur, <strong>⚙️</strong> pour le régler.</li>
+            </ul>
+            <p>Touchez <strong>Terminé</strong> (👍 sur téléphone) pour revenir à l'affichage normal.</p>
+          </div>
+        </details>
+        <details>
+          <summary>Comment changer la taille d'un widget ?</summary>
+          <div class="reponse"><p>En mode Modifier, touchez sa roue <strong>⚙️</strong> : le champ <strong>Taille</strong> propose les tailles possibles pour ce widget (1×1, 1×2, 2×2, 3×2 ou 4×2).</p></div>
+        </details>
+        <details>
+          <summary>Je n'arrive pas à déplacer les widgets sur mon téléphone</summary>
+          <div class="reponse"><p>C'est voulu : sur un téléphone, les widgets s'affichent simplement dans l'ordre, l'un sous l'autre. Rangez-les sur la tablette ou l'ordinateur.</p></div>
+        </details>
+        <details>
+          <summary>Pourquoi la disposition n'est pas la même sur la tablette et l'ordinateur ?</summary>
+          <div class="reponse"><p>La place des widgets est propre à chaque appareil (et à chaque sens, horizontal ou vertical) : ranger l'un ne dérange pas l'autre. Le contenu des widgets, lui, est bien le même partout.</p></div>
+        </details>
+        <details>
+          <summary>Quelle différence entre le côté enfant et le côté parents ?</summary>
+          <div class="reponse">
+            <p>L'interrupteur en haut à droite passe d'une version colorée pour les enfants à une version sobre pour les adultes. <strong>Chaque côté a sa propre grille</strong> de widgets.</p>
+            <p>Pour avoir la même liste des deux côtés : en ajoutant une <strong>Liste</strong> (ou des <strong>Échéances</strong>), choisissez celle qui existe déjà de l'autre côté. Les <strong>Humeurs</strong> sont toujours les mêmes des deux côtés.</p>
+          </div>
+        </details>
+        <details>
+          <summary>Comment changer le nom de la famille en haut de l'écran ?</summary>
+          <div class="reponse"><p>En mode Modifier, touchez le nom (« Famille Dupond ») et écrivez le vôtre. Il est le même sur tous les appareils reliés.</p></div>
+        </details>
+      </div>
+    </section>
+
+    <section class="theme" id="appareils" aria-labelledby="t-appareils">
+      <h2 id="t-appareils">Plusieurs appareils</h2>
+      <div class="questions">
+        <details>
+          <summary>Comment relier la tablette et les téléphones ?</summary>
+          <div class="reponse">
+            <ol>
+              <li>Sur l'appareil qui a la bonne grille : <strong>Modifier</strong>, puis <strong>⚙️ Appareil</strong>, puis <strong>Afficher un code</strong>.</li>
+              <li>Sur l'autre appareil : <strong>Modifier</strong>, <strong>⚙️ Appareil</strong>, tapez le code, puis <strong>Relier</strong>.</li>
+            </ol>
+            <p>Si les deux appareils ont déjà des widgets du même côté, Nidoo demande quelle grille garder.</p>
+          </div>
+        </details>
+        <details>
+          <summary>Le code ne fonctionne pas</summary>
+          <div class="reponse"><p>Un code est valable <strong>10 minutes</strong> : au-delà, affichez-en un nouveau. Vérifiez aussi les caractères (il n'y a jamais de 0, O, 1, I ni L, pour éviter les confusions). Après 10 essais ratés, il faut attendre quelques minutes.</p></div>
+        </details>
+        <details>
+          <summary>Combien de temps pour qu'une modification arrive sur les autres appareils ?</summary>
+          <div class="reponse"><p>Une vingtaine de secondes en général, 5 minutes quand l'appareil est en mode nuit. Il faut que les appareils soient connectés à internet.</p></div>
+        </details>
+        <details>
+          <summary>Deux personnes modifient la même chose en même temps : que se passe-t-il ?</summary>
+          <div class="reponse"><p>Pour la plupart des widgets, la modification la plus récente gagne. Pour les Listes et les Humeurs, les deux sont gardées (par exemple deux articles ajoutés en même temps aux courses).</p></div>
+        </details>
+        <details>
+          <summary>Comment arrêter la synchronisation d'un appareil ?</summary>
+          <div class="reponse"><p><strong>⚙️ Appareil</strong>, puis <strong>Délier cet appareil</strong>. Il garde sa grille mais ne se synchronise plus.</p></div>
+        </details>
+      </div>
+    </section>
+
+    <section class="theme" id="widgets" aria-labelledby="t-widgets">
+      <h2 id="t-widgets">Les widgets</h2>
+      <div class="questions">
+        <details>
+          <summary>Mon agenda Google n'apparaît pas</summary>
+          <div class="reponse">
+            <p>Le widget a besoin de l'<strong>adresse secrète au format iCal</strong> de l'agenda (l'adresse publique ne marche que si l'agenda est public) :</p>
+            <ol>
+              <li>Dans Google Agenda sur ordinateur, ⚙️ <strong>Paramètres</strong> ;</li>
+              <li>à gauche, l'agenda voulu, puis <strong>Intégrer l'agenda</strong> ;</li>
+              <li>copiez l'<strong>Adresse secrète au format iCal</strong> et collez-la dans le réglage ⚙️ du widget Agenda.</li>
+            </ol>
+            <p>Les nouveaux rendez-vous apparaissent dans les 10 minutes ; la flèche ↻ du widget les relit tout de suite. iCloud et Outlook fonctionnent aussi.</p>
+          </div>
+        </details>
+        <details>
+          <summary>Le minuteur ne sonne pas</summary>
+          <div class="reponse"><p>Les navigateurs n'autorisent le son qu'après un toucher : démarrez le minuteur avec le bouton <strong>▶</strong> (pas seulement avec +). Vérifiez aussi le volume de la tablette et, sur iPhone ou iPad, que le mode silencieux n'est pas activé.</p></div>
+        </details>
+        <details>
+          <summary>L'écran de la tablette se met en veille</summary>
+          <div class="reponse"><p>Pendant qu'un minuteur tourne, Nidoo empêche la mise en veille. Le reste du temps, c'est le réglage de la tablette qui décide : sur iPad, Réglages, Luminosité et affichage, <strong>Verrouillage automatique</strong> (« Jamais » pour une tablette au mur). Le <a href="../doc/#nuit">mode nuit</a> de Nidoo assombrit l'écran aux heures choisies.</p></div>
+        </details>
+        <details>
+          <summary>Comment gérer les semaines A et B dans l'emploi du temps ?</summary>
+          <div class="reponse"><p>Dans la ⚙️ du widget, réglez <strong>Semaines A et B</strong> avec n'importe quel jour d'une semaine A. Dans les cours, mettez <code>A:</code> ou <code>B:</code> devant ceux qui n'ont lieu qu'une semaine sur deux (ex. <code>A: 14h Piscine</code>). Tous les détails dans la <a href="../doc/#emploi-du-temps">documentation</a>.</p></div>
+        </details>
+        <details>
+          <summary>Le menu de la semaine propose des plats que nous ne mangeons pas</summary>
+          <div class="reponse"><p>Dans la ⚙️ du widget, ajoutez les <strong>aliments interdits</strong> (un par ligne : <code>champignons</code>, <code>porc</code>, <code>végétarien</code>, <code>sans gluten</code>…). Pour un seul plat, la flèche ↻ de sa ligne en tire un autre au hasard. Pour une allergie grave, vérifiez toujours les ingrédients réellement utilisés.</p></div>
+        </details>
+        <details>
+          <summary>Comment envoyer les ingrédients du menu dans ma liste de courses ?</summary>
+          <div class="reponse"><p>Il faut une Liste nommée <strong>Courses</strong>. Dans le menu, touchez 🛒, cochez les ingrédients voulus, puis <strong>Ajouter à la liste des courses</strong>. Les quantités tiennent compte du nombre de personnes réglé dans ⚙️.</p></div>
+        </details>
+        <details>
+          <summary>Un widget affiche « Pas de connexion » ou reste vide</summary>
+          <div class="reponse"><p>La météo, Tempo, le pollen, les carburants, le trafic et les agendas ont besoin d'internet. Vérifiez le Wi-Fi de la tablette ; le widget se remet à jour tout seul au retour de la connexion. Pour la météo et le pollen, vérifiez aussi l'orthographe de la ville dans ⚙️.</p></div>
+        </details>
+        <details>
+          <summary>Le widget Trafic montre un exemple</summary>
+          <div class="reponse"><p>Il lui faut une clé TomTom, gratuite : créez un compte sur developer.tomtom.com, copiez la clé (« API key ») du tableau de bord et collez-la dans la ⚙️ du widget, avec vos adresses de départ et d'arrivée.</p></div>
+        </details>
+      </div>
+    </section>
+
+    <section class="theme" id="donnees" aria-labelledby="t-donnees">
+      <h2 id="t-donnees">Données</h2>
+      <div class="questions">
+        <details>
+          <summary>Où sont gardées mes données ?</summary>
+          <div class="reponse"><p>Dans le navigateur de l'appareil. Si vous reliez plusieurs appareils, la grille est aussi enregistrée sur le serveur de Nidoo, dans un fichier accessible uniquement avec la clé secrète de votre famille. Les adresses d'agenda et la clé TomTom en font partie.</p></div>
+        </details>
+        <details>
+          <summary>Comment tout effacer ?</summary>
+          <div class="reponse">
+            <p>Sur un appareil : supprimez les widgets en mode Modifier, ou effacez les données du site dans les réglages du navigateur (sur iPad : Réglages, Safari, Avancé, Données de sites web).</p>
+            <p>Si vos appareils étaient reliés et que vous voulez aussi effacer la copie gardée sur le serveur, <a href="#contact">écrivez-nous</a>.</p>
+          </div>
+        </details>
+        <details>
+          <summary>J'ai changé de tablette : comment retrouver ma grille ?</summary>
+          <div class="reponse"><p>Si l'ancienne tablette (ou un téléphone) est toujours reliée, affichez un code dessus et reliez la nouvelle : elle reprend la grille. Sinon, il faut recomposer la grille : sans appareils reliés, les données restent dans le navigateur de l'ancien appareil.</p></div>
+        </details>
+      </div>
+    </section>
+
+    <section class="contact" id="contact" aria-labelledby="t-contact">
+      <h2 id="t-contact">Vous n'avez pas trouvé votre réponse ?</h2>
+      <p>Écrivez-nous : une question, un souci, une idée de widget, tout est bienvenu. Dites-nous sur quel appareil vous utilisez Nidoo (iPad, Android, ordinateur…), cela aide à répondre.</p>
+      <a class="bouton" href="mailto:latanieregeek@gmail.com?subject=Nidoo%20%3A%20une%20question">Nous écrire <span aria-hidden="true">→</span></a>
+      <span class="adresse">latanieregeek@gmail.com</span>
+    </section>
+  </main>
+
+  <footer class="pied">
+    <div class="contenu">
+      <p>Nidoo, l'écran de la famille. 100 % gratuit pour l'instant.</p>
+      <p><a href="../landing/">Présentation</a> · <a href="../doc/">Documentation</a> · <a href="https://nidoo.latanieregeek.com/">Ouvrir Nidoo</a></p>
+    </div>
+  </footer>
+</body>
+</html>

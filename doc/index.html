@@ -1,0 +1,765 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- Google Tag Manager -->
+  <script async src="https://www.googletagmanager.com/gtm.js?id=GTM-T9W3R7LS"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+  </script>
+  <title>Documentation Nidoo : tous les widgets et leurs réglages</title>
+  <meta name="description" content="La documentation complète de Nidoo, l'écran familial pour tablette : la grille, le côté enfant et le côté parents, la synchronisation, et chacun des 21 widgets avec ses réglages.">
+  <link rel="canonical" href="https://nidoo.latanieregeek.com/doc/">
+  <meta name="robots" content="index, follow">
+  <meta name="color-scheme" content="light dark">
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="fr_FR">
+  <meta property="og:site_name" content="Nidoo">
+  <meta property="og:title" content="Documentation Nidoo">
+  <meta property="og:description" content="Tous les widgets de Nidoo et leurs réglages, pas à pas.">
+  <meta property="og:url" content="https://nidoo.latanieregeek.com/doc/">
+  <meta property="og:image" content="https://nidoo.latanieregeek.com/landing/images/nidoo-partage.jpg">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" type="image/png" sizes="48x48" href="../landing/images/nidoo-icone-48.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../landing/images/nidoo-icone-180.png">
+  <link rel="preload" href="../landing/polices/atkinson-400.woff2" as="font" type="font/woff2" crossorigin>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "TechArticle",
+    "headline": "Documentation Nidoo : tous les widgets et leurs réglages",
+    "inLanguage": "fr",
+    "url": "https://nidoo.latanieregeek.com/doc/",
+    "about": { "@type": "WebApplication", "name": "Nidoo", "url": "https://nidoo.latanieregeek.com/" },
+    "image": "https://nidoo.latanieregeek.com/landing/images/nidoo-partage.jpg"
+  }
+  </script>
+  <style>
+    @font-face { font-family: "Bricolage Grotesque"; font-style: normal; font-weight: 500 800; font-display: swap; src: url(../landing/polices/bricolage.woff2) format("woff2"); }
+    @font-face { font-family: "Atkinson Hyperlegible"; font-style: normal; font-weight: 400; font-display: swap; src: url(../landing/polices/atkinson-400.woff2) format("woff2"); }
+    @font-face { font-family: "Atkinson Hyperlegible"; font-style: normal; font-weight: 700; font-display: swap; src: url(../landing/polices/atkinson-700.woff2) format("woff2"); }
+
+    :root {
+      --fond: #ffffff;
+      --fond-2: #f7f7fa;
+      --texte: #16151f;
+      --texte-doux: #55536a;
+      --trait: #e6e5ee;
+      --accent: #6d28d9;
+      --accent-fond: #f3edff;
+      --info: #1d4ed8; --info-fond: #eef4ff; --info-trait: #c9dafc;
+      --astuce: #166534; --astuce-fond: #edfaf1; --astuce-trait: #bfe8cc;
+      --attention: #9a3412; --attention-fond: #fff5ec; --attention-trait: #f7d4b5;
+      --code: #f1f0f6;
+      --focus: #2457d6;
+      --titre: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+      --police: "Atkinson Hyperlegible", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      --haut: 64px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --fond: #121120; --fond-2: #1a1930; --texte: #f1f0f7; --texte-doux: #b9b6cf; --trait: #2e2c4a;
+        --accent: #b79cff; --accent-fond: #2a2150;
+        --info: #9fc0ff; --info-fond: #172440; --info-trait: #2a3f6b;
+        --astuce: #8fe0aa; --astuce-fond: #142c20; --astuce-trait: #24513a;
+        --attention: #ffb98a; --attention-fond: #33200f; --attention-trait: #5a3a20;
+        --code: #24223d; --focus: #8fb0ff;
+      }
+    }
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; scroll-padding-top: calc(var(--haut) + 16px); -webkit-text-size-adjust: 100%; }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+    body { margin: 0; background: var(--fond); color: var(--texte); font-family: var(--police); font-size: 1.0625rem; line-height: 1.65; }
+    a { color: var(--accent); text-underline-offset: 0.18em; }
+    :focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; border-radius: 4px; }
+    code, kbd { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 0.88em; background: var(--code); padding: 0.1em 0.4em; border-radius: 6px; }
+    .evitement { position: absolute; left: 12px; top: -80px; z-index: 50; padding: 10px 16px; border-radius: 10px; background: var(--texte); color: var(--fond); font-weight: 700; }
+    .evitement:focus { top: 12px; }
+    .visuellement-cache { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+    /* ---- Barre du haut ---- */
+    .barre { position: sticky; top: 0; z-index: 20; height: var(--haut); display: flex; align-items: center; gap: 18px; padding: 0 24px; background: color-mix(in srgb, var(--fond) 88%, transparent); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border-bottom: 1px solid var(--trait); }
+    .barre .logo { display: flex; align-items: center; gap: 12px; text-decoration: none; color: var(--texte); }
+    .barre .logo img { height: 38px; width: auto; }
+    .barre .logo span { font-family: var(--titre); font-weight: 700; font-size: 1rem; padding-left: 12px; border-left: 1px solid var(--trait); color: var(--texte-doux); }
+    .barre nav { margin-left: auto; display: flex; align-items: center; gap: 20px; }
+    .barre nav a { color: var(--texte-doux); text-decoration: none; font-weight: 700; font-size: 0.95rem; }
+    .barre nav a:hover { color: var(--texte); }
+    .barre .ouvrir { padding: 8px 16px; border-radius: 999px; background: var(--texte); color: var(--fond) !important; }
+    @media (max-width: 640px) { .barre nav .secondaire { display: none; } .barre .logo span { display: none; } }
+
+    /* ---- Mise en page : sommaire à gauche, contenu ---- */
+    .page { display: grid; grid-template-columns: 270px minmax(0, 1fr); max-width: 1280px; margin: 0 auto; }
+    @media (max-width: 960px) { .page { grid-template-columns: 1fr; } }
+    .sommaire { position: sticky; top: var(--haut); align-self: start; height: calc(100vh - var(--haut)); overflow-y: auto; padding: 24px 16px 40px 24px; border-right: 1px solid var(--trait); }
+    .sommaire summary { display: none; }
+    .sommaire h2 { margin: 22px 0 6px; font-family: var(--titre); font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--texte-doux); }
+    .sommaire h2:first-of-type { margin-top: 0; }
+    .sommaire ul { margin: 0; padding: 0; list-style: none; }
+    .sommaire a { display: flex; gap: 8px; padding: 5px 10px; border-radius: 8px; color: var(--texte); text-decoration: none; font-size: 0.95rem; }
+    .sommaire a:hover { background: var(--fond-2); }
+    @media (max-width: 960px) {
+      .sommaire { position: static; height: auto; border-right: 0; border-bottom: 1px solid var(--trait); padding: 0; }
+      .sommaire summary { display: flex; justify-content: space-between; padding: 14px 20px; cursor: pointer; font-weight: 700; list-style: none; }
+      .sommaire summary::-webkit-details-marker { display: none; }
+      .sommaire summary::after { content: "▾"; }
+      .sommaire[open] summary::after { content: "▴"; }
+      .sommaire .liens { padding: 0 20px 20px; }
+    }
+
+    .contenu { padding: 40px clamp(20px, 5vw, 72px) 96px; max-width: 900px; min-width: 0; }
+    .fil { font-size: 0.9rem; color: var(--texte-doux); margin-bottom: 8px; }
+    h1 { font-family: var(--titre); font-size: clamp(2rem, 4vw, 2.6rem); line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 12px; }
+    .intro { font-size: 1.2rem; color: var(--texte-doux); margin: 0 0 32px; }
+    section { padding-top: 8px; margin-top: 48px; border-top: 1px solid var(--trait); }
+    section h2 { font-family: var(--titre); font-size: 1.75rem; letter-spacing: -0.015em; margin: 24px 0 8px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    section h3 { font-family: var(--titre); font-size: 1.15rem; margin: 28px 0 8px; }
+    .groupe { margin-top: 72px; border-top: 0; }
+    .groupe > h2 { font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--accent); margin: 0; }
+    .icone { width: 44px; height: 44px; display: inline-grid; place-items: center; border-radius: 12px; background: var(--accent-fond); font-size: 1.4rem; }
+    .tailles { display: inline-flex; gap: 6px; margin-left: 4px; }
+    .tailles span { font-family: var(--police); font-size: 0.78rem; font-weight: 700; letter-spacing: 0; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--trait); color: var(--texte-doux); }
+    p { margin: 0 0 14px; }
+    ul.points { padding-left: 1.25em; margin: 0 0 14px; }
+    ul.points li { margin-bottom: 6px; }
+
+    table { width: 100%; border-collapse: collapse; margin: 8px 0 16px; font-size: 0.97rem; }
+    caption { text-align: left; font-weight: 700; padding-bottom: 6px; }
+    th, td { text-align: left; vertical-align: top; padding: 10px 12px; border-bottom: 1px solid var(--trait); }
+    thead th { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--texte-doux); border-bottom: 2px solid var(--trait); }
+    tbody th { font-weight: 700; width: 34%; }
+    .tableau { overflow-x: auto; }
+
+    .encadre { margin: 16px 0; padding: 14px 16px 14px 18px; border: 1px solid; border-left-width: 4px; border-radius: 10px; }
+    .encadre p:last-child, .encadre ul:last-child { margin-bottom: 0; }
+    .encadre strong:first-child { display: block; margin-bottom: 4px; }
+    .info { background: var(--info-fond); border-color: var(--info-trait); border-left-color: var(--info); }
+    .astuce { background: var(--astuce-fond); border-color: var(--astuce-trait); border-left-color: var(--astuce); }
+    .attention { background: var(--attention-fond); border-color: var(--attention-trait); border-left-color: var(--attention); }
+
+    .grille-widgets { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px; margin: 16px 0 0; padding: 0; list-style: none; }
+    .grille-widgets a { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border: 1px solid var(--trait); border-radius: 12px; color: var(--texte); text-decoration: none; font-weight: 700; }
+    .grille-widgets a:hover { border-color: var(--accent); }
+
+    .pied { margin-top: 72px; padding-top: 24px; border-top: 1px solid var(--trait); color: var(--texte-doux); font-size: 0.95rem; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; }
+  </style>
+</head>
+<body>
+  <a class="evitement" href="#contenu">Aller au contenu</a>
+
+  <header class="barre">
+    <a class="logo" href="../landing/">
+      <img src="../landing/images/nidoo-texte-104.png" width="68" height="38" alt="Nidoo">
+      <span>Documentation</span>
+    </a>
+    <nav aria-label="Liens du site">
+      <a class="secondaire" href="../landing/">Présentation</a>
+      <a class="secondaire" href="../help/">Aide</a>
+      <a class="ouvrir" href="https://nidoo.latanieregeek.com/">Ouvrir Nidoo</a>
+    </nav>
+  </header>
+
+  <div class="page">
+    <details class="sommaire" open>
+      <summary>Sommaire</summary>
+      <nav class="liens" aria-label="Sommaire de la documentation">
+        <h2>Démarrer</h2>
+        <ul>
+          <li><a href="#premiers-pas">Premiers pas</a></li>
+          <li><a href="#grille">La grille et le mode Modifier</a></li>
+          <li><a href="#tailles">Tailles et couleurs</a></li>
+          <li><a href="#enfant-parents">Côté enfant, côté parents</a></li>
+          <li><a href="#appareils">Relier plusieurs appareils</a></li>
+          <li><a href="#nuit">Mode nuit</a></li>
+          <li><a href="#tablette">Installer sur une tablette</a></li>
+          <li><a href="#donnees">Données et confidentialité</a></li>
+        </ul>
+        <h2>Organiser les journées</h2>
+        <ul>
+          <li><a href="#agenda"><span aria-hidden="true">📅</span> Agenda</a></li>
+          <li><a href="#emploi-du-temps"><span aria-hidden="true">🎒</span> Emploi du temps</a></li>
+          <li><a href="#routine"><span aria-hidden="true">✅</span> Routine</a></li>
+          <li><a href="#menu"><span aria-hidden="true">🍽️</span> Menu de la semaine</a></li>
+          <li><a href="#minuteur"><span aria-hidden="true">⏰</span> Minuteur</a></li>
+          <li><a href="#horloge"><span aria-hidden="true">🕒</span> Horloge</a></li>
+        </ul>
+        <h2>Listes et mémos</h2>
+        <ul>
+          <li><a href="#liste"><span aria-hidden="true">📝</span> Liste</a></li>
+          <li><a href="#echeances"><span aria-hidden="true">📋</span> Échéances</a></li>
+          <li><a href="#note"><span aria-hidden="true">🗒️</span> Note</a></li>
+        </ul>
+        <h2>Pour les enfants</h2>
+        <ul>
+          <li><a href="#recompenses"><span aria-hidden="true">⭐</span> Récompenses</a></li>
+          <li><a href="#humeurs"><span aria-hidden="true">😊</span> Humeurs</a></li>
+          <li><a href="#corvees"><span aria-hidden="true">🧹</span> Corvées</a></li>
+          <li><a href="#compte"><span aria-hidden="true">⏳</span> Compte à rebours</a></li>
+        </ul>
+        <h2>La maison</h2>
+        <ul>
+          <li><a href="#poubelles"><span aria-hidden="true">🗑️</span> Poubelles</a></li>
+          <li><a href="#tempo"><span aria-hidden="true">⚡</span> Tempo EDF</a></li>
+          <li><a href="#anniversaires"><span aria-hidden="true">🎂</span> Anniversaires</a></li>
+          <li><a href="#urgences"><span aria-hidden="true">🆘</span> Urgences</a></li>
+        </ul>
+        <h2>Dehors</h2>
+        <ul>
+          <li><a href="#meteo"><span aria-hidden="true">🌤️</span> Météo</a></li>
+          <li><a href="#pollen"><span aria-hidden="true">🌼</span> Pollen et air</a></li>
+          <li><a href="#trafic"><span aria-hidden="true">🚗</span> Trafic</a></li>
+          <li><a href="#carburants"><span aria-hidden="true">⛽</span> Carburants</a></li>
+        </ul>
+      </nav>
+    </details>
+    <script>
+      // Sur petit écran, le sommaire est replié, et se replie après avoir choisi une rubrique.
+      (function () {
+        var sommaire = document.querySelector('.sommaire');
+        var petit = window.matchMedia('(max-width: 960px)');
+        if (petit.matches) sommaire.open = false;
+        sommaire.addEventListener('click', function (e) { if (petit.matches && e.target.closest('a')) sommaire.open = false; });
+      })();
+    </script>
+
+    <main class="contenu" id="contenu">
+      <p class="fil">Documentation</p>
+      <h1>Documentation de Nidoo</h1>
+      <p class="intro">Tout ce qu'il faut savoir pour composer l'écran de la famille : la grille, les deux côtés enfant et parents, la synchronisation entre appareils, et chacun des 21 widgets avec ses réglages.</p>
+
+      <div class="encadre info">
+        <strong>Une question qui n'est pas ici ?</strong>
+        <p>Consultez la <a href="../help/">page d'aide</a> : questions fréquentes, et un contact si vous ne trouvez pas votre réponse.</p>
+      </div>
+
+      <!-- ============================== DÉMARRER ============================== -->
+      <section id="premiers-pas">
+        <h2>Premiers pas</h2>
+        <p>Nidoo s'utilise dans le navigateur, sans rien installer ni créer de compte.</p>
+        <ol>
+          <li>Ouvrez <a href="https://nidoo.latanieregeek.com/">nidoo.latanieregeek.com</a> sur la tablette (Safari, Chrome, Firefox…).</li>
+          <li>Touchez <strong>Modifier</strong>, puis <strong>+ Ajouter</strong>, et choisissez un widget.</li>
+          <li>Touchez la roue <strong>⚙️</strong> du widget pour le régler (ville, prénoms, adresse d'agenda…).</li>
+          <li>Touchez <strong>Terminé</strong> (👍 sur téléphone) pour revenir à l'affichage normal.</li>
+        </ol>
+        <p>La première fois, la grille est vide : chaque famille choisit les widgets qui lui servent.</p>
+        <h3>Le nom de la famille</h3>
+        <p>En mode Modifier, le nom affiché en haut (« Famille Dupond ») devient modifiable : touchez-le pour l'écrire. Il est le même sur tous les appareils reliés.</p>
+      </section>
+
+      <section id="grille">
+        <h2>La grille et le mode Modifier</h2>
+        <p>Les widgets sont posés sur une grille de taille fixe qui remplit l'écran : <strong>8 colonnes × 4 lignes</strong> à l'horizontale, <strong>4 × 8</strong> à la verticale. Sur un téléphone, deux colonnes, et on fait défiler.</p>
+        <p>Pour entrer en mode Modifier : le bouton <strong>Modifier</strong>, ou un <strong>appui long</strong> sur la grille. Les widgets se mettent à trembler.</p>
+        <div class="tableau">
+          <table>
+            <caption class="visuellement-cache">Les actions du mode Modifier</caption>
+            <thead><tr><th scope="col">Action</th><th scope="col">Comment</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Déplacer un widget</th><td>Le glisser sur n'importe quelle case (les cases libres sont en pointillés). Sur un widget de même taille, les deux échangent leur place.</td></tr>
+              <tr><th scope="row">Supprimer</th><td>Le bouton rouge <strong>×</strong> en haut à gauche du widget.</td></tr>
+              <tr><th scope="row">Changer la couleur</th><td>Le bouton <strong>🎨</strong> en bas à gauche : chaque appui passe à la couleur suivante.</td></tr>
+              <tr><th scope="row">Régler</th><td>La roue <strong>⚙️</strong> en haut à droite : taille et réglages propres au widget.</td></tr>
+              <tr><th scope="row">Ajouter</th><td>Le bouton <strong>+ Ajouter</strong> en haut de l'écran.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="encadre info">
+          <strong>Chaque appareil a sa disposition</strong>
+          <p>La place des widgets est enregistrée sur chaque appareil, et pour chaque sens (horizontal, vertical) : ranger la tablette ne dérange pas l'ordinateur. Sur un téléphone, les widgets ne se déplacent pas : ils s'affichent simplement dans l'ordre. Le contenu des widgets, lui, est partagé entre les appareils reliés.</p>
+        </div>
+      </section>
+
+      <section id="tailles">
+        <h2>Tailles et couleurs</h2>
+        <p>Chaque widget existe en une ou plusieurs tailles, choisies dans sa roue ⚙️ (champ <strong>Taille</strong>). Les tailles se lisent « lignes × colonnes » :</p>
+        <div class="tableau">
+          <table>
+            <thead><tr><th scope="col">Taille</th><th scope="col">Place occupée</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">1×1</th><td>Une case.</td></tr>
+              <tr><th scope="row">1×2</th><td>Une ligne de haut, deux colonnes de large.</td></tr>
+              <tr><th scope="row">2×2</th><td>Un carré de quatre cases.</td></tr>
+              <tr><th scope="row">3×2</th><td>Trois lignes de haut, deux colonnes.</td></tr>
+              <tr><th scope="row">4×2</th><td>Toute la hauteur de l'écran (à l'horizontale), deux colonnes.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Sept couleurs sont proposées (framboise, orange, soleil, pomme, lagon, ciel, raisin) avec le bouton 🎨. Côté parents, elles deviennent des tons pastel.</p>
+      </section>
+
+      <section id="enfant-parents">
+        <h2>Côté enfant, côté parents</h2>
+        <p>L'interrupteur en haut à droite passe du <strong>côté enfant</strong> (couleurs vives, police ronde, fond étoilé en mode sombre) au <strong>côté parents</strong> (fond blanc, typographie fine, tons pastel). Le côté affiché se choisit sur chaque appareil.</p>
+        <p>Chaque côté a <strong>sa propre grille de widgets</strong>. La première fois, la grille parents est vide : le bouton <strong>Copier la grille enfant</strong> en fait une copie (et inversement).</p>
+        <h3>Partager un contenu entre les deux côtés</h3>
+        <ul class="points">
+          <li><strong>Liste</strong> et <strong>Échéances</strong> : en ajoutant le widget, Nidoo propose « vierge » ou un widget qui existe déjà. Choisir un existant le partage : ce qu'on ajoute ou coche d'un côté apparaît de l'autre.</li>
+          <li><strong>Humeurs</strong> : toujours partagé. Tous les widgets Humeurs affichent les mêmes prénoms, humeurs et historiques.</li>
+          <li>« Copier la grille » garde les mêmes listes partagées.</li>
+          <li>Les autres widgets sont indépendants d'un côté à l'autre.</li>
+        </ul>
+      </section>
+
+      <section id="appareils">
+        <h2>Relier plusieurs appareils</h2>
+        <p>La tablette du salon, les téléphones des parents, l'ordinateur : tous peuvent afficher la même famille.</p>
+        <ol>
+          <li>Sur l'appareil qui a la bonne grille : <strong>Modifier</strong>, puis <strong>⚙️ Appareil</strong>, puis <strong>Afficher un code</strong>. Un code de 4 caractères s'affiche (ex. <code>4T2B</code>), valable 10 minutes.</li>
+          <li>Sur l'autre appareil : <strong>Modifier</strong>, <strong>⚙️ Appareil</strong>, tapez le code, puis <strong>Relier</strong>.</li>
+        </ol>
+        <p>Pour chaque côté (enfant, parents) : si un seul des deux appareils a des widgets, c'est sa grille qui est gardée ; si les deux en ont, Nidoo demande laquelle garder.</p>
+        <p>Ensuite, une modification apparaît sur les autres appareils en une vingtaine de secondes (5 minutes en mode nuit). Si deux personnes modifient le même widget en même temps, la modification la plus récente gagne ; pour les Listes et les Humeurs, les deux sont gardées.</p>
+        <div class="encadre astuce">
+          <strong>Délier un appareil</strong>
+          <p><strong>⚙️ Appareil</strong>, puis <strong>Délier cet appareil</strong> : il garde sa grille mais ne se synchronise plus.</p>
+        </div>
+      </section>
+
+      <section id="nuit">
+        <h2>Mode nuit</h2>
+        <p>Dans <strong>⚙️ Appareil</strong> (mode Modifier), activez le mode nuit et choisissez les heures. Pendant ces heures, l'écran devient noir avec seulement l'heure en gris très sombre, et tous les widgets sont en pause (plus de requêtes ni d'animations). Toucher l'écran le rallume 2 minutes.</p>
+        <p>Pas de mode nuit tant qu'un minuteur tourne. Le réglage est propre à chaque appareil.</p>
+        <div class="encadre astuce">
+          <strong>Économiser vraiment la batterie</strong>
+          <p>Une page web ne peut pas baisser la luminosité. Sur iPad, l'application <strong>Raccourcis</strong> le fait : Automatisation, « Heure de la journée » (ex. 21 h 30), action « Régler la luminosité » à 0 %, et une deuxième automatisation le matin.</p>
+        </div>
+      </section>
+
+      <section id="tablette">
+        <h2>Installer sur une tablette</h2>
+        <ul class="points">
+          <li><strong>iPad / iPhone</strong> : dans Safari, bouton Partager, puis <strong>Sur l'écran d'accueil</strong>.</li>
+          <li><strong>Android</strong> : dans Chrome, menu ⋮, puis <strong>Ajouter à l'écran d'accueil</strong>.</li>
+        </ul>
+        <p>Nidoo s'ouvre alors en plein écran, comme une application. Après une mise à jour du site, la page se recharge d'elle-même dans les 10 minutes ; la version installée est indiquée en bas de <strong>⚙️ Appareil</strong>.</p>
+        <div class="encadre astuce">
+          <strong>Tablette fixée au mur</strong>
+          <p>Sur iPad, l'<strong>Accès guidé</strong> (Réglages, Accessibilité) bloque la tablette sur Nidoo. Pensez aussi à désactiver le verrouillage automatique de l'écran pendant la journée.</p>
+        </div>
+      </section>
+
+      <section id="donnees">
+        <h2>Données et confidentialité</h2>
+        <ul class="points">
+          <li>Sans appareils reliés, tout est enregistré dans le navigateur de l'appareil (stockage local).</li>
+          <li>Avec des appareils reliés, la grille est aussi gardée sur le serveur de Nidoo, dans un fichier accessible uniquement avec la clé secrète de votre famille (transmise par le code de 4 caractères).</li>
+          <li>Les adresses d'agenda et la clé TomTom font partie de la grille : elles sont donc aussi enregistrées sur le serveur quand les appareils sont reliés.</li>
+          <li>Le mode nuit, le côté affiché et la disposition des widgets restent propres à chaque appareil.</li>
+        </ul>
+      </section>
+
+      <!-- ============================== WIDGETS ============================== -->
+      <section class="groupe" id="widgets-journees"><h2>Organiser les journées</h2></section>
+
+      <section id="agenda">
+        <h2><span class="icone" aria-hidden="true">📅</span> Agenda <span class="tailles" aria-label="Tailles : 1×2, 2×2, 3×2, 4×2"><span>1×2</span><span>2×2</span><span>3×2</span><span>4×2</span></span></h2>
+        <p>Les rendez-vous des <strong>7 prochains jours</strong> d'un agenda Google, iCloud ou Outlook. Un agenda par personne, ou un pour toute la famille.</p>
+        <h3>Ce qu'il affiche</h3>
+        <ul class="points">
+          <li>Les événements regroupés par jour (« Aujourd'hui », « Demain », « samedi 21 »), avec l'heure ou « Journée ».</li>
+          <li>En <strong>1×2</strong>, un affichage compact : le jour dans la pastille (« Auj. 17h30 », « Dem. 18h »), un événement par ligne.</li>
+          <li>La flèche <strong>↻</strong> relit l'agenda tout de suite ; sinon il est relu toutes les 10 minutes.</li>
+          <li>Tant qu'aucune adresse n'est réglée, des exemples s'affichent.</li>
+        </ul>
+        <h3>Réglages (⚙️)</h3>
+        <div class="tableau"><table>
+          <thead><tr><th scope="col">Réglage</th><th scope="col">Description</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Nom affiché</th><td>Le titre du widget, ex. <code>Famille</code>, <code>Julie</code>.</td></tr>
+            <tr><th scope="row">Adresse iCal de l'agenda</th><td>L'adresse privée de l'agenda (voir ci-dessous). Sites acceptés : Google Agenda, iCloud, Outlook.</td></tr>
+          </tbody>
+        </table></div>
+        <h3>Trouver l'adresse d'un agenda Google</h3>
+        <ol>
+          <li>Sur un ordinateur, ouvrez Google Agenda, puis ⚙️ <strong>Paramètres</strong>.</li>
+          <li>À gauche, cliquez sur l'agenda voulu, puis <strong>Intégrer l'agenda</strong>.</li>
+          <li>Copiez l'<strong>Adresse secrète au format iCal</strong> et collez-la dans le réglage du widget.</li>
+        </ol>
+        <div class="encadre attention">
+          <strong>Une adresse à garder secrète</strong>
+          <p>Cette adresse donne accès à l'agenda : ne la partagez pas. L'adresse « publique » ne fonctionne que si l'agenda est rendu public.</p>
+        </div>
+      </section>
+
+      <section id="emploi-du-temps">
+        <h2><span class="icone" aria-hidden="true">🎒</span> Emploi du temps <span class="tailles" aria-label="Tailles : 1×2, 2×2"><span>1×2</span><span>2×2</span></span></h2>
+        <p>Les cours du jour, puis ceux du lendemain pour préparer le cartable.</p>
+        <h3>Ce qu'il affiche</h3>
+        <ul class="points">
+          <li><strong>Avant midi</strong> : les cours d'aujourd'hui (« Aujourd'hui · Léa »).</li>
+          <li><strong>À partir de midi</strong> : ceux de demain (« Demain · Léa », avec le jour à droite).</li>
+          <li>Un jour sans cours est sauté : le vendredi après-midi, on voit déjà le <strong>lundi</strong> ; le mercredi après-midi, le jeudi.</li>
+          <li>Un emoji par matière, deviné tout seul (📐 maths, 📖 français, 🇬🇧 anglais, 🌍 histoire-géo, 🌱 SVT, 🧪 physique-chimie, 🏃 EPS, 🏊 piscine, 🎵 musique, 🎨 arts…).</li>
+        </ul>
+        <h3>Réglages (⚙️)</h3>
+        <div class="tableau"><table>
+          <thead><tr><th scope="col">Réglage</th><th scope="col">Description</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Pour qui ?</th><td>Facultatif, ex. <code>Léa</code>.</td></tr>
+            <tr><th scope="row">Semaines A et B</th><td>Facultatif : une date de n'importe quel jour d'une semaine A (voir ci-dessous).</td></tr>
+            <tr><th scope="row">Lundi … Samedi</th><td>Un cours par ligne, l'heure au début si on veut : <code>8h30 Maths</code>, <code>14h Piscine</code>, ou juste <code>Maths</code>. Pour imposer un emoji, mettez-le au début : <code>🎻 Violon</code>.</td></tr>
+          </tbody>
+        </table></div>
+        <h3>Semaines A et B</h3>
+        <p>Beaucoup de collèges alternent des semaines A et B. Pour les gérer :</p>
+        <ol>
+          <li>Dans <strong>Semaines A et B</strong>, choisissez une date de n'importe quel jour d'une semaine A (par exemple le lundi d'une semaine A). Nidoo en déduit l'alternance A, B, A, B… pour toutes les semaines.</li>
+          <li>Dans les cours, mettez <code>A:</code> ou <code>B:</code> devant ceux qui n'ont lieu qu'une semaine sur deux. Les lignes sans rien ont lieu chaque semaine.</li>
+        </ol>
+        <p>Exemple pour le lundi :</p>
+        <p><code>8h30 Maths</code><br><code>A: 14h Piscine</code><br><code>B: 14h Arts plastiques</code></p>
+        <p>Les écritures <code>(A) Piscine</code>, <code>Piscine (A)</code> et <code>Sem. A - Piscine</code> marchent aussi. Le titre du widget indique « Sem. A » ou « Sem. B » (celle du jour affiché). Un jour qui n'a cours qu'une semaine sur deux est sauté la semaine où il est vide.</p>
+        <div class="encadre info">
+          <strong>Vacances scolaires</strong>
+          <p>L'alternance continue pendant les vacances. Si le collège la reprend autrement à la rentrée, il suffit de remettre une date de semaine A.</p>
+        </div>
+      </section>
+
+      <section id="routine">
+        <h2><span class="icone" aria-hidden="true">✅</span> Routine <span class="tailles" aria-label="Taille : 2×2"><span>2×2</span></span></h2>
+        <p>La routine du matin, puis celle du soir, avec une case à cocher par étape.</p>
+        <h3>Ce qu'il affiche</h3>
+        <ul class="points">
+          <li>« ☀️ Matin » avant midi, « 🌙 Soir » à partir de midi, avec le nombre d'étapes faites (ex. <code>3/9</code>).</li>
+          <li>Un emoji par étape, deviné d'après les mots (🪥 dents, 👕 s'habiller, 🎒 sac, 🚿 douche, 📚 devoirs, 🛏️ dodo…).</li>
+          <li>« Bravo, tout est fait ! 🎉 » quand tout est coché.</li>
+          <li>Les cases se décochent toutes seules à midi et chaque nouveau jour. Les lignes se resserrent selon le nombre d'étapes.</li>
+        </ul>
+        <h3>Réglages (⚙️)</h3>
+        <div class="tableau"><table>
+          <thead><tr><th scope="col">Réglage</th><th scope="col">Description</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Pour qui ?</th><td>Facultatif, ex. <code>Léa</code>.</td></tr>
+            <tr><th scope="row">Routine du matin</th><td>Une étape par ligne. Pour imposer un emoji : <code>🦷 Se brosser les dents</code>.</td></tr>
+            <tr><th scope="row">Routine du soir</th><td>Une étape par ligne.</td></tr>
+          </tbody>
+        </table></div>
+      </section>
+
+      <section id="menu">
+        <h2><span class="icone" aria-hidden="true">🍽️</span> Menu de la semaine <span class="tailles" aria-label="Tailles : 1×2, 2×2, 3×2, 4×2"><span>1×2</span><span>2×2</span><span>3×2</span><span>4×2</span></span></h2>
+        <p>Nidoo compose les repas de la semaine parmi <strong>150 recettes simples, prêtes en 15 minutes ou moins</strong>, pensées pour des enfants qui ne raffolent pas des légumes.</p>
+        <h3>Ce qu'il affiche</h3>
+        <ul class="points">
+          <li>Toute la semaine (on fait défiler), placée sur le prochain repas ; « Aujourd'hui » est en évidence, les repas passés sont grisés.</li>
+          <li><strong>Semaine</strong> / <strong>Suivante</strong> en haut : la semaine en cours ou la prochaine (pratique pour les courses).</li>
+          <li><strong>Toucher un repas</strong> : la recette (durée, ingrédients pour le nombre de personnes, étapes).</li>
+          <li>La petite flèche <strong>↻</strong> sur chaque ligne : une autre recette au hasard, du même type pour garder l'équilibre.</li>
+          <li><strong>↻ Tout changer</strong> en bas : un autre menu pour toute la semaine.</li>
+        </ul>
+        <h3>Réglages (⚙️)</h3>
+        <div class="tableau"><table>
+          <thead><tr><th scope="col">Réglage</th><th scope="col">Description</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Quels repas ?</th><td><em>Le soir, et le midi le week-end</em> (par défaut), <em>le soir seulement</em>, ou <em>midi et soir, tous les jours</em>.</td></tr>
+            <tr><th scope="row">Nombre de personnes</th><td>En portions : un enfant mange à peu près une demi-portion (2 adultes + 2 enfants ≈ <code>3</code>). Les virgules sont acceptées (<code>2,5</code>). Les quantités des recettes et de la liste de courses sont ajustées.</td></tr>
+            <tr><th scope="row">Aliments interdits</th><td>Un par ligne : un aliment (<code>champignons</code>, <code>porc</code>, <code>poisson</code>) ou un régime (<code>végétarien</code>, <code>sans gluten</code>, <code>sans lactose</code>, <code>sans œuf</code>, <code>fruits de mer</code>, <code>vegan</code>).</td></tr>
+          </tbody>
+        </table></div>
+        <h3>Comment le menu est composé</h3>
+        <ul class="points">
+          <li>Selon les repères habituels : poisson 2 fois par semaine, viande rouge limitée, œufs, légumineuses et repas végétariens chaque semaine.</li>
+          <li>Jamais deux repas du même type de suite, pas de plat répété dans la semaine ni repris de la semaine d'avant.</li>
+          <li>Le menu ne dépend que de la semaine et des réglages : il est le même sur tous les appareils.</li>
+        </ul>
+        <h3>Liste de courses</h3>
+        <p>Le bouton <strong>🛒</strong> (en haut) ou <strong>🛒 Courses</strong> (en bas) affiche tous les ingrédients de la semaine affichée, regroupés et additionnés (« 600 g de blanc de poulet (2 recettes) »). Cochez ceux qu'il vous faut, puis <strong>Ajouter à la liste des courses</strong> : ils sont ajoutés, sans doublon, à la Liste nommée <strong>Courses</strong> (ou <em>Course</em>). Sans une telle liste, Nidoo vous propose d'en créer une.</p>
+        <div class="encadre attention">
+          <strong>Allergies</strong>
+          <p>Pour une allergie grave, vérifiez toujours les ingrédients réellement utilisés : les produits du commerce varient d'une marque à l'autre.</p>
+        </div>
+      </section>
+
+      <section id="minuteur">
+        <h2><span class="icone" aria-hidden="true">⏰</span> Minuteur <span class="tailles" aria-label="Tailles : 1×1, 1×2, 2×2"><span>1×1</span><span>1×2</span><span>2×2</span></span></h2>
+        <p>Un minuteur de cuisine qui sonne à la fin.</p>
+        <ul class="points">
+          <li><strong>+</strong> en haut et <strong>−</strong> en bas règlent les minutes et les secondes, une par une ; en gardant le doigt appuyé, ça défile vite.</li>
+          <li><strong>▶</strong> démarre, <strong>⏸</strong> met en pause, <strong>↺</strong> revient au temps réglé (ou à 00:00 s'il était déjà arrêté).</li>
+          <li>À la fin, une sonnerie bien audible ; <strong>Stop</strong> remet le temps réglé pour la fois suivante.</li>
+          <li>Tant qu'il tourne, l'écran ne se met pas en veille et le mode nuit attend.</li>
+        </ul>
+        <div class="encadre info">
+          <strong>Le son</strong>
+          <p>Les navigateurs n'autorisent le son qu'après un toucher : c'est le bouton ▶ qui l'active. L'anti-veille ne fonctionne que sur une page en https (c'est le cas de nidoo.latanieregeek.com).</p>
+        </div>
+        <p>Pas de réglage dans ⚙️, à part la taille.</p>
+      </section>
+
+      <section id="horloge">
+        <h2><span class="icone" aria-hidden="true">🕒</span> Horloge <span class="tailles" aria-label="Tailles : 1×1, 1×2, 2×2"><span>1×1</span><span>1×2</span><span>2×2</span></span></h2>
+        <p>L'heure en très grand, avec la date du jour. Pas de réglage, à part la taille.</p>
+      </section>
+
+      <section class="groupe" id="widgets-listes"><h2>Listes et mémos</h2></section>
+
+      <section id="liste">
+        <h2><span class="icone" aria-hidden="true">📝</span> Liste <span class="tailles" aria-label="Tailles : 1×2, 2×2, 3×2, 4×2"><span>1×2</span><span>2×2</span><span>3×2</span><span>4×2</span></span></h2>
+        <p>Une liste à cocher : courses, choses à faire, valise…</p>
+        <h3>Ce qu'il affiche</h3>
+        <ul class="points">
+          <li><strong>Ajouter</strong> : le champ en bas, puis <strong>+</strong>. Les doublons sont ignorés.</li>
+          <li><strong>Cocher</strong> le rond : l'élément disparaît.</li>
+          <li><strong>Toucher le texte</strong> : dire <strong>qui</strong> doit le faire (son initiale s'affiche dans la case) et <strong>pour quand</strong> (« Aujourd'hui », « Demain », date ; en rouge si c'est dépassé). On peut aussi le renommer ou le supprimer.</li>
+          <li><strong>Réorganiser</strong> : attraper la poignée à droite (six points) et glisser vers le haut ou le bas.</li>
+          <li>Une barre de défilement apparaît dès que la liste dépasse.</li>
+        </ul>
+        <h3>Réglages (⚙️)</h3>
+        <div class="tableau"><table>
+          <thead><tr><th scope="col">Réglage</th><th scope="col">Description</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Titre</th><td>Ex. <code>Courses</code>, <code>À faire</code>, <code>Valise</code>.</td></tr>
+            <tr><th scope="row">Emoji</th><td>Ex. 🛒.</td></tr>
+            <tr><th scope="row">Personnes</th><td>Facultatif, une par ligne : pour pouvoir dire qui doit faire quoi.</td></tr>
+          </tbody>
+        </table></div>
+        <div class="encadre astuce">
+          <strong>La liste des courses</strong>
+          <p>Nommez une liste <strong>Courses</strong> : le Menu de la semaine pourra y envoyer ses ingrédients. Et partagez-la entre les deux côtés (voir <a href="#enfant-parents">Côté enfant, côté parents</a>).</p>
+        </div>
+      </section>
+
+      <section id="echeances">
+        <h2><span class="icone" aria-hidden="true">📋</span> Échéances <span class="tailles" aria-label="Tailles : 1×2, 2×2, 3×2, 4×2"><span>1×2</span><span>2×2</span><span>3×2</span><span>4×2</span></span></h2>
+        <p>Les dates à ne pas oublier : contrôle technique, assurance, passeports, vaccins, chaudière…</p>
+        <ul class="points">
+          <li><strong>+</strong> en haut : ajouter une échéance (quoi, quand, alerte, répétition).</li>
+          <li><strong>Alerte</strong> : 1 semaine, 2 semaines, 1, 2 ou 3 mois avant. La pastille passe en orange pendant l'alerte, en rouge si la date est dépassée.</li>
+          <li><strong>Répétition</strong> : une seule fois, chaque année, tous les 2, 5 ou 10 ans.</li>
+          <li><strong>Toucher une échéance</strong> : la modifier, ou <strong>C'est fait</strong>. Si elle se répète, la date avance toute seule (ex. contrôle technique tous les 2 ans).</li>
+        </ul>
+        <p>Pas de réglage dans ⚙️, à part la taille. Comme la Liste, des Échéances peuvent être partagées entre les deux côtés.</p>
+      </section>
+
+      <section id="note">
+        <h2><span class="icone" aria-hidden="true">🗒️</span> Note <span class="tailles" aria-label="Tailles : 1×1, 1×2, 2×2"><span>1×1</span><span>1×2</span><span>2×2</span></span></h2>
+        <p>Un bloc-notes tout simple : on touche et on écrit. Le texte est enregistré à chaque lettre.</p>
+      </section>
+
+      <section class="groupe" id="widgets-enfants"><h2>Pour les enfants</h2></section>
+
+      <section id="recompenses">
+        <h2><span class="icone" aria-hidden="true">⭐</span> Récompenses <span class="tailles" aria-label="Tailles : 1×2, 2×2, 3×2"><span>1×2</span><span>2×2</span><span>3×2</span></span></h2>
+        <p>Le tableau à gommettes : une étoile par bonne action, jusqu'à une récompense.</p>
+        <h3>Ce qu'il affiche</h3>
+        <ul class="points">
+          <li>Pour chaque enfant : son prénom, puis <strong>−</strong>, ses étoiles et <strong>+</strong>. <strong>+</strong> donne une étoile, <strong>−</strong> en retire une (en cas d'erreur).</li>
+          <li>Au-delà de 6 étoiles, elles passent sur deux rangées (sauf en 1×2) ; au-delà de 10, une barre de progression et un compteur (« 12 / 20 »).</li>
+          <li>À l'objectif, la ligne affiche la récompense (« 🎉 🍦 Sortie glace ») et le bouton <strong>Donné ✓</strong>, qui remet ses étoiles à zéro.</li>
+          <li>Deux prénoms tiennent dans un 1×2.</li>
+        </ul>
+        <h3>Réglages (⚙️)</h3>
+        <div class="tableau"><table>
+          <thead><tr><th scope="col">Réglage</th><th scope="col">Description</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Enfants</th><td>Un par ligne, avec sa propre récompense si on veut : <code>Léa : 🍦 Sortie glace</code>.</td></tr>
+            <tr><th scope="row">Nombre d'étoiles à gagner</th><td>10 par défaut (de 1 à 50).</td></tr>
+            <tr><th scope="row">Récompense</th><td>Celle des enfants qui n'en ont pas une à eux, ex. <code>🎬 Soirée film</code>.</td></tr>
+          </tbody>
+        </table></div>
+      </section>
+
+      <section id="humeurs">
+        <h2><span class="icone" aria-hidden="true">😊</span> Humeurs <span class="tailles" aria-label="Tailles : 1×1, 1×2"><span>1×1</span><span>1×2</span></span></h2>
+        <p>L'humeur du jour de chacun, enfants ou parents, notée de 0 à 5, avec la courbe du mois.</p>
+        <h3>Ce qu'il affiche</h3>
+        <ul class="points">
+          <li>Chaque jour à minuit, tout le monde repart sur <strong>❔ Choisis ton humeur</strong>.</li>
+          <li>Toucher son prénom : 7 humeurs au choix.</li>
+        </ul>
+        <div class="tableau"><table>
+          <thead><tr><th scope="col">Note</th><th scope="col">Humeur</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">5</th><td>😄 Super</td></tr>
+            <tr><th scope="row">4</th><td>🙂 Bien</td></tr>
+            <tr><th scope="row">3</th><td>😐 Bof</td></tr>
+            <tr><th scope="row">2</th><td>😕 Pas terrible</td></tr>
+            <tr><th scope="row">1</th><td>😢 Triste</td></tr>
+            <tr><th scope="row">0</th><td>😭 En pleurs ou 😡 En colère</td></tr>
+          </tbody>
+        </table></div>
+        <h3>Les humeurs du mois</h3>
+        <p>En bas de la fenêtre, <strong>📈 Voir mes humeurs du mois</strong> : une courbe de 0 (en bas) à 5 (en haut), un point par jour noté avec son emoji, en pointillés quand un jour manque. En dessous, la moyenne du mois et le nombre de jours notés ; <strong>‹ ›</strong> pour changer de mois. L'historique est gardé un peu plus d'un an.</p>
+        <h3>Réglages (⚙️)</h3>
+        <div class="tableau"><table>
+          <thead><tr><th scope="col">Réglage</th><th scope="col">Description</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Qui donne son humeur ?</th><td>Un prénom par ligne, 6 maximum. Jusqu'à 4 dans un 1×1 ; au-delà, choisissez 1×2.</td></tr>
+          </tbody>
+        </table></div>
+        <div class="encadre info">
+          <strong>Mêmes humeurs partout</strong>
+          <p>Tous les widgets Humeurs, côté enfant comme côté parents, affichent les mêmes prénoms, humeurs et historiques.</p>
+        </div>
+      </section>
+
+      <section id="corvees">
+        <h2><span class="icone" aria-hidden="true">🧹</span> Corvées <span class="tailles" aria-label="Taille : 1×1"><span>1×1</span></span></h2>
+        <p>Qui s'en occupe aujourd'hui, et qui demain, avec une rotation automatique.</p>
+        <h3>Réglages (⚙️)</h3>
+        <div class="tableau"><table>
+          <thead><tr><th scope="col">Réglage</th><th scope="col">Description</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Titre</th><td>« Corvées » par défaut (ex. <code>Vaisselle</code>, <code>Table</code>).</td></tr>
+            <tr><th scope="row">Qui ?</th><td>Une personne par ligne, dans l'ordre de la rotation.</td></tr>
+            <tr><th scope="row">Ça change…</th><td><em>Jours pairs / impairs</em> (la 1re personne les jours pairs, la 2e les jours impairs), <em>chaque jour à tour de rôle</em>, ou <em>chaque semaine à tour de rôle</em> (le lundi).</td></tr>
+          </tbody>
+        </table></div>
+        <div class="encadre info">
+          <strong>Jours pairs et impairs</strong>
+          <p>La règle suit la date du mois : après le 31 vient le 1er, soit deux jours impairs de suite. Pour une alternance stricte, choisissez « chaque jour, à tour de rôle ».</p>
+        </div>
+      </section>
+
+      <section id="compte">
+        <h2><span class="icone" aria-hidden="true">⏳</span> Compte à rebours <span class="tailles" aria-label="Taille : 1×1"><span>1×1</span></span></h2>
+        <p>« Vacances dans 12 jours », « Noël dans 36 dodos ». Le jour J : « C'est aujourd'hui ! 🎉 ».</p>
+        <h3>Réglages (⚙️)</h3>
+        <div class="tableau"><table>
+          <thead><tr><th scope="col">Réglage</th><th scope="col">Description</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Quoi ?</th><td>Ex. <code>Vacances</code>, <code>Anniversaire de Léa</code>.</td></tr>
+            <tr><th scope="row">Emoji</th><td>Ex. 🏖️ 🎂 🎄.</td></tr>
+            <tr><th scope="row">Quand ?</th><td>La date.</td></tr>
+            <tr><th scope="row">Ça revient…</th><td><em>Une seule fois</em>, ou <em>chaque année</em> (anniversaire, Noël…) : le compte repart après le jour J.</td></tr>
+            <tr><th scope="row">Compter en…</th><td><em>Jours</em>, ou <em>dodos</em> (le nombre de nuits, pour les plus petits).</td></tr>
+          </tbody>
+        </table></div>
+      </section>
+
+      <section class="groupe" id="widgets-maison"><h2>La maison</h2></section>
+
+      <section id="poubelles">
+        <h2><span class="icone" aria-hidden="true">🗑️</span> Poubelles <span class="tailles" aria-label="Taille : 1×1"><span>1×1</span></span></h2>
+        <p>La veille d'un ramassage : « Ce soir » et la poubelle à sortir (jaune ou noire). Sinon : la prochaine poubelle et son jour.</p>
+        <h3>Réglages (⚙️)</h3>
+        <div class="tableau"><table>
+          <thead><tr><th scope="col">Réglage</th><th scope="col">Description</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Poubelle jaune : jours de ramassage</th><td>Les jours à cocher (L M M J V S D).</td></tr>
+            <tr><th scope="row">Poubelle jaune : fréquence</th><td><em>Toutes les semaines</em>, <em>semaines paires seulement</em> ou <em>semaines impaires seulement</em>. La fenêtre indique si la semaine en cours est paire ou impaire.</td></tr>
+            <tr><th scope="row">Poubelle noire : …</th><td>Les mêmes réglages pour la poubelle noire.</td></tr>
+          </tbody>
+        </table></div>
+      </section>
+
+      <section id="tempo">
+        <h2><span class="icone" aria-hidden="true">⚡</span> Tempo EDF <span class="tailles" aria-label="Tailles : 1×1, 1×2"><span>1×1</span><span>1×2</span></span></h2>
+        <p>Pour les abonnés à l'option Tempo d'EDF : la couleur du jour (bleu, blanc, rouge) et les heures creuses ou pleines.</p>
+        <ul class="points">
+          <li><strong>1×1</strong> : la couleur en ce moment (le jour Tempo commence à 6 h).</li>
+          <li><strong>1×2</strong> : aujourd'hui et demain, avec heures pleines ou creuses sous aujourd'hui.</li>
+          <li>La couleur de demain est publiée vers 11 h ; avant, elle est « pas encore connue ». Le widget se met à jour pile à 6 h et à 22 h.</li>
+        </ul>
+        <p>Pas de réglage, à part la taille. Données : api-couleur-tempo.fr, gratuit.</p>
+      </section>
+
+      <section id="anniversaires">
+        <h2><span class="icone" aria-hidden="true">🎂</span> Anniversaires <span class="tailles" aria-label="Tailles : 1×2, 2×2, 3×2, 4×2"><span>1×2</span><span>2×2</span><span>3×2</span><span>4×2</span></span></h2>
+        <p>Les prochains anniversaires, triés, avec l'âge quand on le connaît : « 🎉 Lou, aujourd'hui ! 9 ans », « Mamie dans 2 jours, 75 ans ».</p>
+        <h3>Réglages (⚙️)</h3>
+        <div class="tableau"><table>
+          <thead><tr><th scope="col">Réglage</th><th scope="col">Description</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Anniversaires</th><td>Un par ligne : <code>Mamie : 22/03/1951</code>, ou <code>Lou : 02/12</code> (sans l'année, l'âge n'est pas affiché).</td></tr>
+            <tr><th scope="row">Chercher aussi dans les agendas</th><td><em>Oui</em> : dans les agendas des widgets Agenda de Nidoo ; <em>Non</em> : seulement les dates ci-dessus.</td></tr>
+            <tr><th scope="row">Autres agendas</th><td>Facultatif : d'autres adresses iCal, une par ligne.</td></tr>
+          </tbody>
+        </table></div>
+        <h3>Anniversaires trouvés dans les agendas</h3>
+        <p>Nidoo retient les événements <strong>qui reviennent chaque année</strong> et dont le titre contient <code>anniv</code>, <code>anniversaire</code>, <code>birthday</code> ou 🎂. Pour avoir l'âge, écrivez l'année de naissance dans le titre : <code>Anniv Lou 2017</code>. Une fête d'anniversaire ponctuelle (non répétée) est ignorée. Si une même personne est aussi réglée à la main, c'est la date réglée qui compte.</p>
+        <div class="encadre info">
+          <strong>Contacts Google</strong>
+          <p>Les anniversaires enregistrés dans les contacts Google ne sont pas dans l'adresse iCal d'un agenda : ajoutez-les à la main.</p>
+        </div>
+      </section>
+
+      <section id="urgences">
+        <h2><span class="icone" aria-hidden="true">🆘</span> Urgences <span class="tailles" aria-label="Taille : 1×1"><span>1×1</span></span></h2>
+        <p>Les numéros d'urgence en grand : 15 (SAMU), 18 (pompiers), 17 (police), 112 (urgence européenne). Le toucher ouvre la liste complète, avec les numéros des parents et l'adresse de la maison, pour les enfants et la baby-sitter. Sur un téléphone, toucher un numéro lance l'appel.</p>
+        <h3>Réglages (⚙️)</h3>
+        <div class="tableau"><table>
+          <thead><tr><th scope="col">Réglage</th><th scope="col">Description</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Parents et proches</th><td>Une ligne par personne : <code>Maman : 06 12 34 56 78</code>.</td></tr>
+            <tr><th scope="row">Adresse de la maison</th><td>À dire aux secours, ex. <code>12 rue des Lilas, 44000 Nantes</code>.</td></tr>
+          </tbody>
+        </table></div>
+      </section>
+
+      <section class="groupe" id="widgets-dehors"><h2>Dehors</h2></section>
+
+      <section id="meteo">
+        <h2><span class="icone" aria-hidden="true">🌤️</span> Météo <span class="tailles" aria-label="Tailles : 1×1, 1×2"><span>1×1</span><span>1×2</span></span></h2>
+        <p><strong>1×1</strong> : aujourd'hui. <strong>1×2</strong> : aujourd'hui et demain. Température actuelle, minimum et maximum. Toucher un jour ouvre le détail heure par heure, de 7 h à 21 h : la courbe des températures et le risque de pluie.</p>
+        <h3>Réglages (⚙️)</h3>
+        <div class="tableau"><table>
+          <thead><tr><th scope="col">Réglage</th><th scope="col">Description</th></tr></thead>
+          <tbody><tr><th scope="row">Ville</th><td>Ex. <code>Nantes</code>.</td></tr></tbody>
+        </table></div>
+        <p>Données : Open-Meteo, gratuit et sans clé.</p>
+      </section>
+
+      <section id="pollen">
+        <h2><span class="icone" aria-hidden="true">🌼</span> Pollen et air <span class="tailles" aria-label="Taille : 1×1"><span>1×1</span></span></h2>
+        <p>La qualité de l'air et le niveau de pollen, aujourd'hui et demain. Le toucher ouvre le détail par pollen.</p>
+        <h3>Réglages (⚙️)</h3>
+        <div class="tableau"><table>
+          <thead><tr><th scope="col">Réglage</th><th scope="col">Description</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Ville</th><td>Ex. <code>Nantes</code>.</td></tr>
+            <tr><th scope="row">Pollen à surveiller</th><td><em>Tous</em> (le plus élevé), ou un seul : graminées, bouleau, aulne, olivier, armoise, ambroisie.</td></tr>
+          </tbody>
+        </table></div>
+        <p>Le pollen n'est prévu qu'en Europe et pendant la saison (hors saison : « aucun »). Données : Open-Meteo, d'après le service européen Copernicus.</p>
+      </section>
+
+      <section id="trafic">
+        <h2><span class="icone" aria-hidden="true">🚗</span> Trafic <span class="tailles" aria-label="Tailles : 1×1, 1×2"><span>1×1</span><span>1×2</span></span></h2>
+        <p>Le temps de trajet avec les bouchons, le retard qu'ils causent (« Fluide », « +10 min ») et l'heure d'arrivée. Mise à jour toutes les 15 minutes, et tout de suite avec <strong>↻</strong>.</p>
+        <p>Le toucher ouvre la <strong>carte du trajet</strong>, colorée selon le trafic. Dans cette fenêtre, on peut changer le départ et l'arrivée pour cette fois : <strong>⇅</strong> inverse les deux, <strong>Par défaut</strong> revient aux adresses réglées.</p>
+        <h3>Réglages (⚙️)</h3>
+        <div class="tableau"><table>
+          <thead><tr><th scope="col">Réglage</th><th scope="col">Description</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Nom du trajet</th><td>Ex. <code>Travail</code>, <code>École</code>.</td></tr>
+            <tr><th scope="row">Adresse de départ</th><td>Ex. <code>12 rue des Lilas, Nantes</code>.</td></tr>
+            <tr><th scope="row">Adresse d'arrivée</th><td>Ex. <code>3 place du Commerce, Nantes</code>.</td></tr>
+            <tr><th scope="row">Clé TomTom</th><td>Gratuite, voir ci-dessous. Sans clé, le widget montre un exemple.</td></tr>
+          </tbody>
+        </table></div>
+        <h3>Obtenir une clé TomTom gratuite</h3>
+        <ol>
+          <li>Créez un compte sur <a href="https://developer.tomtom.com/" rel="noopener">developer.tomtom.com</a>.</li>
+          <li>Dans le tableau de bord, copiez la clé (« API key »).</li>
+          <li>Collez-la dans le réglage <strong>Clé TomTom</strong> du widget.</li>
+        </ol>
+      </section>
+
+      <section id="carburants">
+        <h2><span class="icone" aria-hidden="true">⛽</span> Carburants <span class="tailles" aria-label="Taille : 1×1"><span>1×1</span></span></h2>
+        <p>La station la moins chère près de chez vous. Le toucher ouvre les 5 moins chères, avec leur distance.</p>
+        <h3>Réglages (⚙️)</h3>
+        <div class="tableau"><table>
+          <thead><tr><th scope="col">Réglage</th><th scope="col">Description</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Votre adresse</th><td>Ex. <code>12 rue des Lilas, Nantes</code> (France uniquement).</td></tr>
+            <tr><th scope="row">Carburant</th><td>Gazole, SP95-E10, SP95, SP98, E85 ou GPL.</td></tr>
+            <tr><th scope="row">Chercher jusqu'à</th><td>3, 5, 10 ou 20 km.</td></tr>
+          </tbody>
+        </table></div>
+        <p>Données : les prix publiés par l'État (data.economie.gouv.fr). Les prix non mis à jour depuis plus de 7 jours sont écartés. Le nom de l'enseigne n'est pas fourni par ces données.</p>
+      </section>
+
+      <footer class="pied">
+        <p>Nidoo, l'écran de la famille. 100 % gratuit pour l'instant.</p>
+        <p><a href="../landing/">Présentation</a> · <a href="../help/">Aide</a> · <a href="https://nidoo.latanieregeek.com/">Ouvrir Nidoo</a></p>
+      </footer>
+    </main>
+  </div>
+</body>
+</html>
