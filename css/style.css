@@ -2019,3 +2019,38 @@ html[data-style="adulte"] .banque-nom { font-weight: 600; letter-spacing: 0.12em
   cursor: pointer;
 }
 .menu-petit:active { transform: scale(0.95); }
+
+/* --- Humeurs : de 0 (😭 😡) à 5 (😄), « Choisis ton humeur » chaque matin, courbe du mois --- */
+.humeurs.nb-5, .humeurs.nb-6 { grid-template: 1fr 1fr / 1fr 1fr 1fr; }
+.taille-moyen .humeurs.nb-4 { grid-template: 1fr / repeat(4, 1fr); }
+.humeurs.nb-5 .humeur-emoji, .humeurs.nb-6 .humeur-emoji { font-size: 18cqmin; }
+.humeurs.nb-5 .humeur-prenom, .humeurs.nb-6 .humeur-prenom { font-size: max(10px, 7cqmin); }
+.taille-moyen .humeurs .humeur-emoji { font-size: min(24cqh, 16cqw); }
+.humeur.a-choisir .humeur-emoji { opacity: 0.55; }
+.humeur.a-choisir { outline: 2px dashed rgb(var(--voile) / calc(0.6 * var(--voile-force))); outline-offset: -4px; }
+.humeur-consigne { display: none; font-size: max(10px, 6.5cqmin); font-weight: 600; opacity: 0.85; text-align: center; line-height: 1.1; }
+.humeurs.nb-1 .humeur-consigne, .humeurs.nb-2 .humeur-consigne, .taille-moyen .humeurs.nb-3 .humeur-consigne { display: block; }
+.humeurs-choix { grid-template-columns: repeat(4, 1fr); }
+.humeurs-mois { display: block; margin: 16px auto 0; }
+.humeurs-mois-nav { display: flex; align-items: center; justify-content: center; gap: 14px; margin-bottom: 8px; }
+.humeurs-mois-nav .bouton { min-width: 44px; padding: 6px 12px; font-size: 1.3rem; line-height: 1; }
+.humeurs-mois-nav .bouton:disabled { opacity: 0.3; }
+.humeurs-mois-titre { min-width: 9em; text-align: center; font-weight: 700; font-size: 1.15rem; }
+.humeurs-mois-titre::first-letter { text-transform: uppercase; }
+.humeurs-graphique { overflow-x: auto; }
+.humeur-courbe { display: block; width: 100%; min-width: 480px; height: auto; }
+.humeur-grille { stroke: currentColor; stroke-opacity: 0.12; stroke-width: 1; }
+.humeur-axe { font-size: 22px; }
+.humeur-jour { font-size: 15px; fill: currentColor; fill-opacity: 0.6; font-weight: 600; }
+.humeur-aujourdhui { stroke: #3a86ff; stroke-width: 2; stroke-dasharray: 4 4; }
+.humeur-trait { stroke: #ff9f1c; stroke-width: 4; stroke-linecap: round; }
+.humeur-trait.trou { stroke-dasharray: 2 8; stroke-width: 3; }
+.humeur-point { fill: #fff; stroke: #ff9f1c; stroke-width: 2.5; }
+.humeur-point-emoji { font-size: 16px; }
+.humeurs-resume { margin: 8px 0 0; text-align: center; font-weight: 600; }
+html[data-style="adulte"] .humeur-trait { stroke: var(--texte); }
+html[data-style="adulte"] .humeur-point { stroke: var(--texte); }
+.visuellement-cache {
+  position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
