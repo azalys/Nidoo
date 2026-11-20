@@ -2146,3 +2146,19 @@ html[data-style="adulte"] .humeur-point { stroke: var(--texte); }
   -webkit-line-clamp: 2;
   align-content: center;
 }
+
+/* Liens discrets vers l'aide (❓) et la documentation (📖), dans la barre du haut. */
+.lien-discret {
+  width: 36px;
+  height: 36px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  font-size: 1.15rem;
+  line-height: 0;
+  text-decoration: none;
+  opacity: 0.55;
+  transition: opacity 0.15s, background 0.15s;
+}
+.lien-discret:hover, .lien-discret:focus-visible { opacity: 1; background: rgb(var(--voile) / calc(0.25 * var(--voile-force))); }
+@media (max-width: 600px) { .lien-discret { width: 30px; height: 30px; font-size: 1rem; } }
