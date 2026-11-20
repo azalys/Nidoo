@@ -52,7 +52,7 @@ que le serveur l'a reçue (fichier `version.txt`).
 | 🧹 Corvées | petit | qui s'en occupe aujourd'hui (et demain) ; rotation jours pairs/impairs, chaque jour ou chaque semaine (⚙️) |
 | ⏳ Compte à rebours | 1×1 | « Vacances dans 12 jours » ; date, emoji, une fois ou chaque année, jours ou dodos (⚙️) |
 | 🗑️ Poubelles | 1×1 | « Ce soir : sortir la jaune » ; jours de ramassage et semaines paires/impaires pour chaque poubelle (⚙️) |
-| 😊 Humeurs | 1×1, 1×2 | l'humeur du jour de chacun (enfants ou parents, 6 maximum, prénoms dans ⚙️), de 0 (😭 😡) à 5 (😄) ; chaque jour à minuit, retour à « Choisis ton humeur » ; « Voir mes humeurs du mois » : la courbe jour par jour et la moyenne |
+| 😊 Humeurs | 1×1 (jusqu'à 4 personnes), 1×2 | l'humeur du jour de chacun (enfants ou parents, 6 maximum, prénoms dans ⚙️) ; mêmes données dans tous les widgets Humeurs, côté enfant comme côté parents, de 0 (😭 😡) à 5 (😄) ; chaque jour à minuit, retour à « Choisis ton humeur » ; « Voir mes humeurs du mois » : la courbe jour par jour et la moyenne |
 | 🆘 Urgences | 1×1 | 15, 18, 17, 112 en gros ; le toucher affiche aussi les parents et l'adresse (⚙️) |
 | 🌼 Pollen et air | 1×1 | qualité de l'air et pollen aujourd'hui/demain (Open-Meteo, gratuit, sans clé) |
 | ⛽ Carburants | 1×1 | la station la moins chère autour de votre adresse (données de l'État, gratuit, sans clé) |

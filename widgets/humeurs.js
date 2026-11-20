@@ -6,6 +6,9 @@
  *   - Toucher son prénom : choisir son humeur, de 😭/😡 (0, la pire) à 😄 (5, la meilleure),
  *     et en bas « Voir mes humeurs du mois » : la courbe des humeurs jour par jour.
  *
+ * Les données sont les mêmes pour tous les widgets Humeurs (côté enfant et côté parents,
+ * et sur les appareils reliés) : elles sont rangées une seule fois, dans etat.listes.humeurs
+ * (voir js/app.js), et chaque widget n'indique que { liste: 'humeurs' }.
  * Données : { enfants: ['Léa', 'Papa'],
  *             historique: { Léa: { '2026-11-20': { note: 4, emoji: '🙂', maj: 1700000000000 } } } }
  * (la clé "enfants" garde son ancien nom pour ne pas perdre les prénoms déjà réglés).

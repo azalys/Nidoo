@@ -85,9 +85,31 @@
    * Deux widgets (côté enfant et côté parents) peuvent ainsi afficher LA MÊME liste.
    */
   // Les types de widgets dont le contenu peut être partagé entre plusieurs widgets.
-  const PARTAGEABLES = new Set(['liste', 'echeances']);
+  // Humeurs : toujours partagé, une seule réserve pour toute la famille (même contenu
+  // côté enfant et côté parents, sans rien choisir).
+  const PARTAGEABLES = new Set(['liste', 'echeances', 'humeurs']);
+  const HUMEURS = 'humeurs';
   etat.listes = etat.listes && !Array.isArray(etat.listes) ? etat.listes : {};
   let listesConverties = false;
+
+  // Les humeurs de toute la famille (créées vides si besoin).
+  function reserveHumeurs() {
+    if (!etat.listes[HUMEURS]) etat.listes[HUMEURS] = { enfants: [], historique: {}, maj: Date.now() };
+    return HUMEURS;
+  }
+  etat.widgets.forEach((w) => {
+    if (w.type !== 'humeurs' || (w.donnees && w.donnees.liste)) return;
+    // Ancien widget Humeurs (contenu dans le widget) → les humeurs de la famille. Plusieurs
+    // widgets (côté enfant et côté parents) : leurs prénoms et leurs historiques sont réunis.
+    const d = w.donnees || {};
+    const avant = etat.listes[HUMEURS];
+    const prenoms = [...new Set([...((avant && avant.enfants) || []), ...(d.enfants || [])])];
+    etat.listes[HUMEURS] = avant
+      ? { ...Nidoo.catalogue.humeurs.fusionner(avant, d), enfants: prenoms, maj: Math.max(avant.maj || 0, w.maj || 0) }
+      : { enfants: prenoms, historique: d.historique || {}, maj: w.maj || Date.now() };
+    w.donnees = { liste: HUMEURS };
+    listesConverties = true;
+  });
   etat.widgets.forEach((w) => {
     if (!PARTAGEABLES.has(w.type) || (w.donnees && w.donnees.liste)) return;
     // Ancienne liste (contenu dans le widget) → liste partagée. L'identifiant dépend du
@@ -399,6 +421,7 @@
   }
 
   function ajouterWidget(type, options) {
+    if (type === 'humeurs' && !options) return ajouterWidget(type, { donnees: { liste: reserveHumeurs() } });
     if (PARTAGEABLES.has(type) && !options) return choisirListe(type);
     const w = creerWidget(type, options);
     const caseWidget = creerCase(w);

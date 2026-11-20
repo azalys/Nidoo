@@ -109,7 +109,9 @@
       if (!deja) resultat[id] = liste;
       else if (JSON.stringify(deja) !== JSON.stringify(liste)) {
         const [ancienne, recente] = (deja.maj || 0) > (liste.maj || 0) ? [liste, deja] : [deja, liste];
-        resultat[id] = { ...Nidoo.catalogue.liste.fusionner(ancienne, recente), maj: Math.max(deja.maj || 0, liste.maj || 0) };
+        // Les humeurs de la famille se fusionnent jour par jour ; les listes, élément par élément.
+        const type = id === 'humeurs' ? 'humeurs' : 'liste';
+        resultat[id] = { ...Nidoo.catalogue[type].fusionner(ancienne, recente), maj: Math.max(deja.maj || 0, liste.maj || 0) };
       }
     });
     return resultat;
