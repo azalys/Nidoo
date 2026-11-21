@@ -9,7 +9,7 @@
  *     (la liste des personnes se règle avec ⚙️). Une date dépassée passe en rouge ;
  *   - la poignée ⠿ à droite : glisser l'élément vers le haut ou le bas pour réorganiser.
  *
- * Données : { titre, emoji, personnes: ['Alice', …],
+ * Données : { titre, emoji, personnes: ['Léa', …],
  *             elements: [{ id, texte, qui, echeance: '2026-11-15', ordre, maj }, …],
  *             retires: { id: date } }   ← éléments cochés/supprimés (pour le partage entre appareils)
  */

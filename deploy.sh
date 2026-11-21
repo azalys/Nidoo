@@ -121,6 +121,7 @@ exclusions=(
   --exclude '.DS_Store'
   --exclude 'deploy.sh'
   --exclude 'premium.sh'
+  --exclude 'README.md'     # documentation du code : sur GitHub, inutile sur le site
   --exclude 'deploy.local'
   --exclude 'deploy.local.exemple'
   --exclude '*.pem'        # clés privées (ex. Enable Banking) : jamais dans le site public

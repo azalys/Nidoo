@@ -45,7 +45,7 @@
     icone: '🧹',
     tailles: ['petit'],
     tailleParDefaut: 'petit',
-    donneesParDefaut: { titre: 'Corvées', personnes: ['Emilie', 'Alice'], rythme: 'parite' },
+    donneesParDefaut: { titre: 'Corvées', personnes: [], rythme: 'parite' },
     reglages: [
       { cle: 'titre', libelle: 'Titre', type: 'texte', exemple: 'Corvées' },
       {
