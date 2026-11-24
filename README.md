@@ -40,7 +40,7 @@ que le serveur l'a reçue (fichier `version.txt`).
 | Widget | Tailles | Source des données |
 |---|---|---|
 | 🌤️ Météo | petit : aujourd'hui · moyen : aujourd'hui + demain ; toucher un jour = graphique de 7 h à 21 h (température, risque de pluie, temps heure par heure) | [Open-Meteo](https://open-meteo.com), gratuit, sans clé |
-| ⚡ Tempo EDF | petit : couleur du moment · moyen : aujourd'hui + demain | [api-couleur-tempo.fr](https://www.api-couleur-tempo.fr), gratuit, sans clé |
+| ⚡ Tempo EDF | petit : couleur du moment · moyen : aujourd'hui + demain ; toucher une couleur : ses conseils (bleu = 2026, blanc = 1830, rouge = an 820) | [api-couleur-tempo.fr](https://www.api-couleur-tempo.fr), gratuit, sans clé |
 | 📝 Liste | 1×2, 2×2, 3×2, 4×2 | titre et emoji réglables (🛒 Courses, 📝 À faire, 🧳 Valise…), remplace l'ancien widget Courses ; cocher retire l'élément ; toucher le texte pour dire qui et pour quand (date en rouge si dépassée) ; la poignée à droite pour réorganiser (glisser vers le haut ou le bas) |
 | ✅ Routine | grand | matin avant midi, soir après midi ; étapes réglables avec ⚙️ ; un emoji par étape (deviné, ou mis en début de ligne) |
 | 📅 Agenda | 1×2 (compact), 2×2, 3×2, 4×2 | adresse iCal de l'agenda, lue par `api.php` ; exemples tant qu'elle n'est pas réglée |

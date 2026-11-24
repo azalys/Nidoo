@@ -2162,3 +2162,37 @@ html[data-style="adulte"] .humeur-point { stroke: var(--texte); }
 }
 .lien-discret:hover, .lien-discret:focus-visible { opacity: 1; background: rgb(var(--voile) / calc(0.25 * var(--voile-force))); }
 @media (max-width: 600px) { .lien-discret { width: 30px; height: 30px; font-size: 1rem; } }
+
+/* --- Tempo : chaque couleur est un bouton qui ouvre ses conseils --- */
+button.tempo-jour {
+  padding: 2cqh 1cqw;
+  border: 0;
+  border-radius: 16px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+button.tempo-jour:active { transform: scale(0.95); }
+.tempo-conseils { text-align: left; }
+.tempo-epoque {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  margin-bottom: 12px;
+  background: #eef3ff;
+  color: #1b2a55;
+}
+.tempo-code-2 .tempo-epoque { background: #f3f1ec; color: #3a3428; }
+.tempo-code-3 .tempo-epoque { background: #ffe8e6; color: #5c1514; }
+.tempo-code-0 .tempo-epoque { background: #eeedf5; color: #2e2a45; }
+.tempo-epoque strong { display: block; font-size: 1.25rem; }
+.tempo-epoque p { margin: 2px 0 0; }
+.tempo-pastille-mini { flex: none; width: 46px; height: 46px; border-radius: 50%; border: 3px solid rgba(0, 0, 0, 0.12); }
+.tempo-conseils ul { margin: 0 0 10px; padding: 0; list-style: none; }
+.tempo-conseils li { display: flex; gap: 12px; align-items: flex-start; padding: 8px 2px; border-bottom: 1px solid rgba(0, 0, 0, 0.07); line-height: 1.35; }
+.tempo-conseils li:last-child { border-bottom: 0; }
+.tempo-conseils li span { flex: none; font-size: 1.4rem; line-height: 1.1; }
