@@ -13,6 +13,13 @@
  *   GET  api.php?action=lire             l'état partagé (en-tête X-Nidoo-Famille : la clé)
  *   POST api.php?action=ecrire           enregistre l'état partagé (si personne ne l'a changé entre-temps)
  *
+ * Chauffage (widget widgets/chauffage.js) :
+ *   POST api.php?action=chauffage_ha        lit (et règle) un thermostat Home Assistant
+ *   POST api.php?action=netatmo_connexion   adresse où se connecter à Netatmo (puis retour sur chauffage.php)
+ *   GET  api.php?action=netatmo_retour      (appelé par chauffage.php) enregistre l'accès Netatmo
+ *   GET  api.php?action=netatmo_etat        les pièces Netatmo et leurs températures
+ *   POST api.php?action=netatmo_consigne    change la température d'une pièce Netatmo
+ *
  * Widgets premium (réservés à la famille qui connaît le mot de passe) :
  *   POST api.php?action=premium          débloque avec le mot de passe (crée la famille si besoin)
  *   GET  api.php?action=premium          cette famille a-t-elle débloqué les widgets premium ?
@@ -773,6 +780,114 @@ function anniversairesIcs(string $ics): array
 }
 
 // ---------------------------------------------------------------------
+// Chauffage : Home Assistant et Netatmo
+// ---------------------------------------------------------------------
+
+const NETATMO_API = 'https://api.netatmo.com';
+const NETATMO_PORTEE = 'read_thermostat write_thermostat';
+
+/*
+ * Une requête HTTP qui renvoie ['statut' => 200, 'json' => [...]].
+ * $corps : tableau envoyé en JSON (ou en formulaire si $formulaire), ou null.
+ * Pas de redirection suivie (sécurité).
+ */
+function requeteHttp(string $methode, string $url, array $entetes = [], ?array $corps = null, bool $formulaire = false): array
+{
+    $lignes = ['Accept: application/json'];
+    $contenu = '';
+    if ($corps !== null) {
+        $lignes[] = 'Content-Type: ' . ($formulaire ? 'application/x-www-form-urlencoded' : 'application/json');
+        $contenu = $formulaire ? http_build_query($corps) : json_encode($corps);
+    }
+    foreach ($entetes as $nom => $valeur) {
+        $lignes[] = $nom . ': ' . str_replace(["\r", "\n"], '', (string)$valeur);
+    }
+    $contexte = stream_context_create(['http' => [
+        'method' => $methode,
+        'header' => implode("\r\n", $lignes),
+        'content' => $contenu,
+        'timeout' => 15,
+        'ignore_errors' => true,
+        'follow_location' => 0,
+    ]]);
+    $texte = @file_get_contents($url, false, $contexte);
+    $statut = 0;
+    foreach ($http_response_header ?? [] as $ligne) {
+        if (preg_match('#^HTTP/\S+\s+(\d{3})#', $ligne, $m)) {
+            $statut = (int)$m[1];
+        }
+    }
+    $json = json_decode((string)$texte, true);
+    return ['statut' => $statut, 'json' => is_array($json) ? $json : []];
+}
+
+/*
+ * Une adresse https vers une machine publique (pas le réseau interne du serveur) :
+ * empêche d'utiliser Nidoo pour atteindre des machines privées.
+ */
+function urlPubliqueHttps(string $url): string
+{
+    $url = rtrim(trim($url), '/');
+    $p = parse_url($url);
+    if (!$p || strtolower($p['scheme'] ?? '') !== 'https' || empty($p['host']) || isset($p['user']) || isset($p['query'])) {
+        erreur('Adresse invalide : il faut une adresse https://… joignable depuis internet (ex. Nabu Casa).');
+    }
+    $adresses = filter_var($p['host'], FILTER_VALIDATE_IP) ? [$p['host']] : (gethostbynamel($p['host']) ?: []);
+    if (!$adresses) {
+        erreur('Adresse introuvable : ' . $p['host']);
+    }
+    foreach ($adresses as $ip) {
+        if (!filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE)) {
+            erreur('Cette adresse mène à un réseau privé : utilisez une adresse joignable depuis internet.');
+        }
+    }
+    return $url;
+}
+
+/* Le fichier Chauffage d'une famille (accès Netatmo), hors du site. */
+function fichierChauffage(string $cle): string
+{
+    return 'chauffage-' . hash('sha256', $cle) . '.json';
+}
+
+/* Un jeton Netatmo valable (renouvelé s'il a expiré). */
+function jetonNetatmo(string $fichier): string
+{
+    $d = lireJson($fichier);
+    if (empty($d['netatmo']['rafraichir'])) {
+        erreur('Netatmo n\'est pas encore connecté : ⚙️ du widget, puis « Se connecter à Netatmo ».', 404);
+    }
+    $n = $d['netatmo'];
+    if (($n['expire'] ?? 0) > time() + 60) {
+        return $n['acces'];
+    }
+    $r = requeteHttp('POST', NETATMO_API . '/oauth2/token', [], [
+        'grant_type' => 'refresh_token',
+        'refresh_token' => $n['rafraichir'],
+        'client_id' => $n['client_id'],
+        'client_secret' => $n['client_secret'],
+    ], true);
+    if ($r['statut'] !== 200 || empty($r['json']['access_token'])) {
+        erreur('Netatmo refuse l\'accès : reconnectez-vous (⚙️ du widget).', 502);
+    }
+    $verrou = verrouiller();
+    $d = lireJson($fichier);
+    $d['netatmo']['acces'] = $r['json']['access_token'];
+    $d['netatmo']['rafraichir'] = $r['json']['refresh_token'] ?? $n['rafraichir'];
+    $d['netatmo']['expire'] = time() + (int)($r['json']['expires_in'] ?? 3600);
+    ecrireJson($fichier, $d);
+    flock($verrou, LOCK_UN);
+    return $d['netatmo']['acces'];
+}
+
+/* L'adresse de retour après la connexion Netatmo (à déclarer dans l'application Netatmo). */
+function retourNetatmo(): string
+{
+    $dossier = rtrim(dirname($_SERVER['SCRIPT_NAME'] ?? '/'), '/');
+    return 'https://' . ($_SERVER['HTTP_HOST'] ?? 'localhost') . $dossier . '/chauffage.php';
+}
+
+// ---------------------------------------------------------------------
 // Actions
 // ---------------------------------------------------------------------
 
@@ -897,6 +1012,166 @@ switch ($action) {
             ecrireJson('premium.json', $premium);
         }
         repondre(['ok' => true, 'famille' => $cle]);
+
+    // ---- Chauffage ------------------------------------------------------
+
+    // Home Assistant : l'état d'un thermostat (climate.…), et sa nouvelle consigne si "temperature".
+    case 'chauffage_ha':
+        cleFamille(); // réservé aux appareils d'une famille (pas un relais ouvert à tous)
+        $corps = corpsJson();
+        $base = urlPubliqueHttps((string)($corps['url'] ?? ''));
+        $entite = (string)($corps['entite'] ?? '');
+        if (!preg_match('/^climate\.[a-z0-9_]+$/', $entite)) {
+            erreur('Entité invalide : elle doit commencer par « climate. » (ex. climate.salon).');
+        }
+        $jeton = trim((string)($corps['jeton'] ?? ''));
+        if ($jeton === '') {
+            erreur('Il manque le jeton d\'accès Home Assistant (⚙️ du widget).');
+        }
+        $entetes = ['Authorization' => 'Bearer ' . $jeton];
+        if (isset($corps['temperature'])) {
+            $t = round((float)$corps['temperature'] * 2) / 2;
+            if ($t < 5 || $t > 30) {
+                erreur('Température hors limites (5 à 30 °C).');
+            }
+            $r = requeteHttp('POST', $base . '/api/services/climate/set_temperature', $entetes, ['entity_id' => $entite, 'temperature' => $t]);
+            if ($r['statut'] !== 200) {
+                erreur('Home Assistant a refusé le changement (' . $r['statut'] . ').', 502);
+            }
+        }
+        $r = requeteHttp('GET', $base . '/api/states/' . $entite, $entetes);
+        if ($r['statut'] === 401) {
+            erreur('Jeton refusé par Home Assistant : vérifiez-le (⚙️ du widget).', 502);
+        }
+        if ($r['statut'] === 404) {
+            erreur('Entité introuvable dans Home Assistant : ' . $entite, 502);
+        }
+        if ($r['statut'] !== 200) {
+            erreur('Home Assistant ne répond pas (' . $r['statut'] . ').', 502);
+        }
+        $a = $r['json']['attributes'] ?? [];
+        repondre([
+            'ok' => true,
+            'nom' => $a['friendly_name'] ?? $entite,
+            'mesuree' => isset($a['current_temperature']) ? (float)$a['current_temperature'] : null,
+            'consigne' => isset($a['temperature']) ? (float)$a['temperature'] : null,
+            'mode' => $r['json']['state'] ?? null,          // heat, off, auto…
+            'action' => $a['hvac_action'] ?? null,          // heating, idle, off…
+            'min' => (float)($a['min_temp'] ?? 7),
+            'max' => (float)($a['max_temp'] ?? 30),
+            'pas' => (float)($a['target_temp_step'] ?? 0.5),
+        ]);
+
+    // Netatmo : prépare la connexion (identifiants de l'application Netatmo de la famille).
+    case 'netatmo_connexion':
+        $cle = cleFamille();
+        $corps = corpsJson();
+        $id = trim((string)($corps['client_id'] ?? ''));
+        $secret = trim((string)($corps['client_secret'] ?? ''));
+        if (!preg_match('/^[A-Za-z0-9]{10,64}$/', $id) || !preg_match('/^[A-Za-z0-9]{10,128}$/', $secret)) {
+            erreur('Identifiant ou secret Netatmo invalide (copiez-les depuis dev.netatmo.com).');
+        }
+        $jeton = bin2hex(random_bytes(16));
+        $verrou = verrouiller();
+        $fichier = fichierChauffage($cle);
+        $d = lireJson($fichier);
+        $d['netatmo'] = array_merge($d['netatmo'] ?? [], ['client_id' => $id, 'client_secret' => $secret]);
+        ecrireJson($fichier, $d);
+        $etats = array_filter(lireJson('chauffage-etats.json'), fn($e) => $e['expire'] > time());
+        $etats[$jeton] = ['fichier' => $fichier, 'retour' => retourNetatmo(), 'expire' => time() + 1800];
+        ecrireJson('chauffage-etats.json', $etats);
+        repondre(['ok' => true, 'url' => NETATMO_API . '/oauth2/authorize?' . http_build_query([
+            'client_id' => $id,
+            'redirect_uri' => retourNetatmo(),
+            'scope' => NETATMO_PORTEE,
+            'state' => $jeton,
+        ]), 'retour' => retourNetatmo()]);
+
+    // Netatmo : retour après la connexion (via chauffage.php).
+    case 'netatmo_retour':
+        $etatRecu = (string)($_GET['state'] ?? '');
+        $verrou = verrouiller();
+        $etats = array_filter(lireJson('chauffage-etats.json'), fn($e) => $e['expire'] > time());
+        $etat = $etats[$etatRecu] ?? null;
+        unset($etats[$etatRecu]);
+        ecrireJson('chauffage-etats.json', $etats);
+        flock($verrou, LOCK_UN);
+        header('Content-Type: text/html; charset=utf-8');
+        if (!$etat || empty($_GET['code'])) {
+            header('Location: ./?chauffage=' . rawurlencode(isset($_GET['error']) ? 'Connexion Netatmo annulée.' : 'Le lien a expiré. Recommencez depuis le widget.'));
+            exit;
+        }
+        $d = lireJson($etat['fichier']);
+        $r = requeteHttp('POST', NETATMO_API . '/oauth2/token', [], [
+            'grant_type' => 'authorization_code',
+            'client_id' => $d['netatmo']['client_id'] ?? '',
+            'client_secret' => $d['netatmo']['client_secret'] ?? '',
+            'code' => (string)$_GET['code'],
+            'redirect_uri' => $etat['retour'] ?? retourNetatmo(), // la même adresse qu'à l'aller
+            'scope' => NETATMO_PORTEE,
+        ], true);
+        if ($r['statut'] !== 200 || empty($r['json']['access_token'])) {
+            header('Location: ./?chauffage=' . rawurlencode('Netatmo a refusé la connexion (' . $r['statut'] . ').'));
+            exit;
+        }
+        $verrou = verrouiller();
+        $d = lireJson($etat['fichier']);
+        $d['netatmo']['acces'] = $r['json']['access_token'];
+        $d['netatmo']['rafraichir'] = $r['json']['refresh_token'] ?? '';
+        $d['netatmo']['expire'] = time() + (int)($r['json']['expires_in'] ?? 3600);
+        ecrireJson($etat['fichier'], $d);
+        header('Location: ./?chauffage=ok');
+        exit;
+
+    // Netatmo : les pièces, leur température et leur consigne.
+    case 'netatmo_etat':
+        $fichier = fichierChauffage(cleFamille());
+        $entetes = ['Authorization' => 'Bearer ' . jetonNetatmo($fichier)];
+        $r = requeteHttp('GET', NETATMO_API . '/api/homesdata', $entetes);
+        if ($r['statut'] !== 200) {
+            erreur('Netatmo ne répond pas (' . $r['statut'] . ').', 502);
+        }
+        $pieces = [];
+        foreach ($r['json']['body']['homes'] ?? [] as $maison) {
+            $noms = [];
+            foreach ($maison['rooms'] ?? [] as $piece) {
+                $noms[$piece['id']] = $piece['name'] ?? 'Pièce';
+            }
+            if (!$noms) {
+                continue;
+            }
+            $s = requeteHttp('GET', NETATMO_API . '/api/homestatus?' . http_build_query(['home_id' => $maison['id']]), $entetes);
+            foreach ($s['json']['body']['home']['rooms'] ?? [] as $piece) {
+                $pieces[] = [
+                    'maison' => $maison['id'],
+                    'id' => $piece['id'],
+                    'nom' => $noms[$piece['id']] ?? 'Pièce',
+                    'mesuree' => isset($piece['therm_measured_temperature']) ? (float)$piece['therm_measured_temperature'] : null,
+                    'consigne' => isset($piece['therm_setpoint_temperature']) ? (float)$piece['therm_setpoint_temperature'] : null,
+                    'mode' => $piece['therm_setpoint_mode'] ?? null,
+                ];
+            }
+        }
+        repondre(['ok' => true, 'pieces' => $pieces]);
+
+    // Netatmo : nouvelle consigne pour une pièce (mode manuel, jusqu'à la fin de la durée par défaut).
+    case 'netatmo_consigne':
+        $fichier = fichierChauffage(cleFamille());
+        $corps = corpsJson();
+        $t = round((float)($corps['temperature'] ?? 0) * 2) / 2;
+        if ($t < 7 || $t > 30) {
+            erreur('Température hors limites (7 à 30 °C).');
+        }
+        $r = requeteHttp('POST', NETATMO_API . '/api/setroomthermpoint', ['Authorization' => 'Bearer ' . jetonNetatmo($fichier)], [
+            'home_id' => (string)($corps['maison'] ?? ''),
+            'room_id' => (string)($corps['piece'] ?? ''),
+            'mode' => 'manual',
+            'temp' => $t,
+        ], true);
+        if ($r['statut'] !== 200) {
+            erreur('Netatmo a refusé le changement (' . $r['statut'] . ').', 502);
+        }
+        repondre(['ok' => true]);
 
     // ---- Solde bancaire ----------------------------------------------
 

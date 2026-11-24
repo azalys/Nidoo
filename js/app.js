@@ -421,7 +421,34 @@
     return w;
   }
 
+  /*
+   * Certains widgets demandent un choix au moment de l'ajout (definition.choixAjout),
+   * ex. Chauffage : conseils, Netatmo, Home Assistant… La valeur choisie est rangée dans
+   * donnees[choixAjout.cle].
+   */
+  function choisirAuDepart(type) {
+    const definition = Nidoo.catalogue[type];
+    const choix = definition.choixAjout;
+    const contenu = Nidoo.ouvrirPopin(
+      `${definition.icone} ${choix.titre}`,
+      `<div class="choix-listes">
+         ${choix.options.map((o) => `
+           <button class="choix-liste" data-valeur="${Nidoo.echapper(o.valeur)}" ${o.indisponible ? 'disabled' : ''}>
+             <span>${o.icone}</span><strong>${Nidoo.echapper(o.nom)}</strong>
+             <small>${Nidoo.echapper(o.description)}</small>
+           </button>`).join('')}
+       </div>`
+    );
+    contenu.querySelectorAll('.choix-liste:not([disabled])').forEach((bouton) =>
+      bouton.addEventListener('click', () => {
+        contenu.closest('dialog').close();
+        ajouterWidget(type, { donnees: { [choix.cle]: bouton.dataset.valeur } });
+      })
+    );
+  }
+
   function ajouterWidget(type, options) {
+    if (Nidoo.catalogue[type] && Nidoo.catalogue[type].choixAjout && !options) return choisirAuDepart(type);
     if (type === 'humeurs' && !options) return ajouterWidget(type, { donnees: { liste: reserveHumeurs() } });
     if (PARTAGEABLES.has(type) && !options) return choisirListe(type);
     const w = creerWidget(type, options);
@@ -700,6 +727,8 @@
     champsReglages.innerHTML = '';
 
     champsDuWidget(definition).forEach((r) => {
+      // Un réglage peut ne valoir que dans certains cas (ex. Chauffage : selon la source choisie).
+      if (r.si && !r.si(donneesDe(w))) return;
       const valeur = r.cle === TAILLE ? w.taille : donneesDe(w)[r.cle];
       // (Pour les jours de la semaine, plusieurs cases : le bloc ne peut pas être un <label>.)
       const bloc = document.createElement(r.type === 'jours' || r.type === 'bouton' ? 'div' : 'label');
@@ -770,6 +799,7 @@
     const nouvelles = { ...donneesDe(w) };
     (definition.reglages || []).forEach((r) => {
       if (r.type === 'bouton') return;
+      if (r.si && !r.si(donneesDe(w))) return;
       if (r.type === 'jours') {
         nouvelles[r.cle] = [...formReglages.querySelectorAll(`[name="${r.cle}"]:checked`)].map((c) => Number(c.value));
         return;

@@ -2196,3 +2196,87 @@ button.tempo-jour:active { transform: scale(0.95); }
 .tempo-conseils li { display: flex; gap: 12px; align-items: flex-start; padding: 8px 2px; border-bottom: 1px solid rgba(0, 0, 0, 0.07); line-height: 1.35; }
 .tempo-conseils li:last-child { border-bottom: 0; }
 .tempo-conseils li span { flex: none; font-size: 1.4rem; line-height: 1.1; }
+
+/* --- Chauffage --- */
+.chauffage {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1cqh;
+  padding: 4cqh 4cqw;
+  text-align: center;
+  font-weight: 600;
+}
+button.chauffage-bouton {
+  border: 0;
+  border-radius: 16px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+button.chauffage-bouton:active { transform: scale(0.96); }
+.chauffage-titre { font-size: max(13px, 10cqh); font-weight: 700; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chauffage-temp { font-size: 30cqh; font-weight: 800; line-height: 1; }
+button.chauffage-temp { padding: 0; border: 0; background: none; color: inherit; font-family: inherit; cursor: pointer; }
+.chauffage-raison { font-size: max(12px, 9cqh); }
+.chauffage-suite { font-size: max(11px, 7.5cqh); opacity: 0.85; line-height: 1.2; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chauffage-icone { font-size: 30cqh; }
+.chauffage-indication { font-size: max(12px, 8cqh); opacity: 0.85; }
+.chauffage-reglage { display: flex; align-items: center; gap: 3cqw; }
+.chauffage-consigne { font-size: max(13px, 10cqh); font-weight: 700; min-width: 3.5em; }
+.chauffage-moins, .chauffage-plus {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: rgb(var(--voile) / calc(0.35 * var(--voile-force)));
+  color: inherit;
+  font: inherit;
+  font-size: 1.3rem;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+}
+.chauffage-moins:active, .chauffage-plus:active { transform: scale(0.9); }
+.chauffage-moins:disabled, .chauffage-plus:disabled { opacity: 0.3; cursor: default; }
+.taille-petit .chauffage-temp { font-size: 26cqh; }
+.taille-petit .chauffage-suite { display: none; }
+
+/* Fenêtre des conseils de chauffage */
+.chauffage-conseils { text-align: left; }
+.chauffage-conseil-haut {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 16px;
+  margin-bottom: 12px;
+  border-radius: 16px;
+  background: #fff1e6;
+  color: #4a2410;
+}
+.chauffage-conseil-haut strong { font-size: 2.4rem; line-height: 1; }
+.chauffage-conseil-haut p { margin: 2px 0 0; }
+.chauffage-conseils ul { margin: 0 0 10px; padding: 0; list-style: none; }
+.chauffage-conseils li { display: flex; gap: 12px; align-items: flex-start; padding: 8px 2px; border-bottom: 1px solid rgba(0, 0, 0, 0.07); line-height: 1.35; }
+.chauffage-conseils li:last-child { border-bottom: 0; }
+.chauffage-conseils li span { flex: none; font-size: 1.4rem; line-height: 1.1; }
+.chauffage-etapes { padding-left: 1.3em; text-align: left; line-height: 1.4; }
+.chauffage-etapes li { margin-bottom: 6px; }
+.chauffage-retour { display: block; margin-top: 4px; padding: 6px 8px; border-radius: 8px; background: rgba(0, 0, 0, 0.06); word-break: break-all; user-select: all; }
+
+/* Choix au moment d'ajouter un widget : une option pas encore disponible */
+.choix-liste:disabled { opacity: 0.5; cursor: default; }
+.choix-liste:disabled:active { transform: none; }
+.taille-petit .chauffage { padding: 3cqh 2cqw; }
+.taille-petit .chauffage-reglage { gap: 2px; }
+.taille-petit .chauffage-moins, .taille-petit .chauffage-plus { width: 28px; height: 28px; font-size: 1.1rem; }
+.taille-petit .chauffage-consigne { min-width: 0; font-size: max(12px, 9cqh); }

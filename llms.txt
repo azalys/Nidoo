@@ -15,7 +15,7 @@
 - Mode nuit (écran noir avec l'heure), affichage simplifié sur téléphone.
 - Données enregistrées dans le navigateur ; sur le serveur de Nidoo seulement si on relie des appareils (accessibles avec la clé secrète de la famille).
 
-## Les 21 widgets
+## Les 22 widgets
 
 - Agenda : rendez-vous des 7 prochains jours depuis Google Agenda, iCloud ou Outlook (adresse iCal).
 - Emploi du temps : cours du jour le matin, du lendemain à partir de midi ; semaines A et B.
@@ -32,6 +32,7 @@
 - Compte à rebours : jours (ou dodos) avant un événement.
 - Poubelles : quelle poubelle sortir ce soir.
 - Tempo EDF : couleur du jour et du lendemain, heures creuses.
+- Chauffage : la bonne température selon l'heure, Tempo et la météo ; ou un thermostat Netatmo ou Home Assistant avec − / +.
 - Anniversaires : prochains anniversaires et âge, depuis les agendas ou saisis.
 - Urgences : 15, 18, 17, 112, numéros des parents et adresse.
 - Météo : aujourd'hui et demain, détail heure par heure (Open-Meteo).

@@ -11,7 +11,7 @@
     gtag('js', new Date());
   </script>
   <title>Documentation Nidoo : tous les widgets et leurs réglages</title>
-  <meta name="description" content="La documentation complète de Nidoo, l'écran familial pour tablette : la grille, le côté enfant et le côté parents, la synchronisation, et chacun des 21 widgets avec ses réglages.">
+  <meta name="description" content="La documentation complète de Nidoo, l'écran familial pour tablette : la grille, le côté enfant et le côté parents, la synchronisation, et chacun des 22 widgets avec ses réglages.">
   <link rel="canonical" href="https://nidoo.latanieregeek.com/doc/">
   <meta name="robots" content="index, follow">
   <meta name="color-scheme" content="light dark">
@@ -123,8 +123,8 @@
     .tailles { display: inline-flex; gap: 6px; margin-left: 4px; }
     .tailles span { font-family: var(--police); font-size: 0.78rem; font-weight: 700; letter-spacing: 0; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--trait); color: var(--texte-doux); }
     p { margin: 0 0 14px; }
-    ul.points { padding-left: 1.25em; margin: 0 0 14px; }
-    ul.points li { margin-bottom: 6px; }
+    ul.points, ol.points { padding-left: 1.25em; margin: 0 0 14px; }
+    ul.points li, ol.points li { margin-bottom: 6px; }
 
     table { width: 100%; border-collapse: collapse; margin: 8px 0 16px; font-size: 0.97rem; }
     caption { text-align: left; font-weight: 700; padding-bottom: 6px; }
@@ -203,6 +203,7 @@
         <ul>
           <li><a href="#poubelles"><span aria-hidden="true">🗑️</span> Poubelles</a></li>
           <li><a href="#tempo"><span aria-hidden="true">⚡</span> Tempo EDF</a></li>
+          <li><a href="#chauffage"><span aria-hidden="true">🌡️</span> Chauffage</a></li>
           <li><a href="#anniversaires"><span aria-hidden="true">🎂</span> Anniversaires</a></li>
           <li><a href="#urgences"><span aria-hidden="true">🆘</span> Urgences</a></li>
         </ul>
@@ -228,7 +229,7 @@
     <main class="contenu" id="contenu">
       <p class="fil">Documentation</p>
       <h1>Documentation de Nidoo</h1>
-      <p class="intro">Tout ce qu'il faut savoir pour composer l'écran de la famille : la grille, les deux côtés enfant et parents, la synchronisation entre appareils, et chacun des 21 widgets avec ses réglages.</p>
+      <p class="intro">Tout ce qu'il faut savoir pour composer l'écran de la famille : la grille, les deux côtés enfant et parents, la synchronisation entre appareils, et chacun des 22 widgets avec ses réglages.</p>
 
       <div class="encadre info">
         <strong>Une question qui n'est pas ici ?</strong>
@@ -663,6 +664,44 @@
           <li><strong>🔴 Rouge : bienvenue en l'an 820.</strong> Retour au Moyen Âge : vaisselle à la main, multiprises coupées, repas froids ou dehors, pulls et plaids ; ce qui ne peut pas attendre, après 22 h.</li>
         </ul>
         <p>Pas de réglage, à part la taille. Données : api-couleur-tempo.fr, gratuit.</p>
+      </section>
+
+      <section id="chauffage">
+        <h2><span class="icone" aria-hidden="true">🌡️</span> Chauffage <span class="tailles" aria-label="Tailles : 1×1, 1×2"><span>1×1</span><span>1×2</span></span></h2>
+        <p>En ajoutant le widget, on choisit d'où viennent les informations. Pour changer de source plus tard : supprimer le widget et le rajouter.</p>
+        <ul class="points">
+          <li><strong>💡 Conseils</strong> (sans appareil) : la bonne température en ce moment, d'après les repères de l'ADEME : 19 °C la journée, 17 °C la nuit (de 22 h à 6 h), 16 °C pour une absence courte, hors-gel (8 °C) au-delà de 2 jours. Un degré de moins les jours rouges Tempo ; un rappel « volets fermés » quand il va faire 3 °C ou moins. Toucher le widget : tous les conseils.</li>
+          <li><strong>🏠 Netatmo</strong> : un thermostat ou des vannes Netatmo (Legrand et Muller Intuitiv utilisent le même service). La température de la pièce, la consigne, et − / + pour la changer (mode manuel, comme dans l'application Netatmo).</li>
+          <li><strong>🔧 Home Assistant</strong> : n'importe quel thermostat déjà relié à Home Assistant, avec les mêmes − / +.</li>
+          <li><strong>❄️ Daikin</strong> : bientôt.</li>
+        </ul>
+        <h3>Réglages (⚙️) : Conseils</h3>
+        <div class="tableau"><table>
+          <thead><tr><th scope="col">Réglage</th><th scope="col">Description</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Ville</th><td>Pour le froid annoncé (Open-Meteo). Facultatif.</td></tr>
+            <tr><th scope="row">Température dans la journée</th><td>19 °C par défaut ; la nuit, 2 degrés de moins.</td></tr>
+            <tr><th scope="row">Absents jusqu'au</th><td>La date du retour de vacances. Vide quand vous êtes là.</td></tr>
+          </tbody>
+        </table></div>
+        <h3>Relier Netatmo</h3>
+        <ol class="points">
+          <li>Il faut une famille : Modifier → ⚙️ Appareil → « Afficher un code » (une seule fois).</li>
+          <li>Sur <a href="https://dev.netatmo.com/apps/" rel="noopener">dev.netatmo.com</a>, se connecter avec son compte Netatmo et créer une application (gratuit). Dans « Redirect URI », mettre l'adresse indiquée par Nidoo (<code>…/chauffage.php</code>).</li>
+          <li>Dans Nidoo : Modifier → ⚙️ du widget → « Se connecter à Netatmo », coller le client ID et le client secret, puis autoriser sur le site de Netatmo.</li>
+          <li>De retour sur Nidoo, choisir la pièce à afficher.</li>
+        </ol>
+        <p>Les accès Netatmo restent sur le serveur de Nidoo ; les tablettes ne les voient jamais.</p>
+        <h3>Réglages (⚙️) : Home Assistant</h3>
+        <div class="tableau"><table>
+          <thead><tr><th scope="col">Réglage</th><th scope="col">Description</th></tr></thead>
+          <tbody>
+            <tr><th scope="row">Adresse</th><td>Une adresse <code>https://</code> joignable depuis internet (Nabu Casa ou votre nom de domaine). Les adresses du réseau local (192.168…, homeassistant.local) ne marchent pas : c'est le serveur de Nidoo qui interroge Home Assistant.</td></tr>
+            <tr><th scope="row">Jeton d'accès longue durée</th><td>Home Assistant → votre profil → Sécurité → « Jetons d'accès longue durée » → Créer. Le jeton est enregistré dans le widget (et donc sur les appareils reliés).</td></tr>
+            <tr><th scope="row">Thermostat</th><td>L'entité, par exemple <code>climate.salon</code>.</td></tr>
+          </tbody>
+        </table></div>
+        <p>Il faut aussi une famille (Modifier → ⚙️ Appareil → « Afficher un code »).</p>
       </section>
 
       <section id="anniversaires">

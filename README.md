@@ -41,6 +41,7 @@ que le serveur l'a reçue (fichier `version.txt`).
 |---|---|---|
 | 🌤️ Météo | petit : aujourd'hui · moyen : aujourd'hui + demain ; toucher un jour = graphique de 7 h à 21 h (température, risque de pluie, temps heure par heure) | [Open-Meteo](https://open-meteo.com), gratuit, sans clé |
 | ⚡ Tempo EDF | petit : couleur du moment · moyen : aujourd'hui + demain ; toucher une couleur : ses conseils (bleu = 2026, blanc = 1830, rouge = an 820) | [api-couleur-tempo.fr](https://www.api-couleur-tempo.fr), gratuit, sans clé |
+| 🌡️ Chauffage | 1×1, 1×2 | on choisit la source en l'ajoutant : **Conseils** (sans appareil : 19 °C le jour, 17 °C la nuit, hors-gel en vacances, ajusté selon Tempo et le froid annoncé), **Netatmo** (aussi Legrand, Muller Intuitiv : température, consigne, − / +), **Home Assistant** (tout thermostat `climate.…`), Daikin bientôt ; voir « Chauffage » plus bas |
 | 📝 Liste | 1×2, 2×2, 3×2, 4×2 | titre et emoji réglables (🛒 Courses, 📝 À faire, 🧳 Valise…), remplace l'ancien widget Courses ; cocher retire l'élément ; toucher le texte pour dire qui et pour quand (date en rouge si dépassée) ; la poignée à droite pour réorganiser (glisser vers le haut ou le bas) |
 | ✅ Routine | grand | matin avant midi, soir après midi ; étapes réglables avec ⚙️ ; un emoji par étape (deviné, ou mis en début de ligne) |
 | 📅 Agenda | 1×2 (compact), 2×2, 3×2, 4×2 | adresse iCal de l'agenda, lue par `api.php` ; exemples tant qu'elle n'est pas réglée |
@@ -112,8 +113,9 @@ js/placement.js    calcul de la position des widgets (sans chevauchement)
 js/defilement.js   barre de défilement des listes (toujours visible, iPad compris)
 js/app.js          la grille, le mode Modifier, le glisser-déposer, les réglages
 widgets/           un fichier par widget
-api.php            l'API côté serveur (agendas iCal, partage, widgets premium, banque)
+api.php            l'API côté serveur (agendas iCal, partage, widgets premium, banque, chauffage)
 banque.php         page de retour après la connexion à la banque
+chauffage.php      page de retour après la connexion à Netatmo (widget Chauffage)
 ```
 
 ## Créer un nouveau widget
@@ -232,3 +234,16 @@ téléphone) : déplacer un widget sur le téléphone ne change rien sur la tabl
 contenu des widgets est partagé entre appareils reliés. Un widget ajouté depuis un autre
 appareil va à la première place libre.
 Sur un téléphone, les widgets ne se déplacent pas : ils s'affichent simplement dans l'ordre.
+
+## Chauffage (Netatmo, Home Assistant)
+
+- **Netatmo** : chaque famille crée sa propre application sur [dev.netatmo.com](https://dev.netatmo.com/apps/)
+  (gratuit), avec comme Redirect URI `https://ADRESSE-DU-SITE/chauffage.php`. Le client ID et le
+  client secret sont saisis dans le widget (⚙️ → Se connecter à Netatmo) et gardés sur le serveur
+  dans `nidoo-donnees/chauffage-….json`, avec les jetons d'accès (renouvelés automatiquement).
+  API utilisée : `homesdata`, `homestatus`, `setroomthermpoint` (portée `read_thermostat write_thermostat`).
+- **Home Assistant** : `api.php?action=chauffage_ha` relaie la demande vers Home Assistant
+  (`/api/states/climate.…` et `/api/services/climate/set_temperature`). Adresses https publiques
+  seulement : les adresses privées ou locales sont refusées.
+- Ces deux intégrations ont été écrites d'après les documentations officielles et testées
+  avec de fausses réponses, pas encore avec de vrais appareils.
